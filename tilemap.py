@@ -32,7 +32,7 @@ class Layer:
             self.data.append(row)
 
 
-class Map:
+class TileMap:
     width: int
     height: int
     tilewidth: int
@@ -118,4 +118,4 @@ def load_map(path: str):
     root = xml.etree.ElementTree.parse(path).getroot()
     if not isinstance(root, xml.etree.ElementTree.Element):
         raise Exception('root was not an element')
-    return Map(root, path)
+    return TileMap(root, path)
