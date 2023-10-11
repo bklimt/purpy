@@ -37,6 +37,7 @@ class TileMap:
     height: int
     tilewidth: int
     tileheight: int
+    backgroundcolor: str
     tilesetsource: str
     tileset: ts.TileSet
     layers: list[Layer]
@@ -46,6 +47,7 @@ class TileMap:
         self.height = int(root.attrib['height'])
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
+        self.backgroundcolor = root.attrib['backgroundcolor']
         self.tilesetsource = [
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
         self.tileset = ts.load_tileset(os.path.join(
@@ -53,6 +55,9 @@ class TileMap:
         self.layers = [Layer(layer) for layer in root if layer.tag == 'layer']
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
+        surface.fill(self.backgroundcolor, dest)
+        # pygame.draw.rect(surface, self.backgroundcolor, dest)
+
         offset_x = int(offset[0])
         offset_y = int(offset[1])
         row_count = math.ceil(dest.height / self.tileheight) + 1
@@ -111,6 +116,28 @@ class TileMap:
                     # Draw the rest of the turtle.
                     pos = (pos_x, pos_y)
                     surface.blit(self.tileset.surface, pos, source)
+
+    def intersect(self, rect: pygame.Rect):
+        row1 = rect.top // self.tileheight
+        col1 = rect.left // self.tilewidth
+        row2 = rect.bottom // self.tileheight
+        col2 = rect.right // self.tilewidth
+        if row1 < 0:
+            row1 = 0
+        if col1 < 0:
+            col1 = 0
+        if row2 < 0:
+            row2 = 0
+        if col2 < 0:
+            col2 = 0
+        for row in range(row1, row2+1):
+            for col in range(col1, col2+1):
+                for layer in self.layers:
+                    index = layer.data[row][col]
+                    if index == 0:
+                        continue
+                    return True
+        return False
 
 
 def load_map(path: str):

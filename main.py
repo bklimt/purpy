@@ -1,5 +1,5 @@
 
-import input
+import inputmanager
 import level
 import tilemap
 import pygame
@@ -17,6 +17,7 @@ GAME_WINDOW: pygame.Surface = pygame.display.set_mode(
     (WINDOW_WIDTH, WINDOW_HEIGHT))
 
 clock = pygame.time.Clock()
+input_manager = inputmanager.InputManager()
 scene = level.Level()
 
 
@@ -43,15 +44,17 @@ pygame.display.set_caption('purpy')
 
 def update():
     # Update the actual game logic.
-    scene.update()
+    scene.update(input_manager)
 
     # Clear the back buffer with solid black.
-    pygame.draw.rect(BACK_BUFFER, (0, 0, 0), BACK_BUFFER_SRC)
+    # pygame.draw.rect(BACK_BUFFER, (0, 0, 0), BACK_BUFFER_SRC)
+    BACK_BUFFER.fill((0, 0, 0), BACK_BUFFER_SRC)
     # Draw the scene.
     scene.draw(BACK_BUFFER, pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT))
     # Clear the window with black.
-    pygame.draw.rect(GAME_WINDOW, (0, 0, 0),
-                     (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
+    # pygame.draw.rect(GAME_WINDOW, (0, 0, 0),
+    #                  (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
+    GAME_WINDOW.fill((0, 0, 0), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
     # Scale the back buffer to the right size.
     pygame.transform.scale(
         BACK_BUFFER, SCALED_BACK_BUFFER_SIZE, SCALED_BACK_BUFFER)
@@ -66,7 +69,7 @@ while game_running:
             case pygame.QUIT:
                 game_running = False
             case pygame.KEYDOWN | pygame.KEYUP:
-                input.handle_event(event)
+                input_manager.handle_event(event)
 
     update()
     pygame.display.update()
