@@ -1,6 +1,6 @@
 
 import inputmanager
-import player as play
+from player import Player, PlayerState
 import pygame
 import tilemap
 
@@ -12,13 +12,13 @@ class Level:
     dx: int = 0
     dy: int = 0
     map: tilemap.TileMap
-    player: play.Player
+    player: Player
 
     def __init__(self):
         self.map = tilemap.load_map('assets/purple.tmx')
         self.x = self.map.tilewidth * 16
         self.y = self.map.tileheight * 16
-        self.player = play.Player()
+        self.player = Player()
 
     def update_horizontal(self, input: inputmanager.InputManager):
         # Apply the input to adjust the velocity.
@@ -35,7 +35,9 @@ class Level:
         # See if moving is possible.
         new_x = self.x + self.dx
         player_rect = self.player.rect((new_x//16, self.y//16))
-        if not self.map.intersect(player_rect):
+        if self.map.intersect(player_rect):
+            self.dx = 0
+        else:
             self.x = new_x
 
     def update_vertical(self, input: inputmanager.InputManager):
@@ -44,12 +46,22 @@ class Level:
             self.dy += 1
         if input.is_jump_down():
             self.dy = -16
+            self.player.state = PlayerState.AIRBORNE
+
+        if self.dy > 16:
+            self.dy = 16
 
         # See if moving is possible.
         new_y = self.y + self.dy
         player_rect = self.player.rect((self.x//16, new_y//16))
-        if not self.map.intersect(player_rect):
+        if self.map.intersect(player_rect):
+            if self.dy > 0:
+                self.player.state = PlayerState.STANDING
+            self.dy = 0
+        else:
             self.y = new_y
+            if self.dy > 0:
+                self.player.state = PlayerState.AIRBORNE
 
     def update(self, input: inputmanager.InputManager):
         self.update_horizontal(input)
