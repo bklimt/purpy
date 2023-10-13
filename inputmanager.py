@@ -6,6 +6,7 @@ class InputManager:
     keys_down: dict[int, bool] = {}
     buttons_down: dict[int, bool] = {}
     joystick: pygame.joystick.JoystickType | None
+    previous_jump: bool = False
 
     def __init__(self):
         pygame.joystick.init()
@@ -68,7 +69,14 @@ class InputManager:
         return self.is_key_down(pygame.K_RIGHT) or self.is_key_down(pygame.K_d)
 
     def is_jump_down(self) -> bool:
-        return self.is_key_down(pygame.K_SPACE) or self.is_key_down(pygame.K_w) or self.is_button_down(0)
+        jump: bool = False
+        current: bool = (self.is_key_down(pygame.K_SPACE) or
+                         self.is_key_down(pygame.K_w) or
+                         self.is_button_down(0))
+        if current and not self.previous_jump:
+            jump = True
+        self.previous_jump = current
+        return jump
 
     def is_crouch_down(self) -> bool:
         hat = self.get_hat()
