@@ -39,7 +39,7 @@ class Player:
         index = 0
         if self.state == PlayerState.AIRBORNE:
             index = 5
-        elif self.dx != 0:
+        elif self.dx != 0 and self.state == PlayerState.STANDING:
             if self.frame < 6 or self.frame > 9:
                 self.frame = 6
                 self.frames_to_next_frame = FRAMES_PER_FRAME
@@ -51,8 +51,13 @@ class Player:
                     if self.frame > 9:
                         self.frame = 6
             index = self.frame
+        elif self.state == PlayerState.CROUCHING:
+            index = 3
         self.sprite.blit(surface, pos, index, not self.facing_right)
 
     # 8 4 7 19
     def rect(self, pos: tuple[int, int]) -> pygame.Rect:
-        return pygame.Rect(pos[0]+8, pos[1]+4, 7, 19)
+        if self.state == PlayerState.CROUCHING:
+            return pygame.Rect(pos[0]+8, pos[1]+14, 7, 9)
+        else:
+            return pygame.Rect(pos[0]+8, pos[1]+4, 7, 19)

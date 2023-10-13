@@ -19,9 +19,11 @@ class Level:
         # Apply the input to adjust the velocity.
         target_dx = 0
         if input.is_left_down() and not input.is_right_down():
-            target_dx = -16
+            target_dx = -32
         if input.is_right_down() and not input.is_left_down():
-            target_dx = 16
+            target_dx = 32
+        if self.player.state == PlayerState.CROUCHING:
+            target_dx = 0
         if self.player.dx < target_dx:
             self.player.dx += 1
         if self.player.dx > target_dx:
@@ -50,7 +52,7 @@ class Level:
         new_y = self.player.y + self.player.dy
         player_rect = self.player.rect((self.player.x//16, new_y//16))
         if self.map.intersect(player_rect):
-            if self.player.dy > 0:
+            if self.player.dy > 0 and self.player.state == PlayerState.AIRBORNE:
                 self.player.state = PlayerState.STANDING
             self.player.dy = 0
         else:
@@ -59,8 +61,21 @@ class Level:
                 self.player.state = PlayerState.AIRBORNE
 
     def update(self, input: inputmanager.InputManager):
+        if input.is_crouch_down():
+            if self.player.state == PlayerState.STANDING:
+                self.player.state = PlayerState.CROUCHING
+        else:
+            if self.player.state == PlayerState.CROUCHING:
+                self.player.state = PlayerState.STANDING
+
         self.update_horizontal(input)
         self.update_vertical(input)
+
+        player_rect = self.player.rect((self.player.x//16, self.player.y//16))
+        if self.map.intersect(player_rect):
+            self.player.x -= 16
+
+        # print(f"state = {self.player.state}")
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
         self.map.draw(surface, dest, (0, 0))

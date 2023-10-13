@@ -26,3 +26,6 @@ class InputManager:
 
     def is_jump_down(self) -> bool:
         return self.is_key_down(pygame.K_SPACE) or self.is_key_down(pygame.K_w)
+
+    def is_crouch_down(self) -> bool:
+        return self.is_key_down(pygame.K_DOWN) or self.is_key_down(pygame.K_s)
