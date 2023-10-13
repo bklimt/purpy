@@ -21,6 +21,7 @@ class Level:
     map: tilemap.TileMap
     player: Player
     wall_stick_counter: int = WALL_STICK_TIME
+    wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
 
     def __init__(self):
@@ -165,8 +166,11 @@ class Level:
                 self.player.state = PlayerState.STANDING
             elif pressing_against_wall:
                 self.wall_stick_counter = WALL_STICK_TIME
+                self.wall_stick_facing_right = self.player.facing_right
             else:
-                if self.wall_stick_counter > 0:
+                if self.wall_stick_facing_right != self.player.facing_right:
+                    self.player.state = PlayerState.AIRBORNE
+                elif self.wall_stick_counter > 0:
                     self.wall_stick_counter -= 1
                 else:
                     self.player.state = PlayerState.AIRBORNE
