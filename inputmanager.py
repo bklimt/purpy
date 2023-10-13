@@ -72,7 +72,7 @@ class InputManager:
 
     def is_crouch_down(self) -> bool:
         hat = self.get_hat()
-        if hat is not None and hat[1] > 0.5:
+        if hat is not None and hat[1] < -0.5:
             return True
         axis = self.get_axis()
         if axis is not None and axis[1] > 0.5:
