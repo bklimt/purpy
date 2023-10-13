@@ -1,0 +1,11 @@
+digraph {
+  AIRBORNE -> STANDING [label="ground_under"];
+  STANDING -> AIRBORNE [label="jump_pressed"];
+  STANDING -> AIRBORNE [label="!ground_under"];
+  AIRBORNE -> WALL_SLIDING [label="pressing_against_wall and dy>=0"];
+  WALL_SLIDING -> AIRBORNE [label="jump_pressed"];
+  WALL_SLIDING -> AIRBORNE [label="!pressing_against_wall"];
+  WALL_SLIDING -> STANDING [label="ground_under"];
+  STANDING -> CROUCHING [label="crouch_pressed"];
+  CROUCHING -> STANDING [label="!crouch_pressed"];
+}
