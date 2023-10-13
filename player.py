@@ -1,6 +1,9 @@
 
 from enum import Enum
+from spritesheet import SpriteSheet
 import pygame
+
+FRAMES_PER_FRAME = 8
 
 
 class PlayerState(Enum):
@@ -10,22 +13,45 @@ class PlayerState(Enum):
 
 
 class Player:
+    # These are in 1/16 sub-pixels.
+    x: int = 0
+    y: int = 0
+    dx: int = 0
+    dy: int = 0
+    facing_right: bool = True
     # 24x24 sprite sheet
     texture: pygame.Surface
+    sprite: SpriteSheet
     state: PlayerState = PlayerState.STANDING
+    frame: int = 0
+    frames_to_next_frame: int = FRAMES_PER_FRAME
 
     def __init__(self):
         self.texture = pygame.image.load('assets/skelly.png')
+        self.sprite = SpriteSheet(self.texture, 24, 24)
 
     def draw(self, surface: pygame.Surface, pos: tuple[int, int]):
-        # TODO(klimt): Map the state to a source rect...
+        if self.dx < 0:
+            self.facing_right = False
+        if self.dx > 0:
+            self.facing_right = True
         # IDLE, IDLE, IDLE, CROUCH, WAVE, JUMP, RUN, RUN, RUN, RUN
-        area = pygame.Rect(0, 0, 24, 24)
+        index = 0
         if self.state == PlayerState.AIRBORNE:
-            area.x = 24 * 5
-        surface.blit(self.texture, pos, area)
-        # surface.fill(pygame.Color(255, 255, 0, 127),
-        #              self.rect, pygame.BLEND_RGBA_MULT)
+            index = 5
+        elif self.dx != 0:
+            if self.frame < 6 or self.frame > 9:
+                self.frame = 6
+                self.frames_to_next_frame = FRAMES_PER_FRAME
+            else:
+                self.frames_to_next_frame -= 1
+                if self.frames_to_next_frame <= 0:
+                    self.frames_to_next_frame = FRAMES_PER_FRAME
+                    self.frame += 1
+                    if self.frame > 9:
+                        self.frame = 6
+            index = self.frame
+        self.sprite.blit(surface, pos, index, not self.facing_right)
 
     # 8 4 7 19
     def rect(self, pos: tuple[int, int]) -> pygame.Rect:

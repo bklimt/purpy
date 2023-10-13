@@ -6,19 +6,14 @@ import tilemap
 
 
 class Level:
-    # These are in 1/16 sub-pixels.
-    x: int = 0
-    y: int = 0
-    dx: int = 0
-    dy: int = 0
     map: tilemap.TileMap
     player: Player
 
     def __init__(self):
         self.map = tilemap.load_map('assets/purple.tmx')
-        self.x = self.map.tilewidth * 16
-        self.y = self.map.tileheight * 16
         self.player = Player()
+        self.player.x = self.map.tilewidth * 16
+        self.player.y = self.map.tileheight * 16
 
     def update_horizontal(self, input: inputmanager.InputManager):
         # Apply the input to adjust the velocity.
@@ -27,40 +22,40 @@ class Level:
             target_dx = -16
         if input.is_right_down() and not input.is_left_down():
             target_dx = 16
-        if self.dx < target_dx:
-            self.dx += 1
-        if self.dx > target_dx:
-            self.dx -= 1
+        if self.player.dx < target_dx:
+            self.player.dx += 1
+        if self.player.dx > target_dx:
+            self.player.dx -= 1
 
         # See if moving is possible.
-        new_x = self.x + self.dx
-        player_rect = self.player.rect((new_x//16, self.y//16))
+        new_x = self.player.x + self.player.dx
+        player_rect = self.player.rect((new_x//16, self.player.y//16))
         if self.map.intersect(player_rect):
-            self.dx = 0
+            self.player.dx = 0
         else:
-            self.x = new_x
+            self.player.x = new_x
 
     def update_vertical(self, input: inputmanager.InputManager):
         # Apply gravity.
-        if self.dy < 16:
-            self.dy += 1
-        if input.is_jump_down():
-            self.dy = -16
+        if self.player.dy < 24:
+            self.player.dy += 3
+        if self.player.state == PlayerState.STANDING and input.is_jump_down():
+            self.player.dy = -64
             self.player.state = PlayerState.AIRBORNE
 
-        if self.dy > 16:
-            self.dy = 16
+        if self.player.dy > 24:
+            self.player.dy = 24
 
         # See if moving is possible.
-        new_y = self.y + self.dy
-        player_rect = self.player.rect((self.x//16, new_y//16))
+        new_y = self.player.y + self.player.dy
+        player_rect = self.player.rect((self.player.x//16, new_y//16))
         if self.map.intersect(player_rect):
-            if self.dy > 0:
+            if self.player.dy > 0:
                 self.player.state = PlayerState.STANDING
-            self.dy = 0
+            self.player.dy = 0
         else:
-            self.y = new_y
-            if self.dy > 0:
+            self.player.y = new_y
+            if self.player.dy > 0:
                 self.player.state = PlayerState.AIRBORNE
 
     def update(self, input: inputmanager.InputManager):
@@ -69,4 +64,4 @@ class Level:
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
         self.map.draw(surface, dest, (0, 0))
-        self.player.draw(surface, (self.x//16, self.y//16))
+        self.player.draw(surface, (self.player.x//16, self.player.y//16))
