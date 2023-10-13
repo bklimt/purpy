@@ -10,6 +10,7 @@ class PlayerState(Enum):
     AIRBORNE = 1
     STANDING = 2
     CROUCHING = 3
+    WALL_SLIDING = 4
 
 
 class Player:
@@ -39,6 +40,8 @@ class Player:
         index = 0
         if self.state == PlayerState.AIRBORNE:
             index = 5
+        elif self.state == PlayerState.WALL_SLIDING:
+            index = 10
         elif self.dx != 0 and self.state == PlayerState.STANDING:
             if self.frame < 6 or self.frame > 9:
                 self.frame = 6
@@ -55,9 +58,9 @@ class Player:
             index = 3
         self.sprite.blit(surface, pos, index, not self.facing_right)
 
-    # 8 4 7 19
+    # 8 4 8 19
     def rect(self, pos: tuple[int, int]) -> pygame.Rect:
         if self.state == PlayerState.CROUCHING:
-            return pygame.Rect(pos[0]+8, pos[1]+14, 7, 9)
+            return pygame.Rect(pos[0]+8, pos[1]+14, 8, 9)
         else:
-            return pygame.Rect(pos[0]+8, pos[1]+4, 7, 19)
+            return pygame.Rect(pos[0]+8, pos[1]+4, 8, 19)

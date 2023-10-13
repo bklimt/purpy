@@ -34,6 +34,8 @@ class Level:
         player_rect = self.player.rect((new_x//16, self.player.y//16))
         if self.map.intersect(player_rect):
             self.player.dx = 0
+            if self.player.state == PlayerState.AIRBORNE:
+                self.player.state = PlayerState.WALL_SLIDING
         else:
             self.player.x = new_x
 
@@ -44,6 +46,13 @@ class Level:
         if self.player.state == PlayerState.STANDING and input.is_jump_down():
             self.player.dy = -64
             self.player.state = PlayerState.AIRBORNE
+        elif self.player.state == PlayerState.WALL_SLIDING and input.is_jump_down():
+            self.player.dy = -32
+            if self.player.facing_right:
+                self.player.dx = -32
+            else:
+                self.player.dx = 32
+            self.player.state = PlayerState.AIRBORNE
 
         if self.player.dy > 24:
             self.player.dy = 24
@@ -52,12 +61,12 @@ class Level:
         new_y = self.player.y + self.player.dy
         player_rect = self.player.rect((self.player.x//16, new_y//16))
         if self.map.intersect(player_rect):
-            if self.player.dy > 0 and self.player.state == PlayerState.AIRBORNE:
+            if self.player.dy > 0 and (self.player.state == PlayerState.AIRBORNE or self.player.state == PlayerState.WALL_SLIDING):
                 self.player.state = PlayerState.STANDING
             self.player.dy = 0
         else:
             self.player.y = new_y
-            if self.player.dy > 0:
+            if self.player.dy > 0 and self.player.state != PlayerState.WALL_SLIDING:
                 self.player.state = PlayerState.AIRBORNE
 
     def update(self, input: inputmanager.InputManager):

@@ -78,6 +78,14 @@
     "spriteSourceSize": { "x": 0, "y": 0, "w": 24, "h": 24 },
     "sourceSize": { "w": 24, "h": 24 },
     "duration": 150
+   },
+   "skelly 10.ase": {
+    "frame": { "x": 240, "y": 0, "w": 24, "h": 24 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 24, "h": 24 },
+    "sourceSize": { "w": 24, "h": 24 },
+    "duration": 150
    }
  },
  "meta": {
@@ -85,7 +93,7 @@
   "version": "1.0",
   "image": "/home/bklimt/src/purpy/assets/skelly.png",
   "format": "RGBA8888",
-  "size": { "w": 240, "h": 24 },
+  "size": { "w": 264, "h": 24 },
   "scale": "1",
   "frameTags": [
    { "name": "Idle", "from": 1, "to": 2, "direction": "forward" },
