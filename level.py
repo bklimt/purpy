@@ -8,16 +8,20 @@ TARGET_WALK_SPEED = 32
 TARGET_AIRBORNE_SPEED = 16
 WALK_SPEED_ACCELERATION = 1
 MAX_GRAVITY = 24
-WALL_SLIDE_SPEED = 2
+WALL_SLIDE_SPEED = 4
 GRAVITY_ACCELERATION = 1
 JUMP_SPEED = 32
 WALL_JUMP_HORIZONTAL_SPEED = 24
 WALL_JUMP_VERTICAL_SPEED = 24
+WALL_STICK_TIME = 30
+WALL_SLIDE_TIME = 60
 
 
 class Level:
     map: tilemap.TileMap
     player: Player
+    wall_stick_counter: int = WALL_STICK_TIME
+    wall_slide_counter: int = WALL_SLIDE_TIME
 
     def __init__(self):
         self.map = tilemap.load_map('assets/purple.tmx')
@@ -94,7 +98,12 @@ class Level:
             if self.player.dy > MAX_GRAVITY:
                 self.player.dy = MAX_GRAVITY
         elif self.player.state == PlayerState.WALL_SLIDING:
-            self.player.dy = WALL_SLIDE_SPEED
+            # When you first grab the wall, don't start sliding for a while.
+            if self.wall_slide_counter > 0:
+                self.wall_slide_counter -= 1
+                self.player.dy = 0
+            else:
+                self.player.dy = WALL_SLIDE_SPEED
         else:
             self.player.dy = 0
         # print(f'state = {self.player.state}, dy = {self.player.dy}')
@@ -132,7 +141,6 @@ class Level:
             if not on_ground:
                 self.player.state = PlayerState.AIRBORNE
                 self.player.dy = 0
-                print("was standing and is now falling")
             elif crouch_down:
                 self.player.state = PlayerState.CROUCHING
             elif jump_pressed:
@@ -144,6 +152,7 @@ class Level:
             else:
                 if pressing_against_wall and self.player.dy >= 0:
                     self.player.state = PlayerState.WALL_SLIDING
+                    self.wall_slide_counter = WALL_SLIDE_TIME
         elif self.player.state == PlayerState.WALL_SLIDING:
             if jump_pressed:
                 self.player.state = PlayerState.AIRBORNE
@@ -154,8 +163,13 @@ class Level:
                     self.player.dx = WALL_JUMP_HORIZONTAL_SPEED
             elif on_ground:
                 self.player.state = PlayerState.STANDING
-            elif not pressing_against_wall:
-                self.player.state = PlayerState.AIRBORNE
+            elif pressing_against_wall:
+                self.wall_stick_counter = WALL_STICK_TIME
+            else:
+                if self.wall_stick_counter > 0:
+                    self.wall_stick_counter -= 1
+                else:
+                    self.player.state = PlayerState.AIRBORNE
         elif self.player.state == PlayerState.CROUCHING:
             if not crouch_down:
                 self.player.state = PlayerState.STANDING
