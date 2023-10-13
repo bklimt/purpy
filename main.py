@@ -1,7 +1,6 @@
 
 import inputmanager
 import level
-import tilemap
 import pygame
 
 WINDOW_WIDTH = 1600
@@ -68,7 +67,9 @@ while game_running:
         match event.type:
             case pygame.QUIT:
                 game_running = False
-            case pygame.KEYDOWN | pygame.KEYUP:
+            case (pygame.KEYDOWN | pygame.KEYUP |
+                  pygame.JOYBUTTONDOWN | pygame.JOYBUTTONUP |
+                  pygame.JOYAXISMOTION | pygame.JOYHATMOTION):
                 input_manager.handle_event(event)
 
     update()
