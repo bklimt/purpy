@@ -89,6 +89,9 @@ class Game:
                           pygame.JOYAXISMOTION | pygame.JOYHATMOTION):
                         self.input_manager.handle_event(event)
 
+            if self.input_manager.is_key_triggered(pygame.K_ESCAPE):
+                game_running = False
+
             self.update()
             pygame.display.update()
             self.clock.tick(FRAME_RATE)
