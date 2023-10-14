@@ -203,5 +203,6 @@ class Level:
                 print(transition)
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
-        self.map.draw(surface, dest, (0, 0))
+        self.map.draw_background(surface, dest, (0, 0))
         self.player.draw(surface, (self.player.x//16, self.player.y//16))
+        self.map.draw_foreground(surface, dest, (0, 0))

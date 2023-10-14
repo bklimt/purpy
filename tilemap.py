@@ -12,6 +12,7 @@ class Layer:
     width: int
     height: int
     data: list[list[int]]
+    player: bool
 
     def __init__(self, node: xml.etree.ElementTree.Element):
         self.id = int(node.attrib['id'])
@@ -19,9 +20,23 @@ class Layer:
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
 
+        self.player = False
+        for properties in node:
+            if properties.tag != 'properties':
+                continue
+            for prop in properties:
+                if prop.tag != 'property':
+                    continue
+                name = prop.attrib['name']
+                if name == 'player':
+                    value = prop.attrib['value']
+                    if value == 'true':
+                        self.player = True
+
         self.data = []
-        csv = ([data for data in node if data.tag == 'data']
-               [0].text or "").strip()
+        csv = (
+            [data for data in node if data.tag == 'data'][0].text or ""
+        ).strip()
         indices = [int(index.strip()) for index in csv.split(',')]
         if len(indices) != self.width * self.height:
             raise Exception('csv size does not match')
@@ -41,6 +56,7 @@ class TileMap:
     tilesetsource: str
     tileset: ts.TileSet
     layers: list[Layer]
+    player_layer: int | None
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str):
         self.width = int(root.attrib['width'])
@@ -54,8 +70,34 @@ class TileMap:
             os.path.dirname(path), self.tilesetsource))
         self.layers = [Layer(layer) for layer in root if layer.tag == 'layer']
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
+        player_layers = [
+            layer for layer
+            in enumerate(self.layers)
+            if layer[1].player]
+        if len(player_layers) > 1:
+            raise Exception('too many player layers')
+        self.player_layer = None
+        if len(player_layers) > 0:
+            self.player_layer = player_layers[0][0]
+
+    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
         surface.fill(self.backgroundcolor, dest)
+        for layer in self.layers:
+            self.draw_layer(surface, dest, offset, layer)
+            if layer.player:
+                return
+
+    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
+        if self.player_layer is None:
+            return
+        drawing = False
+        for layer in self.layers:
+            if drawing:
+                self.draw_layer(surface, dest, offset, layer)
+            if layer.player:
+                drawing = True
+
+    def draw_layer(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], layer: Layer):
         # pygame.draw.rect(surface, self.backgroundcolor, dest)
 
         offset_x = int(offset[0])
@@ -79,43 +121,42 @@ class TileMap:
 
         for row in range(start_row, end_row):
             for col in range(start_col, end_col):
-                for layer in self.layers:
-                    # Compute what to draw where.
-                    index = layer.data[row][col]
-                    if index == 0:
-                        continue
-                    source = self.tileset.get_source_rect(index)
-                    pos_x = col * self.tilewidth + dest.left + offset_x
-                    pos_y = row * self.tileheight + dest.top + offset_y
+                # Compute what to draw where.
+                index = layer.data[row][col]
+                if index == 0:
+                    continue
+                source = self.tileset.get_source_rect(index)
+                pos_x = col * self.tilewidth + dest.left + offset_x
+                pos_y = row * self.tileheight + dest.top + offset_y
 
-                    # If it's off the top/left side, trim it.
-                    if pos_x < dest.left:
-                        source.left = source.left + (dest.left - pos_x)
-                        source.width = source.width - (dest.left - pos_x)
-                        pos_x = dest.left
-                    if pos_y < dest.top:
-                        source.top = source.top + (dest.top - pos_y)
-                        source.height = source.height - (dest.top - pos_y)
-                        pos_y = dest.top
-                    if source.width <= 0 or source.height <= 0:
-                        continue
+                # If it's off the top/left side, trim it.
+                if pos_x < dest.left:
+                    source.left = source.left + (dest.left - pos_x)
+                    source.width = source.width - (dest.left - pos_x)
+                    pos_x = dest.left
+                if pos_y < dest.top:
+                    source.top = source.top + (dest.top - pos_y)
+                    source.height = source.height - (dest.top - pos_y)
+                    pos_y = dest.top
+                if source.width <= 0 or source.height <= 0:
+                    continue
 
-                    # If it's off the right/bottom side, trim it.
-                    pos_right = pos_x + self.tilewidth
-                    if pos_right >= dest.right:
-                        source.width = source.width - (pos_right - dest.right)
-                    if source.width <= 0:
-                        continue
-                    pos_bottom = pos_y + self.tileheight
-                    if pos_bottom >= dest.bottom:
-                        source.height = source.height - \
-                            (pos_bottom - dest.bottom)
-                    if source.height <= 0:
-                        continue
+                # If it's off the right/bottom side, trim it.
+                pos_right = pos_x + self.tilewidth
+                if pos_right >= dest.right:
+                    source.width = source.width - (pos_right - dest.right)
+                if source.width <= 0:
+                    continue
+                pos_bottom = pos_y + self.tileheight
+                if pos_bottom >= dest.bottom:
+                    source.height = source.height - \
+                        (pos_bottom - dest.bottom)
+                if source.height <= 0:
+                    continue
 
-                    # Draw the rest of the turtle.
-                    pos = (pos_x, pos_y)
-                    surface.blit(self.tileset.surface, pos, source)
+                # Draw the rest of the turtle.
+                pos = (pos_x, pos_y)
+                surface.blit(self.tileset.surface, pos, source)
 
     def intersect(self, rect: pygame.Rect):
         row1 = rect.top // self.tileheight
@@ -133,10 +174,11 @@ class TileMap:
         for row in range(row1, row2+1):
             for col in range(col1, col2+1):
                 for layer in self.layers:
-                    index = layer.data[row][col]
-                    if index == 0:
-                        continue
-                    return True
+                    if layer.player or self.player_layer is None:
+                        index = layer.data[row][col]
+                        if index == 0:
+                            continue
+                        return True
         return False
 
 
