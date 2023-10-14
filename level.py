@@ -175,7 +175,10 @@ class Level:
                 else:
                     self.player.state = PlayerState.AIRBORNE
         elif self.player.state == PlayerState.CROUCHING:
-            if not crouch_down:
+            if not on_ground:
+                self.player.state = PlayerState.AIRBORNE
+                self.player.dy = 0
+            elif not crouch_down:
                 self.player.state = PlayerState.STANDING
 
         player_rect = self.player.rect((self.player.x//16, self.player.y//16))
