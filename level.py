@@ -206,6 +206,28 @@ class Level:
                 print(transition)
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
-        self.map.draw_background(surface, dest, (0, 0))
-        self.player.draw(surface, (self.player.x//16, self.player.y//16))
-        self.map.draw_foreground(surface, dest, (0, 0))
+        # Make sure the player is on the screen, and then center them if possible.
+        player_x = self.player.x//16
+        player_y = self.player.y//16
+        player_draw_x = dest.width//2
+        player_draw_y = dest.height//2
+        if player_draw_x > player_x:
+            player_draw_x = player_x
+        if player_draw_y > player_y:
+            player_draw_y = player_y
+        if player_draw_x < player_x + dest.width - (self.map.width * self.map.tilewidth):
+            player_draw_x = (
+                player_x + dest.width -
+                (self.map.width * self.map.tilewidth))
+        if player_draw_y < player_y + dest.height - (self.map.height * self.map.tileheight):
+            player_draw_y = (
+                player_y + dest.height -
+                (self.map.height * self.map.tileheight))
+        map_offset = (
+            player_draw_x - player_x,
+            player_draw_y - player_y)
+
+        # Do the actual drawing.
+        self.map.draw_background(surface, dest, map_offset)
+        self.player.draw(surface, (player_draw_x, player_draw_y))
+        self.map.draw_foreground(surface, dest, map_offset)
