@@ -4,9 +4,10 @@ import pygame
 
 class InputManager:
     keys_down: dict[int, bool] = {}
+    keys_leading_edge: dict[int, bool] = {}
     buttons_down: dict[int, bool] = {}
+    buttons_leading_edge: dict[int, bool] = {}
     joystick: pygame.joystick.JoystickType | None
-    previous_jump: bool = False
 
     def __init__(self):
         pygame.joystick.init()
@@ -14,15 +15,21 @@ class InputManager:
         if pygame.joystick.get_count() > 0:
             self.joystick = pygame.joystick.Joystick(0)
 
+    def update(self):
+        self.keys_leading_edge = {}
+        self.buttons_leading_edge = {}
+
     def handle_event(self, event: pygame.event.Event):
         match event.type:
             case pygame.KEYDOWN:
                 self.keys_down[event.key] = True
+                self.keys_leading_edge[event.key] = True
             case pygame.KEYUP:
                 self.keys_down[event.key] = False
             case pygame.JOYBUTTONDOWN:
                 print(f'button {event.button}')
                 self.buttons_down[event.button] = True
+                self.buttons_leading_edge[event.button] = True
             case pygame.JOYBUTTONUP:
                 self.buttons_down[event.button] = False
             case pygame.JOYAXISMOTION:
@@ -33,8 +40,14 @@ class InputManager:
     def is_key_down(self, key: int) -> bool:
         return self.keys_down.get(key, False)
 
+    def is_key_triggered(self, key: int) -> bool:
+        return self.keys_leading_edge.get(key, False)
+
     def is_button_down(self, button: int) -> bool:
         return self.buttons_down.get(button, False)
+
+    def is_button_triggered(self, button: int) -> bool:
+        return self.buttons_leading_edge.get(button, False)
 
     def get_hat(self) -> tuple[float, float] | None:
         if self.joystick is None:
@@ -69,14 +82,9 @@ class InputManager:
         return self.is_key_down(pygame.K_RIGHT) or self.is_key_down(pygame.K_d)
 
     def is_jump_down(self) -> bool:
-        jump: bool = False
-        current: bool = (self.is_key_down(pygame.K_SPACE) or
-                         self.is_key_down(pygame.K_w) or
-                         self.is_button_down(0))
-        if current and not self.previous_jump:
-            jump = True
-        self.previous_jump = current
-        return jump
+        return (self.is_key_triggered(pygame.K_SPACE) or
+                self.is_key_triggered(pygame.K_w) or
+                self.is_button_triggered(0))
 
     def is_crouch_down(self) -> bool:
         hat = self.get_hat()

@@ -24,8 +24,8 @@ class Level:
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
 
-    def __init__(self):
-        self.map = tilemap.load_map('assets/purple.tmx')
+    def __init__(self, map_path: str):
+        self.map = tilemap.load_map(map_path)
         self.player = Player()
         self.player.x = self.map.tilewidth * 16
         self.player.y = self.map.tileheight * 16
