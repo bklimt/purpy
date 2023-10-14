@@ -4,6 +4,7 @@ from spritesheet import SpriteSheet
 import pygame
 
 FRAMES_PER_FRAME = 8
+IDLE_TIME = 240
 
 
 class PlayerState(Enum):
@@ -26,6 +27,7 @@ class Player:
     state: PlayerState = PlayerState.STANDING
     frame: int = 0
     frames_to_next_frame: int = FRAMES_PER_FRAME
+    idle_counter: int = IDLE_TIME
     is_idle: bool = False
 
     def __init__(self):
@@ -56,7 +58,11 @@ class Player:
                         self.frame = 6
             index = self.frame
         elif self.state == PlayerState.STANDING:
-            if self.is_idle:
+            if self.idle_counter > 0:
+                self.idle_counter -= 1
+                index = 0
+            else:
+                self.is_idle = True
                 if self.frame != 1 and self.frame != 2:
                     self.frame = 1
                     self.frames_to_next_frame = FRAMES_PER_FRAME
@@ -67,12 +73,15 @@ class Player:
                         self.frame += 1
                         if self.frame > 2:
                             self.frame = 0
-                            self.is_idle = False
+                            self.idle_counter = IDLE_TIME
                 index = self.frame
-            else:
-                index = 0
         elif self.state == PlayerState.CROUCHING:
             index = 3
+
+        if self.state != PlayerState.STANDING or self.dx != 0:
+            self.is_idle = False
+            self.idle_counter = IDLE_TIME
+
         self.sprite.blit(surface, pos, index, not self.facing_right)
 
     # 8 4 8 19
