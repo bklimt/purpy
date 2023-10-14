@@ -26,6 +26,7 @@ class Player:
     state: PlayerState = PlayerState.STANDING
     frame: int = 0
     frames_to_next_frame: int = FRAMES_PER_FRAME
+    is_idle: bool = False
 
     def __init__(self):
         self.texture = pygame.image.load('assets/skelly.png')
@@ -54,6 +55,22 @@ class Player:
                     if self.frame > 9:
                         self.frame = 6
             index = self.frame
+        elif self.state == PlayerState.STANDING:
+            if self.is_idle:
+                if self.frame != 1 and self.frame != 2:
+                    self.frame = 1
+                    self.frames_to_next_frame = FRAMES_PER_FRAME
+                else:
+                    self.frames_to_next_frame -= 1
+                    if self.frames_to_next_frame <= 0:
+                        self.frames_to_next_frame = FRAMES_PER_FRAME
+                        self.frame += 1
+                        if self.frame > 2:
+                            self.frame = 0
+                            self.is_idle = False
+                index = self.frame
+            else:
+                index = 0
         elif self.state == PlayerState.CROUCHING:
             index = 3
         self.sprite.blit(surface, pos, index, not self.facing_right)

@@ -15,6 +15,7 @@ WALL_JUMP_HORIZONTAL_SPEED = 24
 WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
+IDLE_TIME = 240
 
 
 class Level:
@@ -23,6 +24,7 @@ class Level:
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
+    idle_counter = IDLE_TIME
 
     def __init__(self):
         self.map = tilemap.load_map('assets/purple.tmx')
@@ -128,6 +130,19 @@ class Level:
                 self.player.y = new_y
         return False
 
+    def update_idle(self):
+        if self.player.state != PlayerState.STANDING:
+            self.idle_counter = IDLE_TIME
+            self.player.is_idle = False
+        elif self.player.dx != 0 or self.player.dy != 0:
+            self.idle_counter = IDLE_TIME
+            self.player.is_idle = False
+        elif self.idle_counter > 0:
+            self.idle_counter -= 1
+        else:
+            self.player.is_idle = True
+            self.idle_counter = IDLE_TIME
+
     def update(self, input: inputmanager.InputManager):
         self.update_horizontal(input)
         self.update_vertical(input)
@@ -183,6 +198,8 @@ class Level:
         if in_wall:
             self.player.x -= 16
 
+        self.update_idle()
+
         if True:
             inputs = []
             if on_ground:
@@ -195,6 +212,8 @@ class Level:
                 inputs.append('jump_pressed')
             if in_wall:
                 inputs.append('in_wall')
+            if self.player.is_idle:
+                inputs.append('idle')
             transition = f'{start_state} x ({", ".join(inputs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
