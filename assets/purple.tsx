@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.10.2" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
+ <transformations hflip="1" vflip="1" rotate="1" preferuntransformed="1"/>
  <image source="purple.png" width="128" height="128"/>
  <wangsets>
   <wangset name="Purple Edges" type="edge" tile="-1">
@@ -99,6 +100,7 @@
    <wangtile tileid="66" wangid="0,0,0,0,0,2,0,0"/>
    <wangtile tileid="68" wangid="0,2,0,2,0,2,0,2"/>
    <wangtile tileid="69" wangid="0,2,0,2,0,2,0,2"/>
+   <wangtile tileid="73" wangid="0,0,0,1,0,2,0,0"/>
    <wangtile tileid="80" wangid="0,2,0,2,0,0,0,0"/>
    <wangtile tileid="81" wangid="0,2,0,2,0,2,0,2"/>
    <wangtile tileid="82" wangid="0,0,0,0,0,2,0,2"/>
@@ -110,9 +112,11 @@
    <wangtile tileid="100" wangid="0,2,0,0,0,2,0,2"/>
    <wangtile tileid="101" wangid="0,2,0,2,0,0,0,2"/>
    <wangtile tileid="102" wangid="0,2,0,0,0,2,0,0"/>
+   <wangtile tileid="106" wangid="0,1,0,0,0,2,0,1"/>
    <wangtile tileid="116" wangid="0,0,0,2,0,2,0,2"/>
    <wangtile tileid="117" wangid="0,2,0,2,0,2,0,0"/>
    <wangtile tileid="118" wangid="0,0,0,2,0,0,0,2"/>
+   <wangtile tileid="123" wangid="0,2,0,2,0,1,0,0"/>
   </wangset>
  </wangsets>
 </tileset>
