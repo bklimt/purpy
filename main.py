@@ -3,6 +3,7 @@ from inputmanager import InputManager
 from level import Level
 import os
 import pygame
+import sys
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
@@ -51,7 +52,11 @@ class Game:
         for path in self.levels:
             print(f'level: {path}')
         self.level = 0
-        self.scene = Level(self.levels[0])
+
+        if len(sys.argv) > 1:
+            self.scene = Level(sys.argv[1])
+        else:
+            self.scene = Level(self.levels[0])
 
     def update(self):
         if self.input_manager.is_key_triggered(pygame.K_1):

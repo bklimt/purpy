@@ -86,6 +86,7 @@ class Player:
 
     # 8 4 8 19
     def rect(self, pos: tuple[int, int]) -> pygame.Rect:
+        """ Returns the player rect in pixels, given that position. """
         if self.state == PlayerState.CROUCHING:
             return pygame.Rect(pos[0]+8, pos[1]+14, 8, 9)
         else:
