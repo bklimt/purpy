@@ -16,6 +16,7 @@ def sign(n: int) -> int:
 
 
 class Platform:
+    id: int
     tileset: TileSet
     tile_id: int
     distance: int
@@ -27,6 +28,7 @@ class Platform:
     dy: int
 
     def __init__(self, obj: MapObject, tileset: TileSet):
+        self.id = obj.id
         self.tileset = tileset
         self.tile_id = obj.gid
         self.distance = int(obj.properties.get('distance', '0')) * 16

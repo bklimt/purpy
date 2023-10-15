@@ -233,7 +233,7 @@ class Level:
             if self.player.is_idle:
                 inputs.append('idle')
             if self.current_platform is not None:
-                inputs.append('platform')
+                inputs.append(f'platform={self.current_platform.id}')
             transition = f'{start_state} x ({", ".join(inputs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
