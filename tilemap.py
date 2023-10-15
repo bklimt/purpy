@@ -2,7 +2,7 @@
 import math
 import os.path
 import pygame
-import tileset as ts
+from tileset import TileSet, load_tileset
 import xml.etree.ElementTree
 
 
@@ -47,6 +47,45 @@ class Layer:
             self.data.append(row)
 
 
+class MapObject:
+    id: int
+    gid: int
+    x: int
+    y: int
+    width: int
+    height: int
+    properties: dict[str, str | int | bool]
+
+    def __init__(self, node: xml.etree.ElementTree.Element, tileset: TileSet):
+        self.id = int(node.attrib['id'])
+        self.gid = int(node.attrib['gid'])
+        self.x = int(node.attrib['x'])
+        self.y = int(node.attrib['y'])
+        self.width = int(node.attrib['width'])
+        self.height = int(node.attrib['height'])
+        self.properties = {}
+        for k, v in tileset.properties.get(self.gid - 1, {}).items():
+            self.properties[k] = v
+        for props in [child for child in node if child.tag == 'properties']:
+            for prop in [child for child in props if child.tag == 'property']:
+                name = prop.attrib['name']
+                typ = prop.get('type', 'string')
+                val = prop.attrib['value']
+                if typ == 'string':
+                    self.properties[name] = val
+                elif typ == 'int':
+                    self.properties[name] = int(val)
+                elif typ == 'bool':
+                    self.properties[name] = (val == 'true')
+                else:
+                    raise Exception(f'invalid type {typ}')
+        # For some reason, the position is the bottom left.
+        self.y -= self.height
+
+    def __repr__(self):
+        return f'MapObject(id={self.id}, gid={self.gid}, x={self.x}, y={self.y}, properties={self.properties}'
+
+
 class TileMap:
     width: int
     height: int
@@ -54,9 +93,10 @@ class TileMap:
     tileheight: int
     backgroundcolor: str
     tilesetsource: str
-    tileset: ts.TileSet
+    tileset: TileSet
     layers: list[Layer]
     player_layer: int | None
+    objects: list[MapObject]
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str):
         self.width = int(root.attrib['width'])
@@ -66,7 +106,7 @@ class TileMap:
         self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
         self.tilesetsource = [
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
-        self.tileset = ts.load_tileset(os.path.join(
+        self.tileset = load_tileset(os.path.join(
             os.path.dirname(path), self.tilesetsource))
         self.layers = [Layer(layer) for layer in root if layer.tag == 'layer']
 
@@ -79,6 +119,13 @@ class TileMap:
         self.player_layer = None
         if len(player_layers) > 0:
             self.player_layer = player_layers[0][0]
+
+        self.objects = []
+        for object_group in [node for node in root if node.tag == 'objectgroup']:
+            for obj in [obj for obj in object_group if obj.tag == 'object']:
+                self.objects.append(MapObject(obj, self.tileset))
+        for obj in self.objects:
+            print(f'loaded object {obj}')
 
     def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
         surface.fill(self.backgroundcolor, dest)
