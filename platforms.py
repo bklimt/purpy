@@ -76,7 +76,7 @@ class Platform:
         area = self.tileset.get_source_rect(self.tile_id)
         surface.blit(self.tileset.surface, (x, y), area)
 
-    def intersect(self, rect: pygame.Rect):
+    def intersect(self, rect: pygame.Rect) -> bool:
         if rect.right < self.x//16:
             return False
         if rect.bottom < self.y//16:
@@ -84,5 +84,14 @@ class Platform:
         if rect.left > self.x//16 + self.tileset.tilewidth:
             return False
         if rect.top > self.y//16 + self.tileset.tileheight:
+            return False
+        return True
+
+    def intersect_top(self, rect: pygame.Rect) -> bool:
+        if rect.right < self.x//16:
+            return False
+        if rect.left > self.x//16 + self.tileset.tilewidth:
+            return False
+        if rect.bottom != self.y//16:
             return False
         return True
