@@ -1,6 +1,7 @@
 
 import inputmanager
 from player import Player, PlayerState
+from platforms import Platform
 import pygame
 import tilemap
 
@@ -10,7 +11,7 @@ WALK_SPEED_ACCELERATION = 1
 MAX_GRAVITY = 24
 WALL_SLIDE_SPEED = 4
 GRAVITY_ACCELERATION = 1
-JUMP_SPEED = 32
+JUMP_SPEED = 40
 WALL_JUMP_HORIZONTAL_SPEED = 24
 WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
@@ -19,10 +20,12 @@ WALL_SLIDE_TIME = 60
 
 class Level:
     map: tilemap.TileMap
+    platforms: list[Platform]
     player: Player
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
+    current_platform: Platform | None = None
 
     def __init__(self, map_path: str):
         self.map = tilemap.load_map(map_path)
@@ -30,21 +33,36 @@ class Level:
         self.player.x = self.map.tilewidth * 16
         self.player.y = self.map.tileheight * 16
         self.transition: str = ''
+        self.platforms = []
+        for obj in self.map.objects:
+            if obj.properties.get('platform', False):
+                self.platforms.append(Platform(obj, self.map.tileset))
+
+    def intersect(self, player_rect: pygame.Rect, check_platforms: bool) -> bool:
+        if check_platforms:
+            self.current_platform = None
+            for platform in self.platforms:
+                if platform.intersect(player_rect):
+                    self.current_platform = platform
+                    return True
+        if self.map.intersect(player_rect):
+            return True
+        return False
 
     def is_on_ground(self) -> bool:
         player_rect = self.player.rect(
             (self.player.x//16, (self.player.y+16)//16))
-        return self.map.intersect(player_rect)
+        return self.intersect(player_rect, self.player.dy >= 0)
 
     def is_pressing_against_wall(self, input: inputmanager.InputManager) -> bool:
         if input.is_left_down() and not input.is_right_down():
             player_rect = self.player.rect(
                 ((self.player.x-1)//16, self.player.y//16))
-            return self.map.intersect(player_rect)
+            return self.intersect(player_rect, False)
         if input.is_right_down() and not input.is_left_down():
             player_rect = self.player.rect(
                 ((self.player.x+1)//16, self.player.y//16))
-            return self.map.intersect(player_rect)
+            return self.intersect(player_rect, False)
         return False
 
     def update_horizontal(self, input: inputmanager.InputManager) -> bool:
@@ -83,7 +101,7 @@ class Level:
                     delta = 16
             new_x = self.player.x + delta
             player_rect = self.player.rect((new_x//16, self.player.y//16))
-            if self.map.intersect(player_rect):
+            if self.intersect(player_rect, False):
                 self.player.dx = 0
                 return True
             else:
@@ -120,13 +138,23 @@ class Level:
                     delta = 16
             new_y = self.player.y + delta
             player_rect = self.player.rect((self.player.x//16, new_y//16))
-            if self.map.intersect(player_rect):
+            if self.intersect(player_rect, self.player.dy >= 0):
                 if self.player.dy < 0:
                     self.player.dy = 0
                 return True
             else:
                 self.player.y = new_y
         return False
+
+    def update_move_with_platform(self):
+        if self.current_platform is None:
+            return
+        new_x = self.player.x + self.current_platform.dx
+        new_y = self.player.y + self.current_platform.dy
+        player_rect = self.player.rect((new_x//16, new_y//16))
+        if not self.intersect(player_rect, False):
+            self.player.x = new_x
+            self.player.y = new_y
 
     def update(self, input: inputmanager.InputManager):
         self.update_horizontal(input)
@@ -182,9 +210,13 @@ class Level:
                 self.player.state = PlayerState.STANDING
 
         player_rect = self.player.rect((self.player.x//16, self.player.y//16))
-        in_wall = self.map.intersect(player_rect)
+        in_wall = self.intersect(player_rect, False)
         if in_wall:
             self.player.x -= 16
+
+        for platform in self.platforms:
+            platform.update()
+        self.update_move_with_platform()
 
         if True:
             inputs = []
@@ -200,6 +232,8 @@ class Level:
                 inputs.append('in_wall')
             if self.player.is_idle:
                 inputs.append('idle')
+            if self.current_platform is not None:
+                inputs.append('platform')
             transition = f'{start_state} x ({", ".join(inputs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
@@ -229,5 +263,7 @@ class Level:
 
         # Do the actual drawing.
         self.map.draw_background(surface, dest, map_offset)
+        for platform in self.platforms:
+            platform.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
         self.map.draw_foreground(surface, dest, map_offset)

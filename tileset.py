@@ -24,6 +24,7 @@ class TileSet:
     columns: int
     image: TileSetImage
     surface: pygame.Surface
+    properties: dict[int, dict[str, str | bool | int]]
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str):
         self.name = root.attrib['name']
@@ -33,11 +34,30 @@ class TileSet:
         self.columns = int(root.attrib['columns'])
         self.image = [TileSetImage(node)
                       for node in root if node.tag == 'image'][0]
+        self.properties = {}
 
         img_path = os.path.join(os.path.dirname(path), self.image.source)
         print('loading tileset texture from ' + img_path)
         img = pygame.image.load(img_path)
         self.surface = pygame.Surface.convert_alpha(img)
+
+        for tile in [tile for tile in root if tile.tag == 'tile']:
+            tile_id = int(tile.attrib['id'])
+            self.properties[tile_id] = {}
+            for node in [node for node in tile if node.tag == 'properties']:
+                for pnode in [pnode for pnode in node if pnode.tag == 'property']:
+                    name = pnode.attrib['name']
+                    typ = pnode.attrib.get('type', 'str')
+                    val = pnode.attrib['value']
+                    if typ == "str":
+                        self.properties[tile_id][name] = val
+                    elif typ == "int":
+                        self.properties[tile_id][name] = int(val)
+                    elif typ == "bool":
+                        self.properties[tile_id][name] = (val == 'true')
+                    else:
+                        raise Exception(f'unsupported property type {typ}')
+        print(self.properties)
 
     @property
     def rows(self) -> int:
