@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.0" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
+<tileset version="1.10" tiledversion="1.10.2" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
  <transformations hflip="0" vflip="0" rotate="0" preferuntransformed="1"/>
  <image source="purple.png" width="128" height="128"/>
  <tile id="128">

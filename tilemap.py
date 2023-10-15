@@ -103,7 +103,7 @@ class TileMap:
         self.height = int(root.attrib['height'])
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
-        self.backgroundcolor = root.attrib['backgroundcolor']
+        self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
         self.tilesetsource = [
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
         self.tileset = load_tileset(os.path.join(
