@@ -1,7 +1,7 @@
 
 import inputmanager
 from player import Player, PlayerState
-from platforms import Platform
+from platforms import Bagel, MovingPlatform, Platform
 import pygame
 import tilemap
 
@@ -36,19 +36,24 @@ class Level:
         self.platforms = []
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
-                self.platforms.append(Platform(obj, self.map.tileset))
-        self.platforms = list(reversed(self.platforms))
+                self.platforms.append(MovingPlatform(obj, self.map.tileset))
+            if obj.properties.get('bagel', False):
+                self.platforms.append(Bagel(obj, self.map.tileset))
 
     def intersect_ground(self, player_rect: pygame.Rect) -> bool:
         """ Checks the ground underneath the player. """
         self.current_platform = None
         for platform in self.platforms:
             if platform.intersect_top(player_rect):
+                platform.occupied = True
                 self.current_platform = platform
                 # To make sure things stay pixel perfect, make sure the subpixels are the same.
                 self.player.y = ((self.player.y // 16) * 16) + \
                     (self.current_platform.y % 16)
-                return True
+            else:
+                platform.occupied = False
+        if self.current_platform is not None:
+            return True
         if self.map.intersect(player_rect):
             return True
         return False
@@ -73,6 +78,9 @@ class Level:
 
     def is_on_ground(self) -> bool:
         if self.player.dy < 0:
+            self.current_platform = None
+            for platform in self.platforms:
+                platform.occupied = False
             return False
         player_rect = self.player.rect(
             (self.player.x//16, (self.player.y+16)//16))
