@@ -6,6 +6,18 @@ from tileset import TileSet, load_tileset
 import xml.etree.ElementTree
 
 
+def intersect(rect1: pygame.Rect, rect2: pygame.Rect) -> bool:
+    if rect1.right < rect2.left:
+        return False
+    if rect1.left > rect2.right:
+        return False
+    if rect1.bottom < rect2.top:
+        return False
+    if rect1.top > rect2.bottom:
+        return False
+    return True
+
+
 class ImageLayer:
     path: str
     surface: pygame.Surface
@@ -60,7 +72,7 @@ class TileLayer:
 
 class MapObject:
     id: int
-    gid: int
+    gid: int | None
     x: int
     y: int
     width: int
@@ -69,14 +81,16 @@ class MapObject:
 
     def __init__(self, node: xml.etree.ElementTree.Element, tileset: TileSet):
         self.id = int(node.attrib['id'])
-        self.gid = int(node.attrib['gid'])
         self.x = int(node.attrib['x'])
         self.y = int(node.attrib['y'])
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
+        gid_str = node.attrib.get('gid', None)
+        self.gid = int(gid_str) if gid_str is not None else None
         self.properties = {}
-        for k, v in tileset.properties.get(self.gid - 1, {}).items():
-            self.properties[k] = v
+        if self.gid is not None:
+            for k, v in tileset.properties.get(self.gid - 1, {}).items():
+                self.properties[k] = v
         for props in [child for child in node if child.tag == 'properties']:
             for prop in [child for child in props if child.tag == 'property']:
                 name = prop.attrib['name']
@@ -90,11 +104,15 @@ class MapObject:
                     self.properties[name] = (val == 'true')
                 else:
                     raise Exception(f'invalid type {typ}')
-        # For some reason, the position is the bottom left.
-        self.y -= self.height
+        # For some reason, the position is the bottom left sometimes?
+        if self.gid is not None:
+            self.y -= self.height
+
+    def rect(self) -> pygame.Rect:
+        return pygame.Rect(self.x, self.y, self.width, self.height)
 
     def __repr__(self):
-        return f'MapObject(id={self.id}, gid={self.gid}, x={self.x}, y={self.y}, properties={self.properties}'
+        return f'MapObject(id={self.id}, gid={self.gid}, x={self.x}, y={self.y}, w={self.width}, h={self.height}, properties={self.properties}'
 
 
 class TileMap:
@@ -251,6 +269,22 @@ class TileMap:
                             continue
                         ans.append(index - 1)
         return ans
+
+    def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:
+        preferred_x: int | None = None
+        preferred_y: int | None = None
+        for obj in self.objects:
+            if obj.gid is not None:
+                continue
+            if not intersect(player_rect, obj.rect()):
+                continue
+            p_x = obj.properties.get('preferred_x', None)
+            p_y = obj.properties.get('preferred_y', None)
+            if isinstance(p_x, int):
+                preferred_x = p_x
+            if isinstance(p_y, int):
+                preferred_y = p_y
+        return (preferred_x, preferred_y)
 
 
 def load_map(path: str):
