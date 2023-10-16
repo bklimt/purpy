@@ -1,10 +1,12 @@
 
 from font import Font
 import inputmanager
+from kill import KillScreen
 import os.path
 from player import Player, PlayerState
 from platforms import Bagel, MovingPlatform, Platform
 import pygame
+from scene import Scene
 import tilemap
 
 TARGET_WALK_SPEED = 32
@@ -20,7 +22,8 @@ WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 
 
-class Level:
+class Level(Scene):
+    map_path: str
     name: str
     map: tilemap.TileMap
     platforms: list[Platform]
@@ -31,9 +34,10 @@ class Level:
     current_platform: Platform | None = None
     font: Font
 
-    def __init__(self, map_path: str):
+    def __init__(self, map_path: str, font: Font):
+        self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
-        self.font = Font()
+        self.font = font
         self.map = tilemap.load_map(map_path)
         self.player = Player()
         self.player.x = self.map.tilewidth * 16
@@ -202,7 +206,7 @@ class Level:
             self.player.y = ((self.player.y // 16) * 16) + \
                 (self.current_platform.y % 16)
 
-    def update(self, input: inputmanager.InputManager):
+    def update(self, input: inputmanager.InputManager) -> Scene:
         self.update_horizontal(input)
         self.update_vertical(input)
 
@@ -284,6 +288,11 @@ class Level:
             if transition != self.transition:
                 self.transition = transition
                 print(transition)
+
+        if self.player.is_dead:
+            return KillScreen(self.font, self, lambda: Level(self.map_path, self.font))
+
+        return self
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
         # Make sure the player is on the screen, and then center them if possible.

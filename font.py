@@ -6,8 +6,8 @@ from tileset import load_tileset, TileSet
 class Font:
     tileset: TileSet
 
-    def __init__(self):
-        self.tileset = load_tileset('assets/8bitfont.tsx')
+    def __init__(self, path: str):
+        self.tileset = load_tileset(path)
 
     def draw_string(self, surface: pygame.Surface, pos: tuple[int, int], s: str):
         for ch in s:
