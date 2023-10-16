@@ -20,9 +20,70 @@
    <property name="deadly" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="131">
+  <properties>
+   <property name="deadly" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="132">
+  <properties>
+   <property name="direction" value="N"/>
+   <property name="distance" type="int" value="0"/>
+   <property name="platform" type="bool" value="true"/>
+   <property name="speed" type="int" value="4"/>
+  </properties>
+ </tile>
+ <tile id="133">
+  <properties>
+   <property name="direction" value="N"/>
+   <property name="distance" type="int" value="0"/>
+   <property name="platform" type="bool" value="true"/>
+   <property name="speed" type="int" value="4"/>
+  </properties>
+ </tile>
  <tile id="144">
   <properties>
    <property name="star" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="145">
+  <properties>
+   <property name="direction" value="N"/>
+   <property name="distance" type="int" value="0"/>
+   <property name="platform" type="bool" value="true"/>
+   <property name="solid" type="bool" value="true"/>
+   <property name="speed" type="int" value="4"/>
+  </properties>
+ </tile>
+ <tile id="146">
+  <properties>
+   <property name="deadly" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="147">
+  <properties>
+   <property name="deadly" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="148">
+  <properties>
+   <property name="direction" value="N"/>
+   <property name="distance" type="int" value="0"/>
+   <property name="platform" type="bool" value="true"/>
+   <property name="speed" type="int" value="4"/>
+  </properties>
+ </tile>
+ <tile id="149">
+  <properties>
+   <property name="direction" value="N"/>
+   <property name="distance" type="int" value="0"/>
+   <property name="platform" type="bool" value="true"/>
+   <property name="speed" type="int" value="4"/>
+  </properties>
+ </tile>
+ <tile id="160">
+  <properties>
+   <property name="spiral" type="bool" value="true"/>
   </properties>
  </tile>
  <wangsets>
