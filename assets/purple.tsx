@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
+<tileset version="1.8" tiledversion="1.8.0" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
  <transformations hflip="0" vflip="0" rotate="0" preferuntransformed="1"/>
  <image source="purple.png" width="128" height="128"/>
  <tile id="128">
@@ -13,6 +13,11 @@
    <property name="distance" type="int" value="0"/>
    <property name="platform" type="bool" value="true"/>
    <property name="speed" type="int" value="4"/>
+  </properties>
+ </tile>
+ <tile id="130">
+  <properties>
+   <property name="deadly" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="144">

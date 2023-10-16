@@ -1,8 +1,10 @@
 
+from font import Font
 from inputmanager import InputManager
 from level import Level
 import os
 import pygame
+from scene import Scene
 import sys
 
 WINDOW_WIDTH = 1600
@@ -13,7 +15,8 @@ FRAME_RATE = 60
 
 pygame.init()
 
-BACK_BUFFER: pygame.Surface = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
+BACK_BUFFER: pygame.Surface = pygame.Surface(
+    (LOGICAL_WIDTH, LOGICAL_HEIGHT))
 GAME_WINDOW: pygame.Surface = pygame.display.set_mode(
     (WINDOW_WIDTH, WINDOW_HEIGHT))
 
@@ -44,9 +47,12 @@ class Game:
     levels: list[str] = []
     clock = pygame.time.Clock()
     input_manager = InputManager()
-    scene: Level
+    font: Font
+    scene: Scene
 
     def __init__(self):
+        self.font = Font('assets/8bitfont.tsx')
+
         self.levels = sorted(
             [f'assets/levels/{s}' for s in os.listdir('assets/levels') if s.endswith('.tmx')])
         for path in self.levels:
@@ -54,19 +60,17 @@ class Game:
         self.level = 0
 
         if len(sys.argv) > 1:
-            self.scene = Level(sys.argv[1])
+            self.scene = Level(sys.argv[1], self.font)
         else:
-            self.scene = Level(self.levels[0])
+            self.scene = Level(self.levels[0], self.font)
 
     def update(self):
         if self.input_manager.is_key_triggered(pygame.K_1) or self.input_manager.is_button_triggered(2):
             self.level = (self.level + 1) % len(self.levels)
-            self.scene = Level(self.levels[self.level])
-        if self.input_manager.is_key_triggered(pygame.K_2) or self.input_manager.is_button_triggered(3):
-            self.scene = Level(self.levels[self.level])
+            self.scene = Level(self.levels[self.level], self.font)
 
         # Update the actual game logic.
-        self.scene.update(self.input_manager)
+        self.scene = self.scene.update(self.input_manager)
 
         # Clear the back buffer with solid black.
         # pygame.draw.rect(BACK_BUFFER, (0, 0, 0), BACK_BUFFER_SRC)

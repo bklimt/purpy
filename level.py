@@ -1,8 +1,12 @@
 
+from font import Font
 import inputmanager
+from kill import KillScreen
+import os.path
 from player import Player, PlayerState
 from platforms import Bagel, MovingPlatform, Platform
 import pygame
+from scene import Scene
 import tilemap
 
 TARGET_WALK_SPEED = 32
@@ -18,7 +22,9 @@ WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 
 
-class Level:
+class Level(Scene):
+    map_path: str
+    name: str
     map: tilemap.TileMap
     platforms: list[Platform]
     player: Player
@@ -26,8 +32,12 @@ class Level:
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
     current_platform: Platform | None = None
+    font: Font
 
-    def __init__(self, map_path: str):
+    def __init__(self, map_path: str, font: Font):
+        self.map_path = map_path
+        self.name = os.path.splitext(os.path.basename(map_path))[0]
+        self.font = font
         self.map = tilemap.load_map(map_path)
         self.player = Player()
         self.player.x = self.map.tilewidth * 16
@@ -54,7 +64,11 @@ class Level:
                 platform.occupied = False
         if self.current_platform is not None:
             return True
-        if self.map.intersect(player_rect):
+        tiles = self.map.intersect(player_rect)
+        if len(tiles) > 0:
+            for tile in tiles:
+                if self.map.tileset.properties.get(tile, {}).get('deadly', False):
+                    self.player.is_dead = True
             return True
         return False
 
@@ -64,17 +78,17 @@ class Level:
             for platform in self.platforms:
                 if platform.intersect_top(player_rect):
                     return True
-        if self.map.intersect(player_rect):
+        if len(self.map.intersect(player_rect)) > 0:
             return True
         return False
 
     def intersect_horizontal(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when moving right or left. """
-        return self.map.intersect(player_rect)
+        return len(self.map.intersect(player_rect)) > 0
 
     def intersect_standing(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when the player is just, like, standing there being cool. """
-        return self.map.intersect(player_rect)
+        return len(self.map.intersect(player_rect)) > 0
 
     def is_on_ground(self) -> bool:
         if self.player.dy < 0:
@@ -192,7 +206,7 @@ class Level:
             self.player.y = ((self.player.y // 16) * 16) + \
                 (self.current_platform.y % 16)
 
-    def update(self, input: inputmanager.InputManager):
+    def update(self, input: inputmanager.InputManager) -> Scene:
         self.update_horizontal(input)
         self.update_vertical(input)
 
@@ -275,6 +289,11 @@ class Level:
                 self.transition = transition
                 print(transition)
 
+        if self.player.is_dead:
+            return KillScreen(self.font, self, lambda: Level(self.map_path, self.font))
+
+        return self
+
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
         # Make sure the player is on the screen, and then center them if possible.
         player_x = self.player.x//16
@@ -283,8 +302,8 @@ class Level:
         player_draw_y = dest.height//2
         if player_draw_x > player_x:
             player_draw_x = player_x
-        if player_draw_y > player_y:
-            player_draw_y = player_y
+        if player_draw_y > player_y + 4:
+            player_draw_y = player_y + 4
         if player_draw_x < player_x + dest.width - (self.map.width * self.map.tilewidth):
             player_draw_x = (
                 player_x + dest.width -
@@ -303,3 +322,12 @@ class Level:
             platform.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
         self.map.draw_foreground(surface, dest, map_offset)
+
+        # Draw the text overlay.
+        top_bar_bgcolor = pygame.Color(0, 0, 0, 63)
+        top_bar_area = pygame.Rect(dest.left, dest.top, dest.width, 12)
+        top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
+        top_bar.fill(top_bar_bgcolor)
+        surface.blit(top_bar, top_bar_area)
+        # pygame.draw.rect(surface, text_back, top_bar)
+        self.font.draw_string(surface, (2, 2), self.name)
