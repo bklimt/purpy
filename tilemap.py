@@ -6,7 +6,18 @@ from tileset import TileSet, load_tileset
 import xml.etree.ElementTree
 
 
-class Layer:
+class ImageLayer:
+    path: str
+    surface: pygame.Surface
+
+    def __init__(self, node: xml.etree.ElementTree.Element, path: str):
+        images = [img for img in node if img.tag == 'image']
+        source = images[0].attrib['source']
+        self.path = os.path.join(os.path.dirname(path), source)
+        self.surface = pygame.image.load(self.path)
+
+
+class TileLayer:
     id: int
     name: str
     width: int
@@ -94,7 +105,7 @@ class TileMap:
     backgroundcolor: str
     tilesetsource: str
     tileset: TileSet
-    layers: list[Layer]
+    layers: list[ImageLayer | TileLayer]
     player_layer: int | None
     objects: list[MapObject]
 
@@ -108,12 +119,18 @@ class TileMap:
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
         self.tileset = load_tileset(os.path.join(
             os.path.dirname(path), self.tilesetsource))
-        self.layers = [Layer(layer) for layer in root if layer.tag == 'layer']
+
+        self.layers = []
+        for layer in root:
+            if layer.tag == 'layer':
+                self.layers.append(TileLayer(layer))
+            elif layer.tag == 'imagelayer':
+                self.layers.append(ImageLayer(layer, path))
 
         player_layers = [
             layer for layer
             in enumerate(self.layers)
-            if layer[1].player]
+            if isinstance(layer[1], TileLayer) and layer[1].player]
         if len(player_layers) > 1:
             raise Exception('too many player layers')
         self.player_layer = None
@@ -131,7 +148,7 @@ class TileMap:
         surface.fill(self.backgroundcolor, dest)
         for layer in self.layers:
             self.draw_layer(surface, dest, offset, layer)
-            if layer.player:
+            if isinstance(layer, TileLayer) and layer.player:
                 return
 
     def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
@@ -141,11 +158,15 @@ class TileMap:
         for layer in self.layers:
             if drawing:
                 self.draw_layer(surface, dest, offset, layer)
-            if layer.player:
+            if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], layer: Layer):
+    def draw_layer(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], layer: TileLayer | ImageLayer):
         # pygame.draw.rect(surface, self.backgroundcolor, dest)
+
+        if isinstance(layer, ImageLayer):
+            surface.blit(layer.surface, offset)
+            return
 
         offset_x = int(offset[0])
         offset_y = int(offset[1])
@@ -222,6 +243,8 @@ class TileMap:
         for row in range(row1, row2+1):
             for col in range(col1, col2+1):
                 for layer in self.layers:
+                    if not isinstance(layer, TileLayer):
+                        continue
                     if layer.player or self.player_layer is None:
                         index = layer.data[row][col]
                         if index == 0:
