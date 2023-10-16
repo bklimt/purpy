@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="94">
+ <tileset firstgid="1" source="../purple.tsx"/>
+ <imagelayer id="2" name="coool" offsetx="-0.343366" offsety="0">
+  <image source="../space2.png" width="320" height="176"/>
+ </imagelayer>
+ <layer id="1" name="Tile Layer 1" width="40" height="22">
+  <properties>
+   <property name="player" type="bool" value="true"/>
+  </properties>
+  <data encoding="csv">
+37,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,39,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,17,
+53,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,54
+</data>
+ </layer>
+ <objectgroup id="3" name="stuffie">
+  <object id="1" gid="129" x="56" y="152" width="8" height="8"/>
+  <object id="2" gid="129" x="64" y="152" width="8" height="8"/>
+  <object id="3" gid="129" x="72" y="152" width="8" height="8"/>
+  <object id="4" gid="129" x="104" y="128" width="8" height="8"/>
+  <object id="5" gid="129" x="104" y="128" width="8" height="8"/>
+  <object id="6" gid="129" x="112" y="128" width="8" height="8"/>
+  <object id="7" gid="129" x="96" y="128" width="8" height="8"/>
+  <object id="8" gid="129" x="136" y="112" width="8" height="8"/>
+  <object id="9" gid="129" x="144" y="112" width="8" height="8"/>
+  <object id="10" gid="129" x="160" y="112" width="8" height="8"/>
+  <object id="11" gid="129" x="152" y="112" width="8" height="8"/>
+  <object id="12" gid="129" x="168" y="112" width="8" height="8"/>
+  <object id="13" gid="129" x="176" y="112" width="8" height="8"/>
+  <object id="14" gid="129" x="192" y="104" width="8" height="8"/>
+  <object id="15" gid="129" x="200" y="104" width="8" height="8"/>
+  <object id="16" gid="129" x="208" y="104" width="8" height="8"/>
+  <object id="17" gid="129" x="224" y="104" width="8" height="8"/>
+  <object id="18" gid="129" x="216" y="104" width="8" height="8"/>
+  <object id="19" gid="129" x="232" y="104" width="8" height="8"/>
+  <object id="20" gid="129" x="240" y="104" width="8" height="8"/>
+  <object id="21" gid="129" x="248" y="104" width="8" height="8"/>
+  <object id="22" gid="129" x="264" y="88" width="8" height="8"/>
+  <object id="23" gid="129" x="272" y="88" width="8" height="8"/>
+  <object id="24" gid="129" x="288" y="88" width="8" height="8"/>
+  <object id="25" gid="129" x="280" y="88" width="8" height="8"/>
+  <object id="26" gid="131" x="56" y="168" width="8" height="8"/>
+  <object id="27" gid="131" x="88" y="168" width="8" height="8"/>
+  <object id="28" gid="131" x="64" y="168" width="8" height="8"/>
+  <object id="29" gid="131" x="72" y="168" width="8" height="8"/>
+  <object id="30" gid="131" x="88" y="168" width="8" height="8"/>
+  <object id="31" gid="131" x="96" y="168" width="8" height="8"/>
+  <object id="32" gid="131" x="80" y="168" width="8" height="8"/>
+  <object id="33" gid="131" x="112" y="168" width="8" height="8"/>
+  <object id="34" gid="131" x="96" y="168" width="8" height="8"/>
+  <object id="35" gid="131" x="120" y="168" width="8" height="8"/>
+  <object id="36" gid="131" x="104" y="168" width="8" height="8"/>
+  <object id="37" gid="131" x="128" y="168" width="8" height="8"/>
+  <object id="38" gid="131" x="136" y="168" width="8" height="8"/>
+  <object id="39" gid="131" x="152" y="168" width="8" height="8"/>
+  <object id="40" gid="131" x="160" y="168" width="8" height="8"/>
+  <object id="41" gid="131" x="168" y="168" width="8" height="8"/>
+  <object id="42" gid="131" x="144" y="168" width="8" height="8"/>
+  <object id="43" gid="131" x="176" y="168" width="8" height="8"/>
+  <object id="44" gid="131" x="192" y="168" width="8" height="8"/>
+  <object id="45" gid="131" x="184" y="168" width="8" height="8"/>
+  <object id="46" gid="131" x="200" y="168" width="8" height="8"/>
+  <object id="47" gid="131" x="216" y="168" width="8" height="8"/>
+  <object id="48" gid="131" x="224" y="168" width="8" height="8"/>
+  <object id="49" gid="131" x="208" y="168" width="8" height="8"/>
+  <object id="50" gid="131" x="240" y="168" width="8" height="8"/>
+  <object id="51" gid="131" x="232" y="168" width="8" height="8"/>
+  <object id="52" gid="131" x="248" y="168" width="8" height="8"/>
+  <object id="53" gid="131" x="264" y="168" width="8" height="8"/>
+  <object id="54" gid="131" x="272" y="168" width="8" height="8"/>
+  <object id="55" gid="131" x="248" y="168" width="8" height="8"/>
+  <object id="56" gid="131" x="280" y="168" width="8" height="8"/>
+  <object id="57" gid="131" x="256" y="168" width="8" height="8"/>
+  <object id="58" gid="131" x="296" y="168" width="8" height="8"/>
+  <object id="59" gid="131" x="280" y="168" width="8" height="8"/>
+  <object id="60" gid="131" x="304" y="168" width="8" height="8"/>
+  <object id="61" gid="131" x="288" y="168" width="8" height="8"/>
+  <object id="62" gid="130" x="56" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="63" gid="130" x="64" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="64" gid="130" x="72" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="65" gid="130" x="80" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="66" gid="130" x="96" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="67" gid="130" x="88" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="68" gid="130" x="104" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="69" gid="130" x="112" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="70" gid="130" x="120" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="71" gid="130" x="136" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="72" gid="130" x="128" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="73" gid="130" x="144" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="74" gid="130" x="152" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="75" gid="130" x="168" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="76" gid="130" x="160" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="77" gid="130" x="176" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="78" gid="130" x="192" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="79" gid="130" x="184" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="80" gid="130" x="208" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="81" gid="130" x="200" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="82" gid="130" x="216" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="83" gid="130" x="224" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="84" gid="130" x="232" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="85" gid="130" x="240" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="86" gid="130" x="248" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="87" gid="130" x="256" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="88" gid="130" x="272" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="89" gid="130" x="264" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="90" gid="130" x="280" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="91" gid="130" x="288" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="92" gid="130" x="296" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="93" gid="130" x="304" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
