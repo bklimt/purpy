@@ -84,8 +84,8 @@ class InputManager:
     def is_jump_down(self) -> bool:
         return (self.is_key_triggered(pygame.K_SPACE) or
                 self.is_key_triggered(pygame.K_w) or
-                self.is_button_triggered(0))
-
+                self.is_button_triggered(0) or
+                self.is_button_triggered(1))
     def is_crouch_down(self) -> bool:
         hat = self.get_hat()
         if hat is not None and hat[1] < -0.5:
