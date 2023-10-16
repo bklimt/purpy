@@ -81,17 +81,24 @@ class Level(Scene):
             for platform in self.platforms:
                 if platform.intersect_top(player_rect):
                     return True
-        if len(self.map.intersect(player_rect)) > 0:
+        if self.intersect_standing(player_rect):
             return True
         return False
 
     def intersect_horizontal(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when moving right or left. """
-        return len(self.map.intersect(player_rect)) > 0
+        return self.intersect_standing(player_rect)
 
     def intersect_standing(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when the player is just, like, standing there being cool. """
-        return len(self.map.intersect(player_rect)) > 0
+        if len(self.map.intersect(player_rect)) > 0:
+            return True
+        for platform in self.platforms:
+            if not platform.is_solid:
+                continue
+            if platform.intersect(player_rect):
+                return True
+        return False
 
     def is_on_ground(self) -> bool:
         if self.player.dy < 0:
