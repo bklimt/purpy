@@ -69,6 +69,9 @@ class Game:
             self.level = (self.level + 1) % len(self.levels)
             self.scene = Level(self.levels[self.level], self.font)
 
+        if self.input_manager.is_key_triggered(pygame.K_2) or self.input_manager.is_button_triggered(3):
+            self.scene = Level(self.levels[self.level], self.font)
+
         # Update the actual game logic.
         self.scene = self.scene.update(self.input_manager)
 
