@@ -60,7 +60,11 @@ class Level:
                 platform.occupied = False
         if self.current_platform is not None:
             return True
-        if self.map.intersect(player_rect):
+        tiles = self.map.intersect(player_rect)
+        if len(tiles) > 0:
+            for tile in tiles:
+                if self.map.tileset.properties.get(tile, {}).get('deadly', False):
+                    self.player.is_dead = True
             return True
         return False
 
@@ -70,17 +74,17 @@ class Level:
             for platform in self.platforms:
                 if platform.intersect_top(player_rect):
                     return True
-        if self.map.intersect(player_rect):
+        if len(self.map.intersect(player_rect)) > 0:
             return True
         return False
 
     def intersect_horizontal(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when moving right or left. """
-        return self.map.intersect(player_rect)
+        return len(self.map.intersect(player_rect)) > 0
 
     def intersect_standing(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when the player is just, like, standing there being cool. """
-        return self.map.intersect(player_rect)
+        return len(self.map.intersect(player_rect)) > 0
 
     def is_on_ground(self) -> bool:
         if self.player.dy < 0:

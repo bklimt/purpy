@@ -205,7 +205,8 @@ class TileMap:
                 pos = (pos_x, pos_y)
                 surface.blit(self.tileset.surface, pos, source)
 
-    def intersect(self, rect: pygame.Rect):
+    def intersect(self, rect: pygame.Rect) -> list[int]:
+        ans = []
         row1 = rect.top // self.tileheight
         col1 = rect.left // self.tilewidth
         row2 = rect.bottom // self.tileheight
@@ -225,8 +226,8 @@ class TileMap:
                         index = layer.data[row][col]
                         if index == 0:
                             continue
-                        return True
-        return False
+                        ans.append(index - 1)
+        return ans
 
 
 def load_map(path: str):

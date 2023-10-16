@@ -1,5 +1,6 @@
 
 from enum import Enum
+from random import randint
 from spritesheet import SpriteSheet
 import pygame
 
@@ -29,6 +30,7 @@ class Player:
     frames_to_next_frame: int = FRAMES_PER_FRAME
     idle_counter: int = IDLE_TIME
     is_idle: bool = False
+    is_dead: bool = False
 
     def __init__(self):
         self.texture = pygame.image.load('assets/skelly.png')
@@ -82,6 +84,8 @@ class Player:
             self.is_idle = False
             self.idle_counter = IDLE_TIME
 
+        if self.is_dead:
+            pos = (pos[0] + randint(-1, 1), pos[1] + randint(-1, 1))
         self.sprite.blit(surface, pos, index, not self.facing_right)
 
     # 8 4 8 19
