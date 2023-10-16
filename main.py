@@ -13,7 +13,8 @@ FRAME_RATE = 60
 
 pygame.init()
 
-BACK_BUFFER: pygame.Surface = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
+BACK_BUFFER: pygame.Surface = pygame.Surface(
+    (LOGICAL_WIDTH, LOGICAL_HEIGHT))
 GAME_WINDOW: pygame.Surface = pygame.display.set_mode(
     (WINDOW_WIDTH, WINDOW_HEIGHT))
 

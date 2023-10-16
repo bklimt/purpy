@@ -1,5 +1,7 @@
 
+from font import Font
 import inputmanager
+import os.path
 from player import Player, PlayerState
 from platforms import Bagel, MovingPlatform, Platform
 import pygame
@@ -19,6 +21,7 @@ WALL_SLIDE_TIME = 60
 
 
 class Level:
+    name: str
     map: tilemap.TileMap
     platforms: list[Platform]
     player: Player
@@ -26,8 +29,11 @@ class Level:
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
     current_platform: Platform | None = None
+    font: Font
 
     def __init__(self, map_path: str):
+        self.name = os.path.splitext(os.path.basename(map_path))[0]
+        self.font = Font()
         self.map = tilemap.load_map(map_path)
         self.player = Player()
         self.player.x = self.map.tilewidth * 16
@@ -283,8 +289,8 @@ class Level:
         player_draw_y = dest.height//2
         if player_draw_x > player_x:
             player_draw_x = player_x
-        if player_draw_y > player_y:
-            player_draw_y = player_y
+        if player_draw_y > player_y + 4:
+            player_draw_y = player_y + 4
         if player_draw_x < player_x + dest.width - (self.map.width * self.map.tilewidth):
             player_draw_x = (
                 player_x + dest.width -
@@ -303,3 +309,12 @@ class Level:
             platform.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
         self.map.draw_foreground(surface, dest, map_offset)
+
+        # Draw the text overlay.
+        top_bar_bgcolor = pygame.Color(0, 0, 0, 63)
+        top_bar_area = pygame.Rect(dest.left, dest.top, dest.width, 12)
+        top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
+        top_bar.fill(top_bar_bgcolor)
+        surface.blit(top_bar, top_bar_area)
+        # pygame.draw.rect(surface, text_back, top_bar)
+        self.font.draw_string(surface, (2, 2), self.name)
