@@ -20,6 +20,7 @@ WALL_JUMP_HORIZONTAL_SPEED = 24
 WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
+VIEWPORT_PAN_SPEED = 5
 
 
 class Level(Scene):
@@ -33,11 +34,13 @@ class Level(Scene):
     wall_slide_counter: int = WALL_SLIDE_TIME
     current_platform: Platform | None = None
     font: Font
+    previous_map_offset: None | tuple[int, int]
 
     def __init__(self, map_path: str, font: Font):
         self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
         self.font = font
+        self.previous_map_offset = None
         self.map = tilemap.load_map(map_path)
         self.player = Player()
         self.player.x = self.map.tilewidth * 16
@@ -296,10 +299,13 @@ class Level(Scene):
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
         # Make sure the player is on the screen, and then center them if possible.
-        player_x = self.player.x//16
-        player_y = self.player.y//16
-        player_draw_x = dest.width//2
-        player_draw_y = dest.height//2
+        player_x: int = self.player.x//16
+        player_y: int = self.player.y//16
+
+        player_rect = self.player.rect((player_x, player_y))
+        preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
+        player_draw_x: int = dest.width//2
+        player_draw_y: int = dest.height//2
         if player_draw_x > player_x:
             player_draw_x = player_x
         if player_draw_y > player_y + 4:
@@ -312,9 +318,33 @@ class Level(Scene):
             player_draw_y = (
                 player_y + dest.height -
                 (self.map.height * self.map.tileheight))
-        map_offset = (
+        map_offset: tuple[int, int] = (
             player_draw_x - player_x,
             player_draw_y - player_y)
+
+        if preferred_x is not None:
+            map_offset = (-preferred_x, map_offset[1])
+            player_draw_x = player_x + map_offset[0]
+        if preferred_y is not None:
+            map_offset = (map_offset[0], -preferred_y)
+            player_draw_y = player_y + map_offset[1]
+
+        # Don't let the viewport move too much in between frames.
+        if self.previous_map_offset is not None:
+            prev = self.previous_map_offset
+            if abs(map_offset[0] - prev[0]) > VIEWPORT_PAN_SPEED:
+                if prev[0] < map_offset[0]:
+                    map_offset = (prev[0] + VIEWPORT_PAN_SPEED, map_offset[1])
+                elif prev[0] > map_offset[0]:
+                    map_offset = (prev[0] - VIEWPORT_PAN_SPEED, map_offset[1])
+                player_draw_x = player_x + map_offset[0]
+            if abs(map_offset[1] - prev[1]) > VIEWPORT_PAN_SPEED:
+                if prev[1] < map_offset[1]:
+                    map_offset = (map_offset[0], prev[1] + VIEWPORT_PAN_SPEED)
+                elif prev[1] > map_offset[1]:
+                    map_offset = (map_offset[0], prev[1] - VIEWPORT_PAN_SPEED)
+                player_draw_y = player_y + map_offset[1]
+        self.previous_map_offset = map_offset
 
         # Do the actual drawing.
         self.map.draw_background(surface, dest, map_offset)
