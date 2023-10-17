@@ -123,6 +123,6 @@
     <property name="distance" type="int" value="11"/>
    </properties>
   </object>
-  <object id="19" gid="161" x="288" y="128" width="8" height="8"/>
+  <object id="19" gid="161" x="296" y="128" width="8" height="8"/>
  </objectgroup>
 </map>
