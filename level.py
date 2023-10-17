@@ -23,6 +23,14 @@ WALL_SLIDE_TIME = 60
 VIEWPORT_PAN_SPEED = 5
 
 
+def sign(n: int):
+    if n < 0:
+        return -1
+    if n > 0:
+        return 1
+    return 0
+
+
 class Level(Scene):
     map_path: str
     name: str
@@ -226,7 +234,14 @@ class Level(Scene):
             if not platform.is_solid:
                 continue
             if platform.intersect(player_rect):
-                print('intersecting a solid platform')
+                new_x = self.player.x + sign(platform.dx) * 16
+                new_y = self.player.y + sign(platform.dy)*16
+                player_rect = self.player.rect((new_x//16, new_y//16))
+                if not self.intersect_standing(player_rect):
+                    self.player.x = new_x
+                    self.player.y = new_y
+                else:
+                    self.player.is_dead = True
 
     def update(self, input: inputmanager.InputManager) -> Scene:
         self.update_horizontal(input)
