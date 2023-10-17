@@ -30,8 +30,12 @@ class Platform:
     dx: int
     dy: int
     occupied: bool
+    is_solid: bool
 
     def __init__(self, obj: MapObject, tileset: TileSet):
+        if obj.gid is None:
+            raise Exception('platforms must have tile ids')
+
         self.id = obj.id
         self.tileset = tileset
         self.tile_id = obj.gid
@@ -40,6 +44,7 @@ class Platform:
         self.dx = 0
         self.dy = 0
         self.occupied = False
+        self.is_solid = bool(obj.properties.get('solid', False))
 
     def update(self):
         pass

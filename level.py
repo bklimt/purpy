@@ -23,6 +23,14 @@ WALL_SLIDE_TIME = 60
 VIEWPORT_PAN_SPEED = 5
 
 
+def sign(n: int):
+    if n < 0:
+        return -1
+    if n > 0:
+        return 1
+    return 0
+
+
 class Level(Scene):
     map_path: str
     name: str
@@ -81,17 +89,24 @@ class Level(Scene):
             for platform in self.platforms:
                 if platform.intersect_top(player_rect):
                     return True
-        if len(self.map.intersect(player_rect)) > 0:
+        if self.intersect_standing(player_rect):
             return True
         return False
 
     def intersect_horizontal(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when moving right or left. """
-        return len(self.map.intersect(player_rect)) > 0
+        return self.intersect_standing(player_rect)
 
     def intersect_standing(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when the player is just, like, standing there being cool. """
-        return len(self.map.intersect(player_rect)) > 0
+        if len(self.map.intersect(player_rect)) > 0:
+            return True
+        for platform in self.platforms:
+            if not platform.is_solid:
+                continue
+            if platform.intersect(player_rect):
+                return True
+        return False
 
     def is_on_ground(self) -> bool:
         if self.player.dy < 0:
@@ -198,16 +213,35 @@ class Level(Scene):
     def update_move_with_platform(self):
         if self.current_platform is None:
             return
-
-        new_x = self.player.x + self.current_platform.dx
-        new_y = self.player.y + self.current_platform.dy
+        platform = self.current_platform
+        new_x = self.player.x + platform.dx
+        new_y = self.player.y + platform.dy
         player_rect = self.player.rect((new_x//16, new_y//16))
         if not self.intersect_standing(player_rect):
             self.player.x = new_x
             self.player.y = new_y
             # To make sure things stay pixel perfect, make sure the subpixels are the same.
-            self.player.y = ((self.player.y // 16) * 16) + \
-                (self.current_platform.y % 16)
+            self.player.y = ((self.player.y // 16) * 16) + (platform.y % 16)
+        else:
+            if platform.is_solid:
+                print(f'crushed by platform {platform.id}')
+                self.player.is_dead = True
+
+    def handle_solid_platforms(self):
+        for platform in self.platforms:
+            player_rect = self.player.rect(
+                (self.player.x//16, self.player.y//16))
+            if not platform.is_solid:
+                continue
+            if platform.intersect(player_rect):
+                new_x = self.player.x + sign(platform.dx) * 16
+                new_y = self.player.y + sign(platform.dy)*16
+                player_rect = self.player.rect((new_x//16, new_y//16))
+                if not self.intersect_standing(player_rect):
+                    self.player.x = new_x
+                    self.player.y = new_y
+                else:
+                    self.player.is_dead = True
 
     def update(self, input: inputmanager.InputManager) -> Scene:
         self.update_horizontal(input)
@@ -270,6 +304,8 @@ class Level(Scene):
         for platform in self.platforms:
             platform.update()
         self.update_move_with_platform()
+
+        self.handle_solid_platforms()
 
         if True:
             inputs = []
