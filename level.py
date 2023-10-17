@@ -202,19 +202,34 @@ class Level(Scene):
                 self.player.y = new_y
         return False
 
-    def update_move_with_platform(self):
-        if self.current_platform is None:
-            return
-
-        new_x = self.player.x + self.current_platform.dx
-        new_y = self.player.y + self.current_platform.dy
+    def move_with_platform(self, platform: Platform):
+        new_x = self.player.x + platform.dx
+        new_y = self.player.y + platform.dy
         player_rect = self.player.rect((new_x//16, new_y//16))
         if not self.intersect_standing(player_rect):
             self.player.x = new_x
             self.player.y = new_y
             # To make sure things stay pixel perfect, make sure the subpixels are the same.
-            self.player.y = ((self.player.y // 16) * 16) + \
-                (self.current_platform.y % 16)
+            self.player.y = ((self.player.y // 16) * 16) + (platform.y % 16)
+        else:
+            if platform.is_solid:
+                print(f'crushed by platform {platform.id}') 
+                self.player.is_dead = True
+
+    def update_move_with_platform(self):
+        if self.current_platform is None:
+            return
+        self.move_with_platform(self.current_platform)
+
+    def handle_solid_platforms(self):
+        for platform in self.platforms:
+            player_rect = self.player.rect(
+                (self.player.x//16, self.player.y//16))
+            if not platform.is_solid:
+                continue
+            if platform.intersect(player_rect):
+                print('oh no!')
+                self.move_with_platform(platform)
 
     def update(self, input: inputmanager.InputManager) -> Scene:
         self.update_horizontal(input)
@@ -277,6 +292,8 @@ class Level(Scene):
         for platform in self.platforms:
             platform.update()
         self.update_move_with_platform()
+
+        self.handle_solid_platforms()
 
         if True:
             inputs = []
