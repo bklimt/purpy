@@ -202,7 +202,10 @@ class Level(Scene):
                 self.player.y = new_y
         return False
 
-    def move_with_platform(self, platform: Platform):
+    def update_move_with_platform(self):
+        if self.current_platform is None:
+            return
+        platform = self.current_platform
         new_x = self.player.x + platform.dx
         new_y = self.player.y + platform.dy
         player_rect = self.player.rect((new_x//16, new_y//16))
@@ -213,13 +216,8 @@ class Level(Scene):
             self.player.y = ((self.player.y // 16) * 16) + (platform.y % 16)
         else:
             if platform.is_solid:
-                print(f'crushed by platform {platform.id}') 
+                print(f'crushed by platform {platform.id}')
                 self.player.is_dead = True
-
-    def update_move_with_platform(self):
-        if self.current_platform is None:
-            return
-        self.move_with_platform(self.current_platform)
 
     def handle_solid_platforms(self):
         for platform in self.platforms:
@@ -228,8 +226,7 @@ class Level(Scene):
             if not platform.is_solid:
                 continue
             if platform.intersect(player_rect):
-                print('oh no!')
-                self.move_with_platform(platform)
+                print('intersecting a solid platform')
 
     def update(self, input: inputmanager.InputManager) -> Scene:
         self.update_horizontal(input)
