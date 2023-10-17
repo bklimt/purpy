@@ -21,6 +21,8 @@ WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 VIEWPORT_PAN_SPEED = 5
+TOAST_TIME = 200
+TOAST_HEIGHT = 12
 
 
 def sign(n: int):
@@ -43,6 +45,8 @@ class Level(Scene):
     current_platform: Platform | None = None
     font: Font
     previous_map_offset: None | tuple[int, int]
+    toast_position: int = -TOAST_HEIGHT
+    toast_counter: int = TOAST_TIME
 
     def __init__(self, map_path: str, font: Font):
         self.map_path = map_path
@@ -331,6 +335,14 @@ class Level(Scene):
         if self.player.is_dead:
             return KillScreen(self.font, self, lambda: Level(self.map_path, self.font))
 
+        if self.toast_counter == 0:
+            if self.toast_position > -TOAST_HEIGHT:
+                self.toast_position -= 1
+        else:
+            self.toast_counter -= 1
+            if self.toast_position < 0:
+                self.toast_position += 1
+
         return self
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
@@ -390,10 +402,10 @@ class Level(Scene):
         self.map.draw_foreground(surface, dest, map_offset)
 
         # Draw the text overlay.
-        top_bar_bgcolor = pygame.Color(0, 0, 0, 63)
-        top_bar_area = pygame.Rect(dest.left, dest.top, dest.width, 12)
+        top_bar_bgcolor = pygame.Color(0, 0, 0, 127)
+        top_bar_area = pygame.Rect(
+            dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
         top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
         top_bar.fill(top_bar_bgcolor)
+        self.font.draw_string(top_bar, (2, 2), self.name)
         surface.blit(top_bar, top_bar_area)
-        # pygame.draw.rect(surface, text_back, top_bar)
-        self.font.draw_string(surface, (2, 2), self.name)
