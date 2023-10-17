@@ -5,10 +5,10 @@ from tileset import TileSet
 from random import randint
 import pygame
 
-BAGEL_WAIT_TIME = 30
-BAGEL_FALL_TIME = 150
-BAGEL_MAX_GRAVITY = 11
-BAGEL_GRAVITY_ACCELERATION = 1
+BAGEL_WAIT_TIME = 15
+BAGEL_FALL_TIME = 75
+BAGEL_MAX_GRAVITY = 22
+BAGEL_GRAVITY_ACCELERATION = 2
 
 
 def sign(n: int) -> int:
@@ -109,8 +109,8 @@ class MovingPlatform(Platform):
         else:
             raise Exception(f'unknown direction {d}')
 
-        self.dx = sign(self.end_x - self.start_x) * self.speed
-        self.dy = sign(self.end_y - self.start_y) * self.speed
+        self.dx = sign(self.end_x - self.start_x) * self.speed * 2
+        self.dy = sign(self.end_y - self.start_y) * self.speed * 2
 
     def update(self):
         if self.x == self.end_x:

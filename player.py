@@ -4,8 +4,8 @@ from random import randint
 from spritesheet import SpriteSheet
 import pygame
 
-FRAMES_PER_FRAME = 8
-IDLE_TIME = 240
+FRAMES_PER_FRAME = 4
+IDLE_TIME = 120
 
 
 class PlayerState(Enum):
