@@ -1,4 +1,5 @@
 
+from fire import Fire
 from font import Font
 import inputmanager
 from kill import KillScreen
@@ -38,6 +39,7 @@ class Level(Scene):
     name: str
     map: tilemap.TileMap
     platforms: list[Platform]
+    fires: list[Fire]
     player: Player
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
@@ -59,11 +61,14 @@ class Level(Scene):
         self.player.y = self.map.tileheight * 16
         self.transition: str = ''
         self.platforms = []
+        self.fires = []
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
             if obj.properties.get('bagel', False):
                 self.platforms.append(Bagel(obj, self.map.tileset))
+            if obj.properties.get('fire', False):
+                self.fires.append(Fire(obj))
 
     def intersect_ground(self, player_rect: pygame.Rect) -> bool:
         """ Checks the ground underneath the player. """
@@ -311,6 +316,9 @@ class Level(Scene):
 
         self.handle_solid_platforms()
 
+        for fire in self.fires:
+            fire.update(15)
+
         if True:
             inputs = []
             if on_ground:
@@ -398,6 +406,8 @@ class Level(Scene):
         self.map.draw_background(surface, dest, map_offset)
         for platform in self.platforms:
             platform.draw(surface, map_offset)
+        for fire in self.fires:
+            fire.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
         self.map.draw_foreground(surface, dest, map_offset)
 
