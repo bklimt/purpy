@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="9">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="42">
  <tileset firstgid="1" source="../purple.tsx"/>
- <layer id="1" name="Tile Layer 1" width="40" height="22" visible="0">
+ <layer id="1" name="Tile Layer 1" width="40" height="22">
   <data encoding="csv">
+0,0,0,0,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,33,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,1,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,33,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -12,19 +24,7 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131,131
 </data>
  </layer>
  <objectgroup id="3" name="buef">
@@ -70,5 +70,101 @@
     <property name="distance" type="int" value="33"/>
    </properties>
   </object>
+  <object id="9" gid="130" x="264" y="112" width="8" height="8">
+   <properties>
+    <property name="direction" value="W"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="10" gid="130" x="272" y="112" width="8" height="8">
+   <properties>
+    <property name="direction" value="W"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="11" gid="130" x="280" y="112" width="8" height="8">
+   <properties>
+    <property name="direction" value="W"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="12" gid="130" x="288" y="112" width="8" height="8">
+   <properties>
+    <property name="direction" value="W"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="13" gid="130" x="296" y="112" width="8" height="8">
+   <properties>
+    <property name="direction" value="W"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="14" gid="130" x="304" y="112" width="8" height="8">
+   <properties>
+    <property name="direction" value="W"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="15" gid="130" x="312" y="112" width="8" height="8">
+   <properties>
+    <property name="direction" value="W"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="23" gid="130" x="0" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="24" gid="130" x="8" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="25" gid="130" x="16" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="26" gid="130" x="32" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="27" gid="130" x="24" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="28" gid="130" x="40" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="29" gid="130" x="48" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="33"/>
+   </properties>
+  </object>
+  <object id="30" gid="129" x="144" y="56" width="8" height="8"/>
+  <object id="31" gid="129" x="168" y="56" width="8" height="8"/>
+  <object id="32" gid="129" x="160" y="56" width="8" height="8"/>
+  <object id="33" gid="129" x="152" y="56" width="8" height="8"/>
+  <object id="34" gid="129" x="192" y="72" width="8" height="8"/>
+  <object id="35" gid="129" x="200" y="72" width="8" height="8"/>
+  <object id="36" gid="129" x="208" y="72" width="8" height="8"/>
+  <object id="37" gid="129" x="120" y="32" width="8" height="8"/>
+  <object id="38" gid="129" x="112" y="32" width="8" height="8"/>
+  <object id="39" gid="129" x="96" y="32" width="8" height="8"/>
+  <object id="40" gid="129" x="104" y="32" width="8" height="8"/>
+  <object id="41" gid="129" x="128" y="32" width="8" height="8"/>
  </objectgroup>
 </map>
