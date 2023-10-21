@@ -21,6 +21,16 @@ WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 VIEWPORT_PAN_SPEED = 5
+TOAST_TIME = 200
+TOAST_HEIGHT = 12
+
+
+def sign(n: int):
+    if n < 0:
+        return -1
+    if n > 0:
+        return 1
+    return 0
 
 
 class Level(Scene):
@@ -35,6 +45,8 @@ class Level(Scene):
     current_platform: Platform | None = None
     font: Font
     previous_map_offset: None | tuple[int, int]
+    toast_position: int = -TOAST_HEIGHT
+    toast_counter: int = TOAST_TIME
 
     def __init__(self, map_path: str, font: Font):
         self.map_path = map_path
@@ -81,17 +93,24 @@ class Level(Scene):
             for platform in self.platforms:
                 if platform.intersect_top(player_rect):
                     return True
-        if len(self.map.intersect(player_rect)) > 0:
+        if self.intersect_standing(player_rect):
             return True
         return False
 
     def intersect_horizontal(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when moving right or left. """
-        return len(self.map.intersect(player_rect)) > 0
+        return self.intersect_standing(player_rect)
 
     def intersect_standing(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when the player is just, like, standing there being cool. """
-        return len(self.map.intersect(player_rect)) > 0
+        if len(self.map.intersect(player_rect)) > 0:
+            return True
+        for platform in self.platforms:
+            if not platform.is_solid:
+                continue
+            if platform.intersect(player_rect):
+                return True
+        return False
 
     def is_on_ground(self) -> bool:
         if self.player.dy < 0:
@@ -198,16 +217,35 @@ class Level(Scene):
     def update_move_with_platform(self):
         if self.current_platform is None:
             return
-
-        new_x = self.player.x + self.current_platform.dx
-        new_y = self.player.y + self.current_platform.dy
+        platform = self.current_platform
+        new_x = self.player.x + platform.dx
+        new_y = self.player.y + platform.dy
         player_rect = self.player.rect((new_x//16, new_y//16))
         if not self.intersect_standing(player_rect):
             self.player.x = new_x
             self.player.y = new_y
             # To make sure things stay pixel perfect, make sure the subpixels are the same.
-            self.player.y = ((self.player.y // 16) * 16) + \
-                (self.current_platform.y % 16)
+            self.player.y = ((self.player.y // 16) * 16) + (platform.y % 16)
+        else:
+            if platform.is_solid:
+                print(f'crushed by platform {platform.id}')
+                self.player.is_dead = True
+
+    def handle_solid_platforms(self):
+        for platform in self.platforms:
+            player_rect = self.player.rect(
+                (self.player.x//16, self.player.y//16))
+            if not platform.is_solid:
+                continue
+            if platform.intersect(player_rect):
+                new_x = self.player.x + sign(platform.dx) * 16
+                new_y = self.player.y + sign(platform.dy)*16
+                player_rect = self.player.rect((new_x//16, new_y//16))
+                if not self.intersect_standing(player_rect):
+                    self.player.x = new_x
+                    self.player.y = new_y
+                else:
+                    self.player.is_dead = True
 
     def update(self, input: inputmanager.InputManager) -> Scene:
         self.update_horizontal(input)
@@ -271,6 +309,8 @@ class Level(Scene):
             platform.update()
         self.update_move_with_platform()
 
+        self.handle_solid_platforms()
+
         if True:
             inputs = []
             if on_ground:
@@ -294,6 +334,14 @@ class Level(Scene):
 
         if self.player.is_dead:
             return KillScreen(self.font, self, lambda: Level(self.map_path, self.font))
+
+        if self.toast_counter == 0:
+            if self.toast_position > -TOAST_HEIGHT:
+                self.toast_position -= 1
+        else:
+            self.toast_counter -= 1
+            if self.toast_position < 0:
+                self.toast_position += 1
 
         return self
 
@@ -354,10 +402,10 @@ class Level(Scene):
         self.map.draw_foreground(surface, dest, map_offset)
 
         # Draw the text overlay.
-        top_bar_bgcolor = pygame.Color(0, 0, 0, 63)
-        top_bar_area = pygame.Rect(dest.left, dest.top, dest.width, 12)
+        top_bar_bgcolor = pygame.Color(0, 0, 0, 127)
+        top_bar_area = pygame.Rect(
+            dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
         top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
         top_bar.fill(top_bar_bgcolor)
+        self.font.draw_string(top_bar, (2, 2), self.name)
         surface.blit(top_bar, top_bar_area)
-        # pygame.draw.rect(surface, text_back, top_bar)
-        self.font.draw_string(surface, (2, 2), self.name)
