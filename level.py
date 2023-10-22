@@ -81,8 +81,9 @@ class Level(Scene):
             if switch is None:
                 raise Exception('non-switch passed to switch code')
             if switch.startswith('!'):
-                print(f'switched off {switch[1:]}')
-                self.switches.remove(switch[1:])
+                if switch[1:] in self.switches:
+                    print(f'switched off {switch[1:]}')
+                    self.switches.remove(switch[1:])
             elif switch.startswith('~'):
                 print(f'toggled {switch[1:]}')
                 if switch[1:] in self.switches:
