@@ -250,8 +250,10 @@ class Level(Scene):
                     self.player.is_dead = True
 
     def update(self, input: inputmanager.InputManager) -> Scene | None:
-        if input.is_key_triggered(pygame.K_ESCAPE):
+        if input.is_cancel_triggered():
             return self.parent
+        if input.is_restart_down():
+            return Level(self.parent, self.map_path, self.font)
 
         self.update_horizontal(input)
         self.update_vertical(input)
