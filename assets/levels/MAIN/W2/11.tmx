@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="42">
- <tileset firstgid="1" source="../../purple.tsx"/>
+ <tileset firstgid="1" source="../../../purple.tsx"/>
  <imagelayer id="2" name="sdrhgzsd">
   <image source="../../space.png" width="320" height="176"/>
  </imagelayer>
