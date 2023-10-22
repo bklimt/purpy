@@ -2,10 +2,10 @@
 <map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="80" height="44" tilewidth="8" tileheight="8" infinite="0" nextlayerid="8" nextobjectid="42">
  <tileset firstgid="1" source="../../../purple.tsx"/>
  <imagelayer id="5" name="Image Layer 2" offsetx="-15.7948" offsety="526.037">
-  <image source="../../space.png" width="320" height="176"/>
+  <image source="../../../space.png" width="320" height="176"/>
  </imagelayer>
  <imagelayer id="3" name="Image Layer 1" offsetx="4.12039" offsety="3.43366">
-  <image source="../../space2.png" width="320" height="176"/>
+  <image source="../../../space2.png" width="320" height="176"/>
  </imagelayer>
  <layer id="4" name="yk" width="80" height="44">
   <data encoding="csv">
