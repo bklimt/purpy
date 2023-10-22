@@ -20,7 +20,7 @@ class LevelSelect(Scene):
         self.directory = os.path.normpath(directory)
         self.current = 0
         self.font = font
-        self.files = os.listdir(directory)
+        self.files = sorted(os.listdir(directory))
 
     def update(self, input: InputManager) -> Scene | None:
         if input.is_cancel_triggered():

@@ -41,6 +41,11 @@
    <property name="speed" type="int" value="4"/>
   </properties>
  </tile>
+ <tile id="136">
+  <properties>
+   <property name="switch" value="red"/>
+  </properties>
+ </tile>
  <tile id="144">
   <properties>
    <property name="star" type="bool" value="true"/>
@@ -79,6 +84,12 @@
    <property name="distance" type="int" value="0"/>
    <property name="platform" type="bool" value="true"/>
    <property name="speed" type="int" value="4"/>
+  </properties>
+ </tile>
+ <tile id="153">
+  <properties>
+   <property name="alternate" type="int" value="137"/>
+   <property name="condition" value="red"/>
   </properties>
  </tile>
  <tile id="160">
