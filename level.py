@@ -34,6 +34,7 @@ def sign(n: int):
 
 
 class Level(Scene):
+    parent: Scene | None
     map_path: str
     name: str
     map: tilemap.TileMap
@@ -48,7 +49,8 @@ class Level(Scene):
     toast_position: int = -TOAST_HEIGHT
     toast_counter: int = TOAST_TIME
 
-    def __init__(self, map_path: str, font: Font):
+    def __init__(self, parent: Scene | None, map_path: str, font: Font):
+        self.parent = parent
         self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
         self.font = font
@@ -247,7 +249,10 @@ class Level(Scene):
                 else:
                     self.player.is_dead = True
 
-    def update(self, input: inputmanager.InputManager) -> Scene:
+    def update(self, input: inputmanager.InputManager) -> Scene | None:
+        if input.is_key_triggered(pygame.K_ESCAPE):
+            return self.parent
+
         self.update_horizontal(input)
         self.update_vertical(input)
 
@@ -333,7 +338,7 @@ class Level(Scene):
                 print(transition)
 
         if self.player.is_dead:
-            return KillScreen(self.font, self, lambda: Level(self.map_path, self.font))
+            return KillScreen(self.font, self, lambda: Level(self.parent, self.map_path, self.font))
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:

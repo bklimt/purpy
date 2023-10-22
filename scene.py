@@ -7,7 +7,7 @@ class Scene:
     def __init__(self):
         raise Exception('abstract base class')
 
-    def update(self, input: InputManager) -> 'Scene':
+    def update(self, input: InputManager) -> 'Scene | None':
         raise Exception('abstract base class')
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect):
