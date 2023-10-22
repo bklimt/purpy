@@ -43,7 +43,51 @@
  </tile>
  <tile id="136">
   <properties>
+   <property name="condition" value="!red"/>
    <property name="switch" value="red"/>
+  </properties>
+ </tile>
+ <tile id="137">
+  <properties>
+   <property name="alternate" type="int" value="153"/>
+   <property name="condition" value="!red"/>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="138">
+  <properties>
+   <property name="switch" value="~blue"/>
+  </properties>
+ </tile>
+ <tile id="139">
+  <properties>
+   <property name="alternate" type="int" value="155"/>
+   <property name="condition" value="!blue"/>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="140">
+  <properties>
+   <property name="switch" value="green"/>
+  </properties>
+ </tile>
+ <tile id="141">
+  <properties>
+   <property name="alternate" type="int" value="157"/>
+   <property name="condition" value="!green"/>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="142">
+  <properties>
+   <property name="switch" value="!green"/>
+  </properties>
+ </tile>
+ <tile id="143">
+  <properties>
+   <property name="alternate" type="int" value="159"/>
+   <property name="condition" value="green"/>
+   <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
  <tile id="144">
@@ -90,6 +134,24 @@
   <properties>
    <property name="alternate" type="int" value="137"/>
    <property name="condition" value="red"/>
+  </properties>
+ </tile>
+ <tile id="155">
+  <properties>
+   <property name="alternate" type="int" value="139"/>
+   <property name="condition" value="blue"/>
+  </properties>
+ </tile>
+ <tile id="157">
+  <properties>
+   <property name="alternate" type="int" value="141"/>
+   <property name="condition" value="green"/>
+  </properties>
+ </tile>
+ <tile id="159">
+  <properties>
+   <property name="alternate" type="int" value="143"/>
+   <property name="condition" value="!green"/>
   </properties>
  </tile>
  <tile id="160">

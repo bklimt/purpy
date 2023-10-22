@@ -166,9 +166,10 @@ class TileMap:
         condition = self.tileset.get_str_property(tile, 'condition')
         if condition is None:
             return True
-        if condition in switches:
-            return True
-        return False
+        if condition.startswith('!'):
+            return condition[1:] not in switches
+        else:
+            return condition in switches
 
     def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
         surface.fill(self.backgroundcolor, dest)
@@ -285,6 +286,13 @@ class TileMap:
                             continue
                         index -= 1
                         if not self.is_condition_met(index, switches):
+                            alt = self.tileset.get_int_property(
+                                index, 'alternate')
+                            if alt is None:
+                                continue
+                            # Use an alt tile instead of the original.
+                            index = alt
+                        if not self.tileset.get_bool_property(index, 'solid', True):
                             continue
                         ans.append(index)
         return ans
