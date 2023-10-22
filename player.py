@@ -1,8 +1,10 @@
 
+import pygame
+
 from enum import Enum
 from random import randint
+
 from spritesheet import SpriteSheet
-import pygame
 
 FRAMES_PER_FRAME = 8
 IDLE_TIME = 240
@@ -33,7 +35,7 @@ class Player:
     is_dead: bool = False
 
     def __init__(self):
-        self.texture = pygame.image.load('assets/skelly.png')
+        self.texture = pygame.image.load('assets/sprites/skelly.png')
         self.sprite = SpriteSheet(self.texture, 24, 24)
 
     def draw(self, surface: pygame.Surface, pos: tuple[int, int]):

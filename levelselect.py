@@ -1,10 +1,13 @@
 
-from font import Font
-from inputmanager import InputManager
-from level import Level
 import os
 import pygame
+
+from font import Font
+from imagemanager import ImageManager
+from inputmanager import InputManager
+from level import Level
 from scene import Scene
+from soundmanager import SoundManager
 
 
 class LevelSelect(Scene):
@@ -12,17 +15,15 @@ class LevelSelect(Scene):
     directory: str
     files: list[str]
     current: int
-    font: Font
     start: int = 0
 
-    def __init__(self, parent: Scene | None, directory: str, font: Font):
+    def __init__(self, parent: Scene | None, directory: str):
         self.parent = parent
         self.directory = os.path.normpath(directory)
         self.current = 0
-        self.font = font
         self.files = sorted(os.listdir(directory))
 
-    def update(self, input: InputManager) -> Scene | None:
+    def update(self, input: InputManager, sounds: SoundManager) -> Scene | None:
         if input.is_cancel_triggered():
             return self.parent
         if input.is_up_triggered():
@@ -32,16 +33,16 @@ class LevelSelect(Scene):
         if input.is_ok_triggered():
             new_path = os.path.join(self.directory, self.files[self.current])
             if os.path.isdir(new_path):
-                return LevelSelect(self, new_path, self.font)
+                return LevelSelect(self, new_path)
             else:
-                return Level(self, new_path, self.font)
+                return Level(self, new_path)
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect):
+    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager):
         x = 4
         y = 4
         dir_str = os.path.join(self.directory, "")
-        self.font.draw_string(surface, (x, y), dir_str)
+        images.font.draw_string(surface, (x, y), dir_str)
         y += 12
 
         if self.current < self.start:
@@ -51,7 +52,7 @@ class LevelSelect(Scene):
             # You scrolled off the bottom.
             self.start = self.current - 10
         if self.start != 0:
-            self.font.draw_string(surface, (x, y), ' ...')
+            images.font.draw_string(surface, (x, y), ' ...')
         y += 12
 
         for i in range(self.start, self.start + 11):
@@ -60,8 +61,9 @@ class LevelSelect(Scene):
             cursor = ' '
             if i == self.current:
                 cursor = '>'
-            self.font.draw_string(surface, (x, y), f'{cursor}{self.files[i]}')
+            images.font.draw_string(
+                surface, (x, y), f'{cursor}{self.files[i]}')
             y += 12
 
         if self.start + 12 <= len(self.files):
-            self.font.draw_string(surface, (x, y), ' ...')
+            images.font.draw_string(surface, (x, y), ' ...')
