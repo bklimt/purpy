@@ -44,8 +44,6 @@ pygame.display.set_caption('purpy')
 
 
 class Game:
-    level: int = 0
-    levels: list[str] = []
     clock = pygame.time.Clock()
     input_manager = InputManager()
     font: Font
@@ -53,16 +51,6 @@ class Game:
 
     def __init__(self):
         self.font = Font('assets/8bitfont.tsx')
-
-        self.levels = []
-        for root, _, files in os.walk('assets/levels'):
-            for f in files:
-                if f.endswith('.tmx'):
-                    self.levels.append(os.path.join(root, f))
-        self.levels.sort()
-        for path in self.levels:
-            print(f'level: {path}')
-        self.level = 0
 
         if len(sys.argv) > 1:
             self.scene = Level(None, sys.argv[1], self.font)
@@ -73,15 +61,6 @@ class Game:
         """ Returns True if the game should keep running. """
         if self.scene is None:
             return False
-
-        if self.input_manager.is_key_triggered(pygame.K_1) or self.input_manager.is_button_triggered(2):
-            self.level = (self.level + 1) % len(self.levels)
-            mainmenu = LevelSelect(None, 'assets/levels', self.font)
-            self.scene = Level(mainmenu, self.levels[self.level], self.font)
-
-        if self.input_manager.is_key_triggered(pygame.K_2) or self.input_manager.is_button_triggered(3):
-            mainmenu = LevelSelect(None, 'assets/levels', self.font)
-            self.scene = Level(mainmenu, self.levels[self.level], self.font)
 
         # Update the actual game logic.
         self.scene = self.scene.update(self.input_manager)
@@ -114,7 +93,8 @@ class Game:
                         game_running = False
                     case (pygame.KEYDOWN | pygame.KEYUP |
                           pygame.JOYBUTTONDOWN | pygame.JOYBUTTONUP |
-                          pygame.JOYAXISMOTION | pygame.JOYHATMOTION):
+                          pygame.JOYAXISMOTION | pygame.JOYHATMOTION |
+                          pygame.JOYDEVICEADDED | pygame.JOYDEVICEREMOVED):
                         self.input_manager.handle_event(event)
 
             if not self.update():

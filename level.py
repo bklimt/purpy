@@ -48,6 +48,7 @@ class Level(Scene):
     previous_map_offset: None | tuple[int, int]
     toast_position: int = -TOAST_HEIGHT
     toast_counter: int = TOAST_TIME
+    switches: set[str]
 
     def __init__(self, parent: Scene | None, map_path: str, font: Font):
         self.parent = parent
@@ -61,6 +62,7 @@ class Level(Scene):
         self.player.y = self.map.tileheight * 16
         self.transition: str = ''
         self.platforms = []
+        self.switches = set()
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
@@ -81,11 +83,16 @@ class Level(Scene):
                 platform.occupied = False
         if self.current_platform is not None:
             return True
-        tiles = self.map.intersect(player_rect)
+        tiles = self.map.intersect(player_rect, self.switches)
         if len(tiles) > 0:
             for tile in tiles:
-                if self.map.tileset.properties.get(tile, {}).get('deadly', False):
+                if self.map.tileset.get_bool_property(tile, 'deadly'):
                     self.player.is_dead = True
+                switch = self.map.tileset.get_str_property(tile, 'switch')
+                if switch is not None:
+                    if switch not in self.switches:
+                        print(f'switched {switch}')
+                        self.switches.add(switch)
             return True
         return False
 
@@ -105,7 +112,7 @@ class Level(Scene):
 
     def intersect_standing(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when the player is just, like, standing there being cool. """
-        if len(self.map.intersect(player_rect)) > 0:
+        if len(self.map.intersect(player_rect, self.switches)) > 0:
             return True
         for platform in self.platforms:
             if not platform.is_solid:
@@ -250,8 +257,10 @@ class Level(Scene):
                     self.player.is_dead = True
 
     def update(self, input: inputmanager.InputManager) -> Scene | None:
-        if input.is_key_triggered(pygame.K_ESCAPE):
+        if input.is_cancel_triggered():
             return self.parent
+        if input.is_restart_down():
+            return Level(self.parent, self.map_path, self.font)
 
         self.update_horizontal(input)
         self.update_vertical(input)
@@ -400,11 +409,11 @@ class Level(Scene):
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
-        self.map.draw_background(surface, dest, map_offset)
+        self.map.draw_background(surface, dest, map_offset, self.switches)
         for platform in self.platforms:
             platform.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
-        self.map.draw_foreground(surface, dest, map_offset)
+        self.map.draw_foreground(surface, dest, map_offset, self.switches)
 
         # Draw the text overlay.
         top_bar_bgcolor = pygame.Color(0, 0, 0, 127)

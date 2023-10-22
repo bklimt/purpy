@@ -162,24 +162,32 @@ class TileMap:
         for obj in self.objects:
             print(f'loaded object {obj}')
 
-    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
+    def is_condition_met(self, tile: int, switches: set[str]):
+        condition = self.tileset.get_str_property(tile, 'condition')
+        if condition is None:
+            return True
+        if condition in switches:
+            return True
+        return False
+
+    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
         surface.fill(self.backgroundcolor, dest)
         for layer in self.layers:
-            self.draw_layer(surface, dest, offset, layer)
+            self.draw_layer(surface, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 return
 
-    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float]):
+    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
         if self.player_layer is None:
             return
         drawing = False
         for layer in self.layers:
             if drawing:
-                self.draw_layer(surface, dest, offset, layer)
+                self.draw_layer(surface, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], layer: TileLayer | ImageLayer):
+    def draw_layer(self, surface: pygame.Surface, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
         # pygame.draw.rect(surface, self.backgroundcolor, dest)
 
         if isinstance(layer, ImageLayer):
@@ -211,6 +219,14 @@ class TileMap:
                 index = layer.data[row][col]
                 if index == 0:
                     continue
+                index -= 1
+
+                if not self.is_condition_met(index, switches):
+                    alt = self.tileset.get_int_property(index, 'alternate')
+                    if alt is None:
+                        continue
+                    index = alt
+
                 source = self.tileset.get_source_rect(index)
                 pos_x = col * self.tilewidth + dest.left + offset_x
                 pos_y = row * self.tileheight + dest.top + offset_y
@@ -244,7 +260,7 @@ class TileMap:
                 pos = (pos_x, pos_y)
                 surface.blit(self.tileset.surface, pos, source)
 
-    def intersect(self, rect: pygame.Rect) -> list[int]:
+    def intersect(self, rect: pygame.Rect, switches: set[str]) -> list[int]:
         ans = []
         row1 = rect.top // self.tileheight
         col1 = rect.left // self.tilewidth
@@ -267,7 +283,10 @@ class TileMap:
                         index = layer.data[row][col]
                         if index == 0:
                             continue
-                        ans.append(index - 1)
+                        index -= 1
+                        if not self.is_condition_met(index, switches):
+                            continue
+                        ans.append(index)
         return ans
 
     def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:

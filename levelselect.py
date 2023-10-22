@@ -20,16 +20,16 @@ class LevelSelect(Scene):
         self.directory = os.path.normpath(directory)
         self.current = 0
         self.font = font
-        self.files = os.listdir(directory)
+        self.files = sorted(os.listdir(directory))
 
     def update(self, input: InputManager) -> Scene | None:
-        if input.is_key_triggered(pygame.K_ESCAPE):
+        if input.is_cancel_triggered():
             return self.parent
-        if input.is_key_triggered(pygame.K_UP):
+        if input.is_up_triggered():
             self.current = (self.current - 1) % len(self.files)
-        if input.is_key_triggered(pygame.K_DOWN):
+        if input.is_down_triggered():
             self.current = (self.current + 1) % len(self.files)
-        if input.is_key_triggered(pygame.K_RETURN):
+        if input.is_ok_triggered():
             new_path = os.path.join(self.directory, self.files[self.current])
             if os.path.isdir(new_path):
                 return LevelSelect(self, new_path, self.font)

@@ -18,7 +18,7 @@ class KillScreen(Scene):
         self.next = next
 
     def update(self, input: InputManager) -> Scene:
-        if input.is_key_triggered(pygame.K_RETURN) or input.is_button_triggered(0):
+        if input.is_ok_triggered():
             return self.next()
         return self
 
