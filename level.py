@@ -49,6 +49,7 @@ class Level(Scene):
     toast_position: int = -TOAST_HEIGHT
     toast_counter: int = TOAST_TIME
     switches: set[str]
+    current_switch_tiles: set[int]
 
     def __init__(self, parent: Scene | None, map_path: str, font: Font):
         self.parent = parent
@@ -63,11 +64,34 @@ class Level(Scene):
         self.transition: str = ''
         self.platforms = []
         self.switches = set()
+        self.current_switch_tiles = set()
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
             if obj.properties.get('bagel', False):
                 self.platforms.append(Bagel(obj, self.map.tileset))
+
+    def handle_switch_tiles(self, tiles: set[int]):
+        previous = self.current_switch_tiles
+        self.current_switch_tiles = tiles
+        for t in tiles:
+            if t in previous:
+                continue
+            switch = self.map.tileset.get_str_property(t, 'switch')
+            if switch is None:
+                raise Exception('non-switch passed to switch code')
+            if switch.startswith('!'):
+                print(f'switched off {switch[1:]}')
+                self.switches.remove(switch[1:])
+            elif switch.startswith('~'):
+                print(f'toggled {switch[1:]}')
+                if switch[1:] in self.switches:
+                    self.switches.remove(switch[1:])
+                else:
+                    self.switches.add(switch[1:])
+            else:
+                print(f'switched on {switch}')
+                self.switches.add(switch)
 
     def intersect_ground(self, player_rect: pygame.Rect) -> bool:
         """ Checks the ground underneath the player. """
@@ -83,16 +107,15 @@ class Level(Scene):
                 platform.occupied = False
         if self.current_platform is not None:
             return True
-        tiles = self.map.intersect(player_rect, self.switches)
+        tiles: list[int] = self.map.intersect(player_rect, self.switches)
+        switch_tiles: set[int] = set([
+            t for t in tiles if self.map.tileset.get_str_property(t, 'switch') is not None
+        ])
+        self.handle_switch_tiles(switch_tiles)
         if len(tiles) > 0:
             for tile in tiles:
                 if self.map.tileset.get_bool_property(tile, 'deadly'):
                     self.player.is_dead = True
-                switch = self.map.tileset.get_str_property(tile, 'switch')
-                if switch is not None:
-                    if switch not in self.switches:
-                        print(f'switched {switch}')
-                        self.switches.add(switch)
             return True
         return False
 

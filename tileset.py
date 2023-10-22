@@ -90,9 +90,9 @@ class TileSet:
             raise Exception(f'expected int for {key} but got {val}')
         return val
 
-    def get_bool_property(self, tile: int, key: str) -> bool:
+    def get_bool_property(self, tile: int, key: str, default: bool = False) -> bool:
         props = self.properties.get(tile, {})
-        val = props.get(key, False)
+        val = props.get(key, default)
         if not isinstance(val, bool):
             raise Exception(f'expected bool for {key} but got {val}')
         return val
