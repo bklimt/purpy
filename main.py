@@ -1,11 +1,13 @@
 
-from font import Font
+import pygame
+import sys
+
+from imagemanager import ImageManager
 from inputmanager import InputManager
 from level import Level
-import os
-import pygame
+from levelselect import LevelSelect
 from scene import Scene
-import sys
+from soundmanager import SoundManager
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
@@ -43,53 +45,48 @@ pygame.display.set_caption('purpy')
 
 
 class Game:
-    level: int = 0
-    levels: list[str] = []
     clock = pygame.time.Clock()
-    input_manager = InputManager()
-    font: Font
-    scene: Scene
+    images: ImageManager
+    inputs: InputManager
+    sounds: SoundManager
+    scene: Scene | None
 
     def __init__(self):
-        self.font = Font('assets/8bitfont.tsx')
-
-        self.levels = sorted(
-            [f'assets/levels/{s}' for s in os.listdir('assets/levels') if s.endswith('.tmx')])
-        for path in self.levels:
-            print(f'level: {path}')
-        self.level = 0
+        self.images = ImageManager()
+        self.inputs = InputManager()
+        self.sounds = SoundManager()
 
         if len(sys.argv) > 1:
-            self.scene = Level(sys.argv[1], self.font)
+            self.scene = Level(None, sys.argv[1])
         else:
-            self.scene = Level(self.levels[0], self.font)
+            self.scene = LevelSelect(None, 'assets/levels')
 
-    def update(self):
-        if self.input_manager.is_key_triggered(pygame.K_1) or self.input_manager.is_button_triggered(2):
-            self.level = (self.level + 1) % len(self.levels)
-            self.scene = Level(self.levels[self.level], self.font)
-
-        if self.input_manager.is_key_triggered(pygame.K_2) or self.input_manager.is_button_triggered(3):
-            self.scene = Level(self.levels[self.level], self.font)
+    def update(self) -> bool:
+        """ Returns True if the game should keep running. """
+        if self.scene is None:
+            return False
 
         # Update the actual game logic.
-        self.scene = self.scene.update(self.input_manager)
+        self.scene = self.scene.update(self.inputs, self.sounds)
+        if self.scene is None:
+            return False
+
+        self.inputs.update()
 
         # Clear the back buffer with solid black.
-        # pygame.draw.rect(BACK_BUFFER, (0, 0, 0), BACK_BUFFER_SRC)
         BACK_BUFFER.fill((0, 0, 0), BACK_BUFFER_SRC)
         # Draw the scene.
-        self.scene.draw(BACK_BUFFER, pygame.Rect(
-            0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT))
+        play_area = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
+        self.scene.draw(BACK_BUFFER, play_area, self.images)
         # Clear the window with black.
-        # pygame.draw.rect(GAME_WINDOW, (0, 0, 0),
-        #                  (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
-        GAME_WINDOW.fill((0, 0, 0), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
         # Scale the back buffer to the right size.
         pygame.transform.scale(
             BACK_BUFFER, SCALED_BACK_BUFFER_SIZE, SCALED_BACK_BUFFER)
         # Copy the back buffer to the window.
+        GAME_WINDOW.fill((0, 0, 0), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
         GAME_WINDOW.blit(SCALED_BACK_BUFFER, BACK_BUFFER_DST)
+
+        return True
 
     def main(self):
         game_running = True
@@ -100,16 +97,15 @@ class Game:
                         game_running = False
                     case (pygame.KEYDOWN | pygame.KEYUP |
                           pygame.JOYBUTTONDOWN | pygame.JOYBUTTONUP |
-                          pygame.JOYAXISMOTION | pygame.JOYHATMOTION):
-                        self.input_manager.handle_event(event)
+                          pygame.JOYAXISMOTION | pygame.JOYHATMOTION |
+                          pygame.JOYDEVICEADDED | pygame.JOYDEVICEREMOVED):
+                        self.inputs.handle_event(event)
 
-            if self.input_manager.is_key_triggered(pygame.K_ESCAPE):
+            if not self.update():
                 game_running = False
 
-            self.update()
             pygame.display.update()
             self.clock.tick(FRAME_RATE)
-            self.input_manager.update()
         pygame.quit()
 
 

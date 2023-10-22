@@ -64,7 +64,6 @@ class TileSet:
         return math.ceil(self.tilecount / self.columns)
 
     def get_source_rect(self, index: int) -> pygame.Rect:
-        index = index - 1
         if index < 0 or index > self.tilecount:
             raise Exception("index out of range")
         row = index // self.columns
@@ -72,6 +71,31 @@ class TileSet:
         x = col * self.tilewidth
         y = row * self.tileheight
         return pygame.Rect(x, y, self.tilewidth, self.tileheight)
+
+    def get_str_property(self, tile: int, key: str) -> str | None:
+        props = self.properties.get(tile, {})
+        val = props.get(key, None)
+        if val is None:
+            return None
+        if not isinstance(val, str):
+            raise Exception(f'expected str for {key} but got {val}')
+        return val
+
+    def get_int_property(self, tile: int, key: str) -> int | None:
+        props = self.properties.get(tile, {})
+        val = props.get(key, None)
+        if val is None:
+            return None
+        if not isinstance(val, int):
+            raise Exception(f'expected int for {key} but got {val}')
+        return val
+
+    def get_bool_property(self, tile: int, key: str, default: bool = False) -> bool:
+        props = self.properties.get(tile, {})
+        val = props.get(key, default)
+        if not isinstance(val, bool):
+            raise Exception(f'expected bool for {key} but got {val}')
+        return val
 
 
 def load_tileset(path: str) -> TileSet:

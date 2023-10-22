@@ -1,5 +1,6 @@
 
 import pygame
+
 from tileset import load_tileset, TileSet
 
 
@@ -14,6 +15,6 @@ class Font:
             c = ord(ch)
             if c > 127:
                 c = 127
-            area = self.tileset.get_source_rect(c+1)
+            area = self.tileset.get_source_rect(c)
             surface.blit(self.tileset.surface, pos, area)
             pos = (pos[0]+8, pos[1])

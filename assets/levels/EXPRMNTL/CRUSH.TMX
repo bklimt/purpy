@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#241f31" nextlayerid="3" nextobjectid="34">
- <tileset firstgid="1" source="../purple.tsx"/>
+ <tileset firstgid="1" source="../../purple.tsx"/>
  <layer id="1" name="Player" width="40" height="22">
   <properties>
    <property name="player" type="bool" value="true"/>
@@ -79,52 +79,52 @@
     <property name="distance" type="int" value="2"/>
    </properties>
   </object>
-  <object id="24" gid="146" x="160" y="112" width="8" height="8">
+  <object id="24" gid="146" x="160" y="104" width="8" height="8">
    <properties>
     <property name="direction" value="S"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
-  <object id="25" gid="146" x="168" y="112" width="8" height="8">
+  <object id="25" gid="146" x="168" y="104" width="8" height="8">
    <properties>
     <property name="direction" value="S"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
-  <object id="28" gid="146" x="176" y="112" width="8" height="8">
+  <object id="28" gid="146" x="176" y="104" width="8" height="8">
    <properties>
     <property name="direction" value="S"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
-  <object id="29" gid="146" x="184" y="112" width="8" height="8">
+  <object id="29" gid="146" x="184" y="104" width="8" height="8">
    <properties>
     <property name="direction" value="S"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
   <object id="30" gid="146" x="224" y="144" width="8" height="8">
    <properties>
     <property name="direction" value="N"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
   <object id="31" gid="146" x="232" y="144" width="8" height="8">
    <properties>
     <property name="direction" value="N"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
   <object id="32" gid="146" x="240" y="144" width="8" height="8">
    <properties>
     <property name="direction" value="N"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
   <object id="33" gid="146" x="248" y="144" width="8" height="8">
    <properties>
     <property name="direction" value="N"/>
-    <property name="distance" type="int" value="4"/>
+    <property name="distance" type="int" value="5"/>
    </properties>
   </object>
  </objectgroup>

@@ -1,13 +1,16 @@
 
-from font import Font
-import inputmanager
-from kill import KillScreen
 import os.path
+import pygame
+
+from font import Font
+from imagemanager import ImageManager
+from inputmanager import InputManager
+from kill import KillScreen
 from player import Player, PlayerState
 from platforms import Bagel, MovingPlatform, Platform
-import pygame
 from scene import Scene
-import tilemap
+from soundmanager import Sound, SoundManager
+from tilemap import TileMap, load_map
 
 TARGET_WALK_SPEED = 32
 TARGET_AIRBORNE_SPEED = 16
@@ -34,38 +37,68 @@ def sign(n: int):
 
 
 class Level(Scene):
+    parent: Scene | None
     map_path: str
     name: str
-    map: tilemap.TileMap
+    map: TileMap
     platforms: list[Platform]
     player: Player
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
     current_platform: Platform | None = None
-    font: Font
     previous_map_offset: None | tuple[int, int]
     toast_position: int = -TOAST_HEIGHT
     toast_counter: int = TOAST_TIME
+    switches: set[str]
+    current_switch_tiles: set[int]
 
-    def __init__(self, map_path: str, font: Font):
+    def __init__(self, parent: Scene | None, map_path: str):
+        self.parent = parent
         self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
-        self.font = font
         self.previous_map_offset = None
-        self.map = tilemap.load_map(map_path)
+        self.map = load_map(map_path)
         self.player = Player()
         self.player.x = self.map.tilewidth * 16
         self.player.y = self.map.tileheight * 16
         self.transition: str = ''
         self.platforms = []
+        self.switches = set()
+        self.current_switch_tiles = set()
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
             if obj.properties.get('bagel', False):
                 self.platforms.append(Bagel(obj, self.map.tileset))
 
-    def intersect_ground(self, player_rect: pygame.Rect) -> bool:
+    def handle_switch_tiles(self, tiles: set[int], sounds: SoundManager):
+        previous = self.current_switch_tiles
+        self.current_switch_tiles = tiles
+        for t in tiles:
+            if t in previous:
+                continue
+            switch = self.map.tileset.get_str_property(t, 'switch')
+            if switch is None:
+                raise Exception('non-switch passed to switch code')
+            if switch.startswith('!'):
+                if switch[1:] in self.switches:
+                    sounds.play(Sound.CLICK)
+                    print(f'switched off {switch[1:]}')
+                    self.switches.remove(switch[1:])
+            elif switch.startswith('~'):
+                sounds.play(Sound.CLICK)
+                print(f'toggled {switch[1:]}')
+                if switch[1:] in self.switches:
+                    self.switches.remove(switch[1:])
+                else:
+                    self.switches.add(switch[1:])
+            else:
+                sounds.play(Sound.CLICK)
+                print(f'switched on {switch}')
+                self.switches.add(switch)
+
+    def intersect_ground(self, player_rect: pygame.Rect, sounds: SoundManager) -> bool:
         """ Checks the ground underneath the player. """
         self.current_platform = None
         for platform in self.platforms:
@@ -79,10 +112,14 @@ class Level(Scene):
                 platform.occupied = False
         if self.current_platform is not None:
             return True
-        tiles = self.map.intersect(player_rect)
+        tiles: list[int] = self.map.intersect(player_rect, self.switches)
+        switch_tiles: set[int] = set([
+            t for t in tiles if self.map.tileset.get_str_property(t, 'switch') is not None
+        ])
+        self.handle_switch_tiles(switch_tiles, sounds)
         if len(tiles) > 0:
             for tile in tiles:
-                if self.map.tileset.properties.get(tile, {}).get('deadly', False):
+                if self.map.tileset.get_bool_property(tile, 'deadly'):
                     self.player.is_dead = True
             return True
         return False
@@ -103,7 +140,7 @@ class Level(Scene):
 
     def intersect_standing(self, player_rect: pygame.Rect) -> bool:
         """ Checks for collisions when the player is just, like, standing there being cool. """
-        if len(self.map.intersect(player_rect)) > 0:
+        if len(self.map.intersect(player_rect, self.switches)) > 0:
             return True
         for platform in self.platforms:
             if not platform.is_solid:
@@ -112,7 +149,7 @@ class Level(Scene):
                 return True
         return False
 
-    def is_on_ground(self) -> bool:
+    def is_on_ground(self, sounds: SoundManager) -> bool:
         if self.player.dy < 0:
             self.current_platform = None
             for platform in self.platforms:
@@ -120,9 +157,9 @@ class Level(Scene):
             return False
         player_rect = self.player.rect(
             (self.player.x//16, (self.player.y+16)//16))
-        return self.intersect_ground(player_rect)
+        return self.intersect_ground(player_rect, sounds)
 
-    def is_pressing_against_wall(self, input: inputmanager.InputManager) -> bool:
+    def is_pressing_against_wall(self, input: InputManager) -> bool:
         if input.is_left_down() and not input.is_right_down():
             player_rect = self.player.rect(
                 ((self.player.x-1)//16, self.player.y//16))
@@ -133,7 +170,7 @@ class Level(Scene):
             return self.intersect_horizontal(player_rect)
         return False
 
-    def update_horizontal(self, input: inputmanager.InputManager) -> bool:
+    def update_horizontal(self, input: InputManager) -> bool:
         """ Handles moving right and left. Returns true if a wall is hit. """
         # Apply the input to adjust the target velocity.
         target_dx = 0
@@ -176,7 +213,7 @@ class Level(Scene):
                 self.player.x = new_x
         return False
 
-    def update_vertical(self, input: inputmanager.InputManager) -> bool:
+    def update_vertical(self, input: InputManager) -> bool:
         """ Handles moving up and down. Returns true if a wall is hit. """
         if self.player.state == PlayerState.AIRBORNE:
             # Apply gravity.
@@ -247,11 +284,16 @@ class Level(Scene):
                 else:
                     self.player.is_dead = True
 
-    def update(self, input: inputmanager.InputManager) -> Scene:
+    def update(self, input: InputManager, sounds: SoundManager) -> Scene | None:
+        if input.is_cancel_triggered():
+            return self.parent
+        if input.is_restart_down():
+            return Level(self.parent, self.map_path)
+
         self.update_horizontal(input)
         self.update_vertical(input)
 
-        on_ground = self.is_on_ground()
+        on_ground = self.is_on_ground(sounds)
         pressing_against_wall = self.is_pressing_against_wall(input)
         crouch_down = input.is_crouch_down()
         jump_pressed = input.is_jump_down()
@@ -333,7 +375,7 @@ class Level(Scene):
                 print(transition)
 
         if self.player.is_dead:
-            return KillScreen(self.font, self, lambda: Level(self.map_path, self.font))
+            return KillScreen(self, lambda: Level(self.parent, self.map_path))
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:
@@ -345,7 +387,7 @@ class Level(Scene):
 
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect):
+    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager):
         # Make sure the player is on the screen, and then center them if possible.
         player_x: int = self.player.x//16
         player_y: int = self.player.y//16
@@ -395,11 +437,11 @@ class Level(Scene):
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
-        self.map.draw_background(surface, dest, map_offset)
+        self.map.draw_background(surface, dest, map_offset, self.switches)
         for platform in self.platforms:
             platform.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
-        self.map.draw_foreground(surface, dest, map_offset)
+        self.map.draw_foreground(surface, dest, map_offset, self.switches)
 
         # Draw the text overlay.
         top_bar_bgcolor = pygame.Color(0, 0, 0, 127)
@@ -407,5 +449,5 @@ class Level(Scene):
             dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
         top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
         top_bar.fill(top_bar_bgcolor)
-        self.font.draw_string(top_bar, (2, 2), self.name)
+        images.font.draw_string(top_bar, (2, 2), self.name)
         surface.blit(top_bar, top_bar_area)
