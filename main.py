@@ -1,12 +1,13 @@
 
-from font import Font
+import pygame
+import sys
+
+from imagemanager import ImageManager
 from inputmanager import InputManager
 from level import Level
 from levelselect import LevelSelect
-import os
-import pygame
 from scene import Scene
-import sys
+from soundmanager import SoundManager
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
@@ -45,17 +46,20 @@ pygame.display.set_caption('purpy')
 
 class Game:
     clock = pygame.time.Clock()
-    input_manager = InputManager()
-    font: Font
+    images: ImageManager
+    inputs: InputManager
+    sounds: SoundManager
     scene: Scene | None
 
     def __init__(self):
-        self.font = Font('assets/8bitfont.tsx')
+        self.images = ImageManager()
+        self.inputs = InputManager()
+        self.sounds = SoundManager()
 
         if len(sys.argv) > 1:
-            self.scene = Level(None, sys.argv[1], self.font)
+            self.scene = Level(None, sys.argv[1])
         else:
-            self.scene = LevelSelect(None, 'assets/levels', self.font)
+            self.scene = LevelSelect(None, 'assets/levels')
 
     def update(self) -> bool:
         """ Returns True if the game should keep running. """
@@ -63,17 +67,17 @@ class Game:
             return False
 
         # Update the actual game logic.
-        self.scene = self.scene.update(self.input_manager)
+        self.scene = self.scene.update(self.inputs, self.sounds)
         if self.scene is None:
             return False
 
-        self.input_manager.update()
+        self.inputs.update()
 
         # Clear the back buffer with solid black.
         BACK_BUFFER.fill((0, 0, 0), BACK_BUFFER_SRC)
         # Draw the scene.
-        self.scene.draw(BACK_BUFFER, pygame.Rect(
-            0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT))
+        play_area = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
+        self.scene.draw(BACK_BUFFER, play_area, self.images)
         # Clear the window with black.
         # Scale the back buffer to the right size.
         pygame.transform.scale(
@@ -95,7 +99,7 @@ class Game:
                           pygame.JOYBUTTONDOWN | pygame.JOYBUTTONUP |
                           pygame.JOYAXISMOTION | pygame.JOYHATMOTION |
                           pygame.JOYDEVICEADDED | pygame.JOYDEVICEREMOVED):
-                        self.input_manager.handle_event(event)
+                        self.inputs.handle_event(event)
 
             if not self.update():
                 game_running = False

@@ -1,7 +1,8 @@
 
-from enum import Enum
 import pygame
 import typing
+
+from enum import Enum
 
 
 class InputState:

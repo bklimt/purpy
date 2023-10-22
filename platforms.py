@@ -1,9 +1,9 @@
 
-from enum import Enum
+import pygame
+
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
-import pygame
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150

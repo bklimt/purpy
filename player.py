@@ -1,8 +1,10 @@
 
+import pygame
+
 from enum import Enum
 from random import randint
+
 from spritesheet import SpriteSheet
-import pygame
 
 FRAMES_PER_FRAME = 8
 IDLE_TIME = 240

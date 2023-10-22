@@ -2,8 +2,9 @@
 import math
 import os.path
 import pygame
-from tileset import TileSet, load_tileset
 import xml.etree.ElementTree
+
+from tileset import TileSet, load_tileset
 
 
 def intersect(rect1: pygame.Rect, rect2: pygame.Rect) -> bool:
