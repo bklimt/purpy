@@ -15,6 +15,7 @@ class PlayerState(Enum):
     STANDING = 2
     CROUCHING = 3
     WALL_SLIDING = 4
+    STOPPED = 5
 
 
 class Player:
@@ -61,7 +62,7 @@ class Player:
                     if self.frame > 9:
                         self.frame = 6
             index = self.frame
-        elif self.state == PlayerState.STANDING:
+        elif self.state == PlayerState.STANDING or self.state == PlayerState.STOPPED:
             if self.idle_counter > 0:
                 self.idle_counter -= 1
                 index = 0

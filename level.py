@@ -2,6 +2,7 @@
 import os.path
 import pygame
 
+from door import Door
 from font import Font
 from imagemanager import ImageManager
 from inputmanager import InputManager
@@ -41,17 +42,22 @@ class Level(Scene):
     map_path: str
     name: str
     map: TileMap
-    platforms: list[Platform]
     player: Player
+
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
-    current_platform: Platform | None = None
+
     previous_map_offset: None | tuple[int, int]
     toast_position: int = -TOAST_HEIGHT
     toast_counter: int = TOAST_TIME
+
+    platforms: list[Platform]
+    current_platform: Platform | None = None
     switches: set[str]
     current_switch_tiles: set[int]
+    doors: list[Door]
+    current_door: Door | None
 
     def __init__(self, parent: Scene | None, map_path: str):
         self.parent = parent
@@ -66,11 +72,14 @@ class Level(Scene):
         self.platforms = []
         self.switches = set()
         self.current_switch_tiles = set()
+        self.doors = []
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
             if obj.properties.get('bagel', False):
                 self.platforms.append(Bagel(obj, self.map.tileset))
+            if obj.properties.get('door', False):
+                self.doors.append(Door(obj))
 
     def handle_switch_tiles(self, tiles: set[int], sounds: SoundManager):
         previous = self.current_switch_tiles
@@ -290,7 +299,8 @@ class Level(Scene):
         if input.is_restart_down():
             return Level(self.parent, self.map_path)
 
-        self.update_horizontal(input)
+        if self.player.state != PlayerState.STOPPED:
+            self.update_horizontal(input)
         self.update_vertical(input)
 
         on_ground = self.is_on_ground(sounds)
@@ -306,8 +316,12 @@ class Level(Scene):
             elif crouch_down:
                 self.player.state = PlayerState.CROUCHING
             elif jump_pressed:
-                self.player.state = PlayerState.AIRBORNE
-                self.player.dy = -1 * JUMP_SPEED
+                if self.current_door is not None:
+                    self.player.state = PlayerState.STOPPED
+                    self.current_door.close()
+                else:
+                    self.player.state = PlayerState.AIRBORNE
+                    self.player.dy = -1 * JUMP_SPEED
         elif self.player.state == PlayerState.AIRBORNE:
             if on_ground:
                 self.player.state = PlayerState.STANDING
@@ -352,6 +366,17 @@ class Level(Scene):
         self.update_move_with_platform()
 
         self.handle_solid_platforms()
+
+        self.current_door = None
+        player_rect = self.player.rect((self.player.x//16, self.player.y//16))
+        for door in self.doors:
+            door.update(player_rect)
+            if door.closed:
+                if door.destination is not None:
+                    return Level(self.parent, door.destination)                    
+                return Level(self.parent, self.map_path)
+            if door.active:
+                self.current_door = door
 
         if True:
             inputs = []
@@ -438,9 +463,13 @@ class Level(Scene):
 
         # Do the actual drawing.
         self.map.draw_background(surface, dest, map_offset, self.switches)
+        for door in self.doors:
+            door.draw_background(surface, map_offset)
         for platform in self.platforms:
             platform.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
+        for door in self.doors:
+            door.draw_foreground(surface, map_offset)
         self.map.draw_foreground(surface, dest, map_offset, self.switches)
 
         # Draw the text overlay.
