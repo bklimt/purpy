@@ -41,7 +41,7 @@ class Door:
         self.sprite.blit(surface, pos, 30, False)
 
     def is_inside(self, player_rect: pygame.Rect) -> bool:
-        door_rect = pygame.Rect(self.x + 8, self.y + 8, 16, 24)
+        door_rect = pygame.Rect(self.x+4, self.y, 28, 32)
         if player_rect.left < door_rect.left:
             return False
         if player_rect.right > door_rect.right:
