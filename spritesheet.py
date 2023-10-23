@@ -7,20 +7,23 @@ class SpriteSheet:
     reverse: pygame.Surface
     sprite_width: int
     sprite_height: int
+    columns: int
 
     def __init__(self, surface: pygame.Surface, sprite_width: int, sprite_height: int):
         self.sprite_width = sprite_width
         self.sprite_height = sprite_height
         self.surface = surface
         self.reverse = pygame.transform.flip(surface, True, False)
+        self.columns = surface.get_width() // sprite_width
 
     def sprite(self, index: int, reverse: bool) -> pygame.Rect:
+        column = index % self.columns
+        row = index // self.columns
         if reverse:
-            x = self.surface.get_width() - (index + 1) * self.sprite_width
-            return pygame.Rect(x, 0, self.sprite_width, self.sprite_height)
-        else:
-            x = self.sprite_width * index
-            return pygame.Rect(x, 0, self.sprite_width, self.sprite_height)
+            column = (self.columns - 1) - column
+        x = column * self.sprite_width
+        y = row * self.sprite_height
+        return pygame.Rect(x, y, self.sprite_width, self.sprite_height)
 
     def blit(self, surface: pygame.Surface, pos: tuple[int, int], index: int, reverse: bool):
         texture = self.surface

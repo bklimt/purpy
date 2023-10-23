@@ -159,6 +159,11 @@
    <property name="spiral" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="192">
+  <properties>
+   <property name="door" type="bool" value="true"/>
+  </properties>
+ </tile>
  <wangsets>
   <wangset name="Purple Edges" type="edge" tile="-1">
    <wangcolor name="Purple" color="#9141ac" tile="-1" probability="1"/>
