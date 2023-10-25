@@ -4,6 +4,7 @@ import pygame
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
+from utils import intersect
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
@@ -56,15 +57,9 @@ class Platform:
         surface.blit(self.tileset.surface, (x, y), area)
 
     def intersect(self, rect: pygame.Rect) -> bool:
-        if rect.right < self.x//16:
-            return False
-        if rect.bottom < self.y//16:
-            return False
-        if rect.left > self.x//16 + self.tileset.tilewidth:
-            return False
-        if rect.top > self.y//16 + self.tileset.tileheight:
-            return False
-        return True
+        area = pygame.Rect(self.x//16, self.y//16,
+                           self.tileset.tilewidth, self.tileset.tileheight)
+        return intersect(rect, area)
 
     def intersect_top(self, rect: pygame.Rect) -> bool:
         if rect.right < self.x//16:

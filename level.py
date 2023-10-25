@@ -11,6 +11,7 @@ from player import Player, PlayerState
 from platforms import Bagel, MovingPlatform, Platform
 from scene import Scene
 from soundmanager import Sound, SoundManager
+from star import Star
 from tilemap import TileMap, load_map
 
 TARGET_WALK_SPEED = 32
@@ -25,7 +26,7 @@ WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 VIEWPORT_PAN_SPEED = 5
-TOAST_TIME = 200
+TOAST_TIME = 100
 TOAST_HEIGHT = 12
 
 
@@ -49,6 +50,7 @@ class Level(Scene):
     wall_slide_counter: int = WALL_SLIDE_TIME
 
     previous_map_offset: None | tuple[int, int]
+    toast_text: str
     toast_position: int = -TOAST_HEIGHT
     toast_counter: int = TOAST_TIME
 
@@ -58,11 +60,13 @@ class Level(Scene):
     current_switch_tiles: set[int]
     doors: list[Door]
     current_door: Door | None
+    stars: list[Star]
 
     def __init__(self, parent: Scene | None, map_path: str):
         self.parent = parent
         self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
+        self.toast_text = self.name
         self.previous_map_offset = None
         self.map = load_map(map_path)
         self.player = Player()
@@ -73,6 +77,8 @@ class Level(Scene):
         self.switches = set()
         self.current_switch_tiles = set()
         self.doors = []
+        self.stars = []
+        self.star_count = 0
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
@@ -80,6 +86,8 @@ class Level(Scene):
                 self.platforms.append(Bagel(obj, self.map.tileset))
             if obj.properties.get('door', False):
                 self.doors.append(Door(obj))
+            if obj.properties.get('star', False):
+                self.stars.append(Star(obj, self.map.tileset))
 
     def handle_switch_tiles(self, tiles: set[int], sounds: SoundManager):
         previous = self.current_switch_tiles
@@ -373,10 +381,17 @@ class Level(Scene):
             door.update(player_rect)
             if door.closed:
                 if door.destination is not None:
-                    return Level(self.parent, door.destination)                    
+                    return Level(self.parent, door.destination)
                 return Level(self.parent, self.map_path)
             if door.active:
                 self.current_door = door
+
+        for star in self.stars:
+            if star.intersects(player_rect):
+                self.stars.remove(star)
+                self.star_count += 1
+                self.toast_text = f'STARS x {self.star_count}'
+                self.toast_counter = TOAST_TIME
 
         if True:
             inputs = []
@@ -467,6 +482,8 @@ class Level(Scene):
             door.draw_background(surface, map_offset)
         for platform in self.platforms:
             platform.draw(surface, map_offset)
+        for star in self.stars:
+            star.draw(surface, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
         for door in self.doors:
             door.draw_foreground(surface, map_offset)
@@ -478,5 +495,5 @@ class Level(Scene):
             dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
         top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
         top_bar.fill(top_bar_bgcolor)
-        images.font.draw_string(top_bar, (2, 2), self.name)
+        images.font.draw_string(top_bar, (2, 2), self.toast_text)
         surface.blit(top_bar, top_bar_area)
