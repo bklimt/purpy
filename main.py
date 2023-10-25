@@ -1,6 +1,11 @@
+# pyright: reportWildcardImportFromLibrary=false
 
+import numpy
 import pygame
 import sys
+
+from OpenGL.GL import *
+from OpenGL.GL.shaders import compileShader
 
 from imagemanager import ImageManager
 from inputmanager import InputManager
@@ -34,12 +39,18 @@ class Game:
 
         self.back_buffer = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
         self.game_window = pygame.display.set_mode(
-            (WINDOW_WIDTH, WINDOW_HEIGHT))
+            (WINDOW_WIDTH, WINDOW_HEIGHT),
+            pygame.HWSURFACE | pygame.OPENGL | pygame.DOUBLEBUF)
         pygame.display.set_caption('purpy')
 
-        self.scaled_back_buffer_dest = self.compute_scaled_buffer_dest()
-        self.scaled_back_buffer = pygame.Surface(
-            self.scaled_back_buffer_dest.size)
+        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        glEnable(GL_BLEND)
+        glEnable(GL_TEXTURE_2D)
+        glEnable(GL_VERTEX_ARRAY)
+        glEnable(GL_NORMAL_ARRAY)
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+        self.set_up_shader()
 
         self.images = ImageManager()
         self.inputs = InputManager()
@@ -49,6 +60,22 @@ class Game:
             self.scene = Level(None, sys.argv[1])
         else:
             self.scene = LevelSelect(None, 'assets/levels')
+
+    def set_up_shader(self):
+        src = open('./shader.frag')
+        shader = compileShader(src, GL_FRAGMENT_SHADER)
+
+        program = glCreateProgram()
+        glAttachShader(program, shader)
+        glLinkProgram(program)
+        glUseProgram(program)
+        dest = self.compute_scaled_buffer_dest()
+        res = glGetUniformLocation(program, 'iResolution')
+        glUniform2f(res, dest.w, dest.h)
+        offset = glGetUniformLocation(program, 'iOffset')
+        glUniform2f(offset,
+                    (WINDOW_WIDTH - dest.w) / 2.0,
+                    (WINDOW_HEIGHT - dest.h) / 2.0)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
@@ -78,16 +105,46 @@ class Game:
         self.back_buffer.fill((0, 0, 0), back_buffer_src)
         # Draw the scene.
         self.scene.draw(self.back_buffer, back_buffer_src, self.images)
-        # Clear the window with black.
-        # Scale the back buffer to the right size.
-        pygame.transform.scale(
-            self.back_buffer,
-            self.scaled_back_buffer_dest.size,
-            self.scaled_back_buffer)
-        # Copy the back buffer to the window.
-        self.game_window.fill((0, 0, 0), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
-        self.game_window.blit(self.scaled_back_buffer,
-                              self.scaled_back_buffer_dest)
+
+        glClearColor(1, 0, 0, 1)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
+
+        texture_data = pygame.image.tobytes(self.back_buffer, 'RGBA', True)
+        texture_id = glGenTextures(1)
+        glBindTexture(GL_TEXTURE_2D, texture_id)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                     LOGICAL_WIDTH,
+                     LOGICAL_HEIGHT,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     texture_data)
+
+        texture_coords = [
+            0.0, 1.0,
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+        ]
+
+        vertices = [
+            -1.0, 1.0,
+            -1.0, -1.0,
+            1.0, -1.0,
+            1.0, 1.0,
+        ]
+
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
+        glVertexPointer(2, GL_FLOAT, 0, vertices)
+        glTexCoordPointer(2, GL_FLOAT, 0, texture_coords)
+        glDrawArrays(GL_QUADS, 0, 4)
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
+
+        glDeleteTextures(1, [texture_id])
+
+        pygame.display.flip()
 
         return True
 
@@ -107,7 +164,6 @@ class Game:
             if not self.update():
                 game_running = False
 
-            pygame.display.update()
             self.clock.tick(FRAME_RATE)
         pygame.quit()
 
