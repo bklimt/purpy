@@ -1,8 +1,9 @@
 # pyright: reportWildcardImportFromLibrary=false
 
-import numpy
 import pygame
+from random import randint
 import sys
+import typing
 
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileShader
@@ -24,9 +25,9 @@ FRAME_RATE = 60
 class Game:
     clock = pygame.time.Clock()
     back_buffer: pygame.Surface
-    scaled_back_buffer: pygame.Surface
-    scaled_back_buffer_dest: pygame.Rect
     game_window: pygame.Surface
+    static: pygame.Surface
+    program: typing.Any
 
     images: ImageManager
     inputs: InputManager
@@ -50,7 +51,8 @@ class Game:
         glEnable(GL_NORMAL_ARRAY)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
-        self.set_up_shader()
+        self.init_static()
+        self.init_shader()
 
         self.images = ImageManager()
         self.inputs = InputManager()
@@ -61,21 +63,51 @@ class Game:
         else:
             self.scene = LevelSelect(None, 'assets/levels')
 
-    def set_up_shader(self):
+    def init_static(self):
+        self.static = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
+        for x in range(LOGICAL_WIDTH):
+            for y in range(LOGICAL_HEIGHT):
+                r = randint(0, 255)
+                g = randint(0, 255)
+                b = randint(0, 255)
+                color = pygame.Color(r, g, b)
+                self.static.set_at((x, y), color)
+
+        texture_data = pygame.image.tobytes(self.static, 'RGBA', True)
+        texture_id = glGenTextures(1)
+        glActiveTexture(GL_TEXTURE1)
+        glBindTexture(GL_TEXTURE_2D, texture_id)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                     LOGICAL_WIDTH,
+                     LOGICAL_HEIGHT,
+                     0, GL_RGBA, GL_UNSIGNED_BYTE,
+                     texture_data)
+
+    def init_shader(self):
         src = open('./shader.frag')
         shader = compileShader(src, GL_FRAGMENT_SHADER)
 
         program = glCreateProgram()
+        self.program = program
         glAttachShader(program, shader)
         glLinkProgram(program)
         glUseProgram(program)
+
         dest = self.compute_scaled_buffer_dest()
         res = glGetUniformLocation(program, 'iResolution')
         glUniform2f(res, dest.w, dest.h)
+
         offset = glGetUniformLocation(program, 'iOffset')
         glUniform2f(offset,
                     (WINDOW_WIDTH - dest.w) / 2.0,
                     (WINDOW_HEIGHT - dest.h) / 2.0)
+
+        static_loc = glGetUniformLocation(program, 'iStatic')
+        glUniform1i(static_loc, 1)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
@@ -109,8 +141,12 @@ class Game:
         glClearColor(1, 0, 0, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
 
+        time_loc = glGetUniformLocation(self.program, 'iTime')
+        glUniform1f(time_loc, pygame.time.get_ticks() / 1000.0)
+
         texture_data = pygame.image.tobytes(self.back_buffer, 'RGBA', True)
         texture_id = glGenTextures(1)
+        glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, texture_id)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
