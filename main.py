@@ -113,6 +113,15 @@ class Game:
         static_loc = glGetUniformLocation(program, 'iStatic')
         glUniform1i(static_loc, 1)
 
+        vertices = [
+            -1.0, 1.0,
+            -1.0, -1.0,
+            1.0, -1.0,
+            1.0, 1.0,
+        ]
+        glEnableVertexAttribArray(0)
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices)
+
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
         needed_width = target_aspect_ratio * WINDOW_HEIGHT
@@ -162,51 +171,9 @@ class Game:
                      0, GL_RGBA, GL_UNSIGNED_BYTE,
                      texture_data)
 
-        texture_coords = [
-            0.0, 1.0,
-            0.0, 0.0,
-            1.0, 0.0,
-            1.0, 1.0,
-        ]
-        texture_coords_array = numpy.array(texture_coords, dtype=numpy.float32)
-
-        vertices = [
-            -1.0, 1.0,
-            -1.0, -1.0,
-            1.0, -1.0,
-            1.0, 1.0,
-        ]
-        vertices_array = numpy.array(vertices, dtype=numpy.float32)
-
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-
-        if False:
-            glVertexPointer(2, GL_FLOAT, 0, vertices_array)
-            # glTexCoordPointer(2, GL_FLOAT, 0, texture_coords_array)
-            glDrawArrays(GL_QUADS, 0, 4)
-
-        if True:
-            glEnableVertexAttribArray(0)
-            # glEnableVertexAttribArray(1)
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices_array)
-            # glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-            #                       0, texture_coords_array)
-            glDrawArrays(GL_QUADS, 0, 4)
-
-        if False:
-            glBegin(GL_QUADS)
-            glColor3f(1, 0, 0)
-            glVertex2f(-1, -1)
-            glColor3f(0, 1, 0)
-            glVertex2f(1, -1)
-            glColor3f(0, 0, 1)
-            glVertex2f(1, 1)
-            glColor3f(1, 0, 1)
-            glVertex2f(-1, 1)
-            glEnd()
-
+        glDrawArrays(GL_QUADS, 0, 4)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)
-
         glDeleteTextures(1, [texture_id])
 
         pygame.display.flip()
