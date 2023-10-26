@@ -49,7 +49,6 @@ class Game:
         glEnable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
         glEnable(GL_VERTEX_ARRAY)
-        glEnable(GL_NORMAL_ARRAY)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
         self.init_static()
@@ -89,12 +88,16 @@ class Game:
                      texture_data)
 
     def init_shader(self):
-        src = open('./shader.frag')
-        shader = compileShader(src, GL_FRAGMENT_SHADER)
+        frag_src = open('./shader.frag')
+        frag_shader = compileShader(frag_src, GL_FRAGMENT_SHADER)
+
+        vert_src = open('./shader.vert')
+        vert_shader = compileShader(vert_src, GL_VERTEX_SHADER)
 
         program = glCreateProgram()
         self.program = program
-        glAttachShader(program, shader)
+        glAttachShader(program, frag_shader)
+        glAttachShader(program, vert_shader)
         glLinkProgram(program)
         glUseProgram(program)
 
@@ -179,18 +182,18 @@ class Game:
 
         if False:
             glVertexPointer(2, GL_FLOAT, 0, vertices_array)
-            glTexCoordPointer(2, GL_FLOAT, 0, texture_coords_array)
-            glDrawArrays(GL_QUADS, 0, 4)
-
-        if False:
-            glEnableVertexAttribArray(0)
-            glEnableVertexAttribArray(1)
-            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices_array)
-            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
-                                  0, texture_coords_array)
+            # glTexCoordPointer(2, GL_FLOAT, 0, texture_coords_array)
             glDrawArrays(GL_QUADS, 0, 4)
 
         if True:
+            glEnableVertexAttribArray(0)
+            # glEnableVertexAttribArray(1)
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices_array)
+            # glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+            #                       0, texture_coords_array)
+            glDrawArrays(GL_QUADS, 0, 4)
+
+        if False:
             glBegin(GL_QUADS)
             glColor3f(1, 0, 0)
             glVertex2f(-1, -1)
