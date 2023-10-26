@@ -1,5 +1,6 @@
 # pyright: reportWildcardImportFromLibrary=false
 
+import numpy
 import pygame
 from random import randint
 import sys
@@ -164,6 +165,7 @@ class Game:
             1.0, 0.0,
             1.0, 1.0,
         ]
+        texture_coords_array = numpy.array(texture_coords, dtype=numpy.float32)
 
         vertices = [
             -1.0, 1.0,
@@ -171,11 +173,35 @@ class Game:
             1.0, -1.0,
             1.0, 1.0,
         ]
+        vertices_array = numpy.array(vertices, dtype=numpy.float32)
 
         glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-        glVertexPointer(2, GL_FLOAT, 0, vertices)
-        glTexCoordPointer(2, GL_FLOAT, 0, texture_coords)
-        glDrawArrays(GL_QUADS, 0, 4)
+
+        if False:
+            glVertexPointer(2, GL_FLOAT, 0, vertices_array)
+            glTexCoordPointer(2, GL_FLOAT, 0, texture_coords_array)
+            glDrawArrays(GL_QUADS, 0, 4)
+
+        if False:
+            glEnableVertexAttribArray(0)
+            glEnableVertexAttribArray(1)
+            glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices_array)
+            glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
+                                  0, texture_coords_array)
+            glDrawArrays(GL_QUADS, 0, 4)
+
+        if True:
+            glBegin(GL_QUADS)
+            glColor3f(1, 0, 0)
+            glVertex2f(-1, -1)
+            glColor3f(0, 1, 0)
+            glVertex2f(1, -1)
+            glColor3f(0, 0, 1)
+            glVertex2f(1, 1)
+            glColor3f(1, 0, 1)
+            glVertex2f(-1, 1)
+            glEnd()
+
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
         glDeleteTextures(1, [texture_id])
