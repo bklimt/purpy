@@ -15,43 +15,32 @@ LOGICAL_WIDTH = 320
 LOGICAL_HEIGHT = 180
 FRAME_RATE = 60
 
-pygame.init()
-
-BACK_BUFFER: pygame.Surface = pygame.Surface(
-    (LOGICAL_WIDTH, LOGICAL_HEIGHT))
-GAME_WINDOW: pygame.Surface = pygame.display.set_mode(
-    (WINDOW_WIDTH, WINDOW_HEIGHT))
-
-
-def compute_buffer_dest():
-    target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
-    needed_width = target_aspect_ratio * WINDOW_HEIGHT
-    if needed_width <= WINDOW_WIDTH:
-        # The window is wider than needed.
-        return pygame.Rect((WINDOW_WIDTH - needed_width)//2, 0, needed_width, WINDOW_HEIGHT)
-    else:
-        # The window is taller than needed.
-        needed_height = WINDOW_WIDTH / target_aspect_ratio
-        return pygame.Rect(0, (WINDOW_HEIGHT - needed_height)//2, WINDOW_WIDTH, needed_height)
-
-
-BACK_BUFFER_SRC = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
-BACK_BUFFER_DST = compute_buffer_dest()
-
-SCALED_BACK_BUFFER_SIZE = (BACK_BUFFER_DST.width, BACK_BUFFER_DST.height)
-SCALED_BACK_BUFFER = pygame.Surface(SCALED_BACK_BUFFER_SIZE)
-
-pygame.display.set_caption('purpy')
-
 
 class Game:
     clock = pygame.time.Clock()
+    back_buffer: pygame.Surface
+    scaled_back_buffer: pygame.Surface
+    scaled_back_buffer_dest: pygame.Rect
+    game_window: pygame.Surface
+
     images: ImageManager
     inputs: InputManager
     sounds: SoundManager
+
     scene: Scene | None
 
     def __init__(self):
+        pygame.init()
+
+        self.back_buffer = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
+        self.game_window = pygame.display.set_mode(
+            (WINDOW_WIDTH, WINDOW_HEIGHT))
+        pygame.display.set_caption('purpy')
+
+        self.scaled_back_buffer_dest = self.compute_scaled_buffer_dest()
+        self.scaled_back_buffer = pygame.Surface(
+            self.scaled_back_buffer_dest.size)
+
         self.images = ImageManager()
         self.inputs = InputManager()
         self.sounds = SoundManager()
@@ -60,6 +49,17 @@ class Game:
             self.scene = Level(None, sys.argv[1])
         else:
             self.scene = LevelSelect(None, 'assets/levels')
+
+    def compute_scaled_buffer_dest(self) -> pygame.Rect:
+        target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
+        needed_width = target_aspect_ratio * WINDOW_HEIGHT
+        if needed_width <= WINDOW_WIDTH:
+            # The window is wider than needed.
+            return pygame.Rect((WINDOW_WIDTH - needed_width)//2, 0, needed_width, WINDOW_HEIGHT)
+        else:
+            # The window is taller than needed.
+            needed_height = WINDOW_WIDTH / target_aspect_ratio
+            return pygame.Rect(0, (WINDOW_HEIGHT - needed_height)//2, WINDOW_WIDTH, needed_height)
 
     def update(self) -> bool:
         """ Returns True if the game should keep running. """
@@ -74,17 +74,20 @@ class Game:
         self.inputs.update()
 
         # Clear the back buffer with solid black.
-        BACK_BUFFER.fill((0, 0, 0), BACK_BUFFER_SRC)
+        back_buffer_src = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
+        self.back_buffer.fill((0, 0, 0), back_buffer_src)
         # Draw the scene.
-        play_area = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
-        self.scene.draw(BACK_BUFFER, play_area, self.images)
+        self.scene.draw(self.back_buffer, back_buffer_src, self.images)
         # Clear the window with black.
         # Scale the back buffer to the right size.
         pygame.transform.scale(
-            BACK_BUFFER, SCALED_BACK_BUFFER_SIZE, SCALED_BACK_BUFFER)
+            self.back_buffer,
+            self.scaled_back_buffer_dest.size,
+            self.scaled_back_buffer)
         # Copy the back buffer to the window.
-        GAME_WINDOW.fill((0, 0, 0), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
-        GAME_WINDOW.blit(SCALED_BACK_BUFFER, BACK_BUFFER_DST)
+        self.game_window.fill((0, 0, 0), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.game_window.blit(self.scaled_back_buffer,
+                              self.scaled_back_buffer_dest)
 
         return True
 
