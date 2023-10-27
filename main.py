@@ -1,20 +1,22 @@
 # pyright: reportWildcardImportFromLibrary=false
 
-import numpy
 import pygame
-from random import randint
 import sys
-import typing
 
-from OpenGL.GL import *
-from OpenGL.GL.shaders import compileShader
-
-from imagemanager import ImageManager
-from inputmanager import InputManager
-from level import Level
-from levelselect import LevelSelect
-from scene import Scene
 from soundmanager import SoundManager
+from scene import Scene
+from levelselect import LevelSelect
+from level import Level
+from inputmanager import InputManager
+from imagemanager import ImageManager
+from renderer import Renderer
+
+USE_OPENGL = False
+
+if USE_OPENGL:
+    from opengl_renderer import OpenGLRenderer
+else:
+    from pygame_renderer import PygameRenderer
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
@@ -26,9 +28,8 @@ FRAME_RATE = 60
 class Game:
     clock = pygame.time.Clock()
     back_buffer: pygame.Surface
-    game_window: pygame.Surface
     static: pygame.Surface
-    program: typing.Any
+    renderer: Renderer
 
     images: ImageManager
     inputs: InputManager
@@ -40,20 +41,18 @@ class Game:
         pygame.init()
 
         self.back_buffer = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
-        self.game_window = pygame.display.set_mode(
-            (WINDOW_WIDTH, WINDOW_HEIGHT),
-            pygame.HWSURFACE | pygame.OPENGL | pygame.DOUBLEBUF)
         pygame.display.set_caption('purpy')
 
-        glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
-        glEnable(GL_BLEND)
-        glEnable(GL_TEXTURE_2D)
-        glEnable(GL_VERTEX_ARRAY)
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+        logical = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
+        destination = self.compute_scaled_buffer_dest()
+        window = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        print('initializing renderer')
+        if USE_OPENGL:
+            self.renderer = OpenGLRenderer(logical, destination, window)
+        else:
+            self.renderer = PygameRenderer(logical, destination, window)
 
-        self.init_static()
-        self.init_shader()
-
+        print('loading game content')
         self.images = ImageManager()
         self.inputs = InputManager()
         self.sounds = SoundManager()
@@ -62,65 +61,6 @@ class Game:
             self.scene = Level(None, sys.argv[1])
         else:
             self.scene = LevelSelect(None, 'assets/levels')
-
-    def init_static(self):
-        self.static = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
-        for x in range(LOGICAL_WIDTH):
-            for y in range(LOGICAL_HEIGHT):
-                r = randint(0, 255)
-                g = randint(0, 255)
-                b = randint(0, 255)
-                color = pygame.Color(r, g, b)
-                self.static.set_at((x, y), color)
-
-        texture_data = pygame.image.tobytes(self.static, 'RGBA', True)
-        texture_id = glGenTextures(1)
-        glActiveTexture(GL_TEXTURE1)
-        glBindTexture(GL_TEXTURE_2D, texture_id)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                     LOGICAL_WIDTH,
-                     LOGICAL_HEIGHT,
-                     0, GL_RGBA, GL_UNSIGNED_BYTE,
-                     texture_data)
-
-    def init_shader(self):
-        frag_src = open('./shader.frag')
-        frag_shader = compileShader(frag_src, GL_FRAGMENT_SHADER)
-
-        vert_src = open('./shader.vert')
-        vert_shader = compileShader(vert_src, GL_VERTEX_SHADER)
-
-        program = glCreateProgram()
-        self.program = program
-        glAttachShader(program, frag_shader)
-        glAttachShader(program, vert_shader)
-        glLinkProgram(program)
-        glUseProgram(program)
-
-        dest = self.compute_scaled_buffer_dest()
-        res = glGetUniformLocation(program, 'iResolution')
-        glUniform2f(res, dest.w, dest.h)
-
-        offset = glGetUniformLocation(program, 'iOffset')
-        glUniform2f(offset,
-                    (WINDOW_WIDTH - dest.w) / 2.0,
-                    (WINDOW_HEIGHT - dest.h) / 2.0)
-
-        static_loc = glGetUniformLocation(program, 'iStatic')
-        glUniform1i(static_loc, 1)
-
-        vertices = [
-            -1.0, 1.0,
-            -1.0, -1.0,
-            1.0, -1.0,
-            1.0, 1.0,
-        ]
-        glEnableVertexAttribArray(0)
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
@@ -151,30 +91,7 @@ class Game:
         # Draw the scene.
         self.scene.draw(self.back_buffer, back_buffer_src, self.images)
 
-        glClearColor(1, 0, 0, 1)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
-
-        time_loc = glGetUniformLocation(self.program, 'iTime')
-        glUniform1f(time_loc, pygame.time.get_ticks() / 1000.0)
-
-        texture_data = pygame.image.tobytes(self.back_buffer, 'RGBA', True)
-        texture_id = glGenTextures(1)
-        glActiveTexture(GL_TEXTURE0)
-        glBindTexture(GL_TEXTURE_2D, texture_id)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-                     LOGICAL_WIDTH,
-                     LOGICAL_HEIGHT,
-                     0, GL_RGBA, GL_UNSIGNED_BYTE,
-                     texture_data)
-
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY)
-        glDrawArrays(GL_QUADS, 0, 4)
-        glDisableClientState(GL_TEXTURE_COORD_ARRAY)
-        glDeleteTextures(1, [texture_id])
+        self.renderer.render(self.back_buffer)
 
         pygame.display.flip()
 
