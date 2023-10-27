@@ -1,13 +1,22 @@
+# pyright: reportWildcardImportFromLibrary=false
 
 import pygame
 import sys
 
-from imagemanager import ImageManager
-from inputmanager import InputManager
-from level import Level
-from levelselect import LevelSelect
-from scene import Scene
 from soundmanager import SoundManager
+from scene import Scene
+from levelselect import LevelSelect
+from level import Level
+from inputmanager import InputManager
+from imagemanager import ImageManager
+from renderer import Renderer
+
+USE_OPENGL = True
+
+if USE_OPENGL:
+    from opengl_renderer import OpenGLRenderer
+else:
+    from pygame_renderer import PygameRenderer
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
@@ -19,9 +28,8 @@ FRAME_RATE = 60
 class Game:
     clock = pygame.time.Clock()
     back_buffer: pygame.Surface
-    scaled_back_buffer: pygame.Surface
-    scaled_back_buffer_dest: pygame.Rect
-    game_window: pygame.Surface
+    static: pygame.Surface
+    renderer: Renderer
 
     images: ImageManager
     inputs: InputManager
@@ -33,14 +41,18 @@ class Game:
         pygame.init()
 
         self.back_buffer = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
-        self.game_window = pygame.display.set_mode(
-            (WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('purpy')
 
-        self.scaled_back_buffer_dest = self.compute_scaled_buffer_dest()
-        self.scaled_back_buffer = pygame.Surface(
-            self.scaled_back_buffer_dest.size)
+        logical = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
+        destination = self.compute_scaled_buffer_dest()
+        window = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        print('initializing renderer')
+        if USE_OPENGL:
+            self.renderer = OpenGLRenderer(logical, destination, window)
+        else:
+            self.renderer = PygameRenderer(logical, destination, window)
 
+        print('loading game content')
         self.images = ImageManager()
         self.inputs = InputManager()
         self.sounds = SoundManager()
@@ -78,16 +90,10 @@ class Game:
         self.back_buffer.fill((0, 0, 0), back_buffer_src)
         # Draw the scene.
         self.scene.draw(self.back_buffer, back_buffer_src, self.images)
-        # Clear the window with black.
-        # Scale the back buffer to the right size.
-        pygame.transform.scale(
-            self.back_buffer,
-            self.scaled_back_buffer_dest.size,
-            self.scaled_back_buffer)
-        # Copy the back buffer to the window.
-        self.game_window.fill((0, 0, 0), (0, 0, WINDOW_WIDTH, WINDOW_HEIGHT))
-        self.game_window.blit(self.scaled_back_buffer,
-                              self.scaled_back_buffer_dest)
+
+        self.renderer.render(self.back_buffer)
+
+        pygame.display.flip()
 
         return True
 
@@ -107,7 +113,6 @@ class Game:
             if not self.update():
                 game_running = False
 
-            pygame.display.update()
             self.clock.tick(FRAME_RATE)
         pygame.quit()
 
