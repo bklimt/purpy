@@ -1,11 +1,11 @@
 
 import pygame
 
+from math import trunc
 from random import randint
+
 from tilemap import MapObject
 from tileset import TileSet
-
-
 from utils import intersect
 
 
@@ -27,6 +27,6 @@ class Star:
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
         x = self.area.x + offset[0]
         y = self.area.y + offset[1]
-        x += randint(-1, 1)
-        y += randint(-1, 1)
+        x += trunc(randint(-20, 20) / 20)
+        y += trunc(randint(-20, 20) / 20)
         surface.blit(self.surface, (x, y), self.source)
