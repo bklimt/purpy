@@ -93,8 +93,6 @@ class Game:
 
         self.renderer.render(self.back_buffer)
 
-        pygame.display.flip()
-
         return True
 
     def main(self):
