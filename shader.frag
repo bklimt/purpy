@@ -17,6 +17,15 @@ vec2 tube_warp(vec2 coord, vec2 offset) {
     return coord;
 }
 
+vec4 scanline(float y) {
+    y *= iResolution.y;
+    y += (iTime * 5.0);
+    y /= 1.2;
+    float scanline_mag = sin(y);
+    vec3 scanline_color = vec3(scanline_mag, scanline_mag, scanline_mag);
+    return vec4(scanline_color, 1.0);
+}
+
 void main() {
     vec2 uv = ((gl_FragCoord.xy - iOffset) / iResolution);
     vec2 uv1 = tube_warp(uv, vec2(0.0, 0.0));
@@ -28,6 +37,8 @@ void main() {
         return;
     }
 
+    vec4 scan = scanline(uv1.y);
+
     vec2 random_pos = uv1;
     random_pos.y += iTime * 10.0;
     vec4 random = texture2D(iStatic, random_pos);
@@ -38,7 +49,7 @@ void main() {
     color.b = texture2D(u_texture, uv3).b;
     color.a = 1.0;
 
-    color = mix(color, random, 0.05);
+    color = mix(mix(color, random, 0.05), scan, 0.05);
 
     gl_FragColor = color;
 }
