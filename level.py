@@ -388,6 +388,7 @@ class Level(Scene):
 
         for star in self.stars:
             if star.intersects(player_rect):
+                sounds.play(Sound.STAR)
                 self.stars.remove(star)
                 self.star_count += 1
                 self.toast_text = f'STARS x {self.star_count}'
