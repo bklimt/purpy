@@ -11,7 +11,7 @@ from inputmanager import InputManager
 from imagemanager import ImageManager
 from renderer import Renderer
 
-USE_OPENGL = True
+USE_OPENGL = False
 
 if USE_OPENGL:
     from opengl_renderer import OpenGLRenderer
