@@ -5,6 +5,7 @@ from enum import Enum
 from random import randint
 
 from spritesheet import SpriteSheet
+from utils import Direction
 
 FRAMES_PER_FRAME = 8
 IDLE_TIME = 240
@@ -92,9 +93,12 @@ class Player:
         self.sprite.blit(surface, pos, index, not self.facing_right)
 
     # 8 4 8 19
-    def rect(self, pos: tuple[int, int]) -> pygame.Rect:
+    def rect_old(self, pos: tuple[int, int]) -> pygame.Rect:
         """ Returns the player rect in pixels, given that position. """
         if self.state == PlayerState.CROUCHING:
             return pygame.Rect(pos[0]+8, pos[1]+14, 8, 9)
         else:
             return pygame.Rect(pos[0]+8, pos[1]+4, 8, 19)
+
+    def get_bounds_rect(self, direction: Direction, offset: tuple[int, int] = (0, 0)) -> pygame.Rect:
+        return self.rect_old(offset)

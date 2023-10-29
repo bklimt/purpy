@@ -13,6 +13,7 @@ from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
 from tilemap import TileMap, load_map
+from utils import Direction
 
 TARGET_WALK_SPEED = 32
 TARGET_AIRBORNE_SPEED = 16
@@ -88,6 +89,18 @@ class Level(Scene):
                 self.doors.append(Door(obj))
             if obj.properties.get('star', False):
                 self.stars.append(Star(obj, self.map.tileset))
+
+    def update_player_trajectory(self, inputs: InputManager):
+        # Apply controller input.
+        # Apply gravity.
+        # Apply platforms.
+        pass
+
+    def move_player_x(self):
+        pass
+
+    def move_player_y(self):
+        pass
 
     def handle_switch_tiles(self, tiles: set[int], sounds: SoundManager):
         previous = self.current_switch_tiles
@@ -172,17 +185,20 @@ class Level(Scene):
             for platform in self.platforms:
                 platform.occupied = False
             return False
-        player_rect = self.player.rect(
+        player_rect = self.player.get_bounds_rect(
+            Direction.SOUTH,
             (self.player.x//16, (self.player.y+16)//16))
         return self.intersect_ground(player_rect, sounds)
 
     def is_pressing_against_wall(self, input: InputManager) -> bool:
         if input.is_left_down() and not input.is_right_down():
-            player_rect = self.player.rect(
+            player_rect = self.player.get_bounds_rect(
+                Direction.WEST,
                 ((self.player.x-1)//16, self.player.y//16))
             return self.intersect_horizontal(player_rect)
         if input.is_right_down() and not input.is_left_down():
-            player_rect = self.player.rect(
+            player_rect = self.player.get_bounds_rect(
+                Direction.EAST,
                 ((self.player.x+1)//16, self.player.y//16))
             return self.intersect_horizontal(player_rect)
         return False
@@ -212,6 +228,10 @@ class Level(Scene):
         if self.player.dx > target_dx:
             self.player.dx -= WALK_SPEED_ACCELERATION
 
+        dx = self.player.dx
+        if self.current_platform is not None:
+            dx += self.current_platform.dx
+
         # See if moving is possible.
         target_x = self.player.x + self.player.dx
         while self.player.x != target_x:
@@ -222,12 +242,16 @@ class Level(Scene):
                 else:
                     delta = 16
             new_x = self.player.x + delta
-            player_rect = self.player.rect((new_x//16, self.player.y//16))
+            direction: Direction = Direction.WEST if target_x < self.player.x else Direction.EAST
+            player_rect = self.player.get_bounds_rect(
+                direction,
+                (new_x//16, self.player.y//16))
             if self.intersect_horizontal(player_rect):
                 self.player.dx = 0
                 return True
             else:
                 self.player.x = new_x
+
         return False
 
     def update_vertical(self, input: InputManager) -> bool:
@@ -252,6 +276,7 @@ class Level(Scene):
         # See if moving is possible.
         target_y = self.player.y + self.player.dy
         while self.player.y != target_y:
+            direction: Direction = Direction.SOUTH if target_y > self.player.y else Direction.NORTH
             delta = target_y - self.player.y
             if abs(delta) > 16:
                 if delta < 0:
@@ -259,7 +284,9 @@ class Level(Scene):
                 else:
                     delta = 16
             new_y = self.player.y + delta
-            player_rect = self.player.rect((self.player.x//16, new_y//16))
+            player_rect = self.player.get_bounds_rect(
+                direction,
+                (self.player.x//16, new_y//16))
             if self.intersect_vertical(player_rect, self.player.dy >= 0):
                 if self.player.dy < 0:
                     self.player.dy = 0
@@ -274,7 +301,10 @@ class Level(Scene):
         platform = self.current_platform
         new_x = self.player.x + platform.dx
         new_y = self.player.y + platform.dy
-        player_rect = self.player.rect((new_x//16, new_y//16))
+        # TODO: Well, this isn't exactly right.
+        player_rect = self.player.get_bounds_rect(
+            Direction.NONE,
+            (new_x//16, new_y//16))
         if not self.intersect_standing(player_rect):
             self.player.x = new_x
             self.player.y = new_y
@@ -287,14 +317,17 @@ class Level(Scene):
 
     def handle_solid_platforms(self):
         for platform in self.platforms:
-            player_rect = self.player.rect(
+            player_rect = self.player.get_bounds_rect(
+                Direction.NONE,
                 (self.player.x//16, self.player.y//16))
             if not platform.is_solid:
                 continue
             if platform.intersect(player_rect):
                 new_x = self.player.x + sign(platform.dx) * 16
                 new_y = self.player.y + sign(platform.dy)*16
-                player_rect = self.player.rect((new_x//16, new_y//16))
+                player_rect = self.player.get_bounds_rect(
+                    Direction.NONE,
+                    (new_x//16, new_y//16))
                 if not self.intersect_standing(player_rect):
                     self.player.x = new_x
                     self.player.y = new_y
@@ -364,7 +397,9 @@ class Level(Scene):
             elif not crouch_down:
                 self.player.state = PlayerState.STANDING
 
-        player_rect = self.player.rect((self.player.x//16, self.player.y//16))
+        player_rect = self.player.get_bounds_rect(
+            Direction.NONE,
+            (self.player.x//16, self.player.y//16))
         in_wall = self.intersect_standing(player_rect)
         if in_wall:
             self.player.x -= 16
@@ -376,7 +411,9 @@ class Level(Scene):
         self.handle_solid_platforms()
 
         self.current_door = None
-        player_rect = self.player.rect((self.player.x//16, self.player.y//16))
+        player_rect = self.player.get_bounds_rect(
+            Direction.NONE,
+            (self.player.x//16, self.player.y//16))
         for door in self.doors:
             door.update(player_rect)
             if door.closed:
@@ -433,7 +470,9 @@ class Level(Scene):
         player_x: int = self.player.x//16
         player_y: int = self.player.y//16
 
-        player_rect = self.player.rect((player_x, player_y))
+        player_rect = self.player.get_bounds_rect(
+            Direction.NONE,
+            (player_x, player_y))
         preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
         player_draw_x: int = dest.width//2
         player_draw_y: int = dest.height//2

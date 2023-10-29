@@ -3,6 +3,7 @@ import pygame
 
 from spritesheet import SpriteSheet
 from tilemap import MapObject
+from utils import intersect
 
 DOOR_SPEED = 3
 
@@ -42,15 +43,7 @@ class Door:
 
     def is_inside(self, player_rect: pygame.Rect) -> bool:
         door_rect = pygame.Rect(self.x+8, self.y, 24, 32)
-        if player_rect.left < door_rect.left:
-            return False
-        if player_rect.right > door_rect.right:
-            return False
-        if player_rect.top < door_rect.top:
-            return False
-        if player_rect.bottom > door_rect.bottom:
-            return False
-        return True
+        return intersect(player_rect, door_rect)
 
     def update(self, player_rect: pygame.Rect):
         self.active = self.is_inside(player_rect)
