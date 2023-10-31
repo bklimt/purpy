@@ -127,15 +127,15 @@ class Level(Scene):
         if self.player.state == PlayerState.CROUCHING:
             target_dx = 0
 
+        # Apply platforms.
+        if self.current_platform is not None:
+            target_dx += self.current_platform.dx
+
         # Change the velocity toward the target velocity.
         if self.player.dx < target_dx:
             self.player.dx += WALK_SPEED_ACCELERATION
         if self.player.dx > target_dx:
             self.player.dx -= WALK_SPEED_ACCELERATION
-
-        # Apply platforms.
-        if self.current_platform is not None:
-            self.player.dx += self.current_platform.dx
 
     def update_player_trajectory_y(self, inputs: InputManager):
         if self.player.state == PlayerState.WALL_SLIDING:
@@ -178,13 +178,16 @@ class Level(Scene):
         """ Returns how far this player needs to move in direction to not intersect, in sub-pixels. """
         player_rect = self.player.get_target_bounds_rect(direction)
 
+        try:
+            map_result = self.map.try_move_to(
+                player_rect, direction, self.switches)
+            platform_result = self.find_platform_intersections(
+                player_rect, direction)
+        except:
+            raise Exception(
+                f'oh noes! player = {player_rect}, direction = {direction}')
+
         result = MoveResult()
-
-        map_result = self.map.try_move_to(
-            player_rect, direction, self.switches)
-        platform_result = self.find_platform_intersections(
-            player_rect, direction)
-
         if cmp_in_direction(platform_result.offset, map_result.offset, direction) <= 0:
             result.offset = platform_result.offset
             result.platforms = platform_result.platforms
@@ -203,6 +206,7 @@ class Level(Scene):
             # Moving left.
             offset = self.try_move_player(Direction.WEST).offset
             if offset != 0:
+                # TODO: This should require checking the input as well.
                 pushing_against_wall = True
             self.player.x += offset
             self.player.x += self.try_move_player(Direction.EAST).offset
@@ -210,6 +214,7 @@ class Level(Scene):
             # Moving right.
             offset = self.try_move_player(Direction.EAST).offset
             if offset != 0:
+                # TODO: This should require checking the input as well.
                 pushing_against_wall = True
             self.player.x += offset
             self.player.x += self.try_move_player(Direction.WEST).offset
@@ -227,6 +232,7 @@ class Level(Scene):
             # Moving up.
             self.player.y += self.try_move_player(Direction.NORTH).offset
             self.player.y += self.try_move_player(Direction.SOUTH).offset
+            # TODO: Make this work even when the platform is going up...???
             self.handle_current_platforms(set())
         else:
             # Moving down.
