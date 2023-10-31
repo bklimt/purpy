@@ -236,11 +236,17 @@ class Level(Scene):
             move_result = self.try_move_player(Direction.SOUTH)
             if move_result.offset != 0:
                 on_ground = True
+            self.handle_spikes(move_result.tile_ids)
             self.handle_switch_tiles(move_result.tile_ids, sounds)
             self.handle_current_platforms(move_result.platforms)
             self.player.y += move_result.offset
             self.player.y += self.try_move_player(Direction.NORTH).offset
         return on_ground
+
+    def handle_spikes(self, tiles: set[int]):
+        for tile_id in tiles:
+            if self.map.tileset.get_bool_property(tile_id, 'deadly', False):
+                self.player.is_dead = True
 
     def handle_current_platforms(self, platforms: set[Platform]):
         self.current_platform = None
