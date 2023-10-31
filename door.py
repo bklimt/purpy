@@ -3,7 +3,7 @@ import pygame
 
 from spritesheet import SpriteSheet
 from tilemap import MapObject
-from utils import intersect
+from utils import intersect, Direction
 
 DOOR_SPEED = 3
 
@@ -56,3 +56,6 @@ class Door:
     def close(self):
         self.closing = True
         self.frame = 0
+
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction) -> int:
+        return 0

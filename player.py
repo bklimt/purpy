@@ -100,5 +100,8 @@ class Player:
         else:
             return pygame.Rect(pos[0]+8, pos[1]+4, 8, 19)
 
-    def get_bounds_rect(self, direction: Direction, offset: tuple[int, int] = (0, 0)) -> pygame.Rect:
-        return self.rect_old(offset)
+    def get_target_bounds_rect(self, direction: Direction):
+        """ Takes a subpixel delta and returns the bounds rect to check when moving that way. """
+        x = self.x // 16
+        y = self.y // 16
+        return self.rect_old((x, y))

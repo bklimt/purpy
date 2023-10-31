@@ -5,7 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from tileset import TileSet, load_tileset
-from utils import intersect
+from utils import Direction, intersect, try_move_to, cmp_in_direction
 
 
 class ImageLayer:
@@ -103,6 +103,14 @@ class MapObject:
 
     def __repr__(self):
         return f'MapObject(id={self.id}, gid={self.gid}, x={self.x}, y={self.y}, w={self.width}, h={self.height}, properties={self.properties}'
+
+
+class MapMoveResult:
+    offset: int = 0
+    tile_ids: set[int]
+
+    def __init__(self):
+        self.tile_ids = set()
 
 
 class TileMap:
@@ -250,6 +258,61 @@ class TileMap:
                 # Draw the rest of the turtle.
                 pos = (pos_x, pos_y)
                 surface.blit(self.tileset.surface, pos, source)
+
+    def get_rect(self, row: int, col: int) -> pygame.Rect:
+        return pygame.Rect(
+            col * self.tilewidth,
+            row * self.tileheight,
+            self.tilewidth,
+            self.tileheight)
+
+    def try_move_to(self,
+                    player_rect: pygame.Rect,
+                    direction: Direction,
+                    switches: set[str]) -> MapMoveResult:
+        """ Returns the offset needed to account for the closest one. """
+        result = MapMoveResult()
+        row1 = player_rect.top // self.tileheight
+        col1 = player_rect.left // self.tilewidth
+        row2 = player_rect.bottom // self.tileheight
+        col2 = player_rect.right // self.tilewidth
+        if row1 < 0:
+            row1 = 0
+        if col1 < 0:
+            col1 = 0
+        if row2 < 0:
+            row2 = 0
+        if col2 < 0:
+            col2 = 0
+        for row in range(row1, row2+1):
+            for col in range(col1, col2+1):
+                tile_rect = self.get_rect(row, col)
+                for layer in self.layers:
+                    if not isinstance(layer, TileLayer):
+                        continue
+                    if layer.player or self.player_layer is None:
+                        index = layer.data[row][col]
+                        if index == 0:
+                            continue
+                        index -= 1
+                        if not self.is_condition_met(index, switches):
+                            alt = self.tileset.get_int_property(
+                                index, 'alternate')
+                            if alt is None:
+                                continue
+                            # Use an alt tile instead of the original.
+                            index = alt
+                        if not self.tileset.get_bool_property(index, 'solid', True):
+                            continue
+                        offset = try_move_to(player_rect, tile_rect, direction)
+                        cmp = cmp_in_direction(
+                            offset, result.offset, direction)
+                        if cmp < 0:
+                            result.offset = offset
+                            result.tile_ids = set([index])
+                        elif cmp == 0:
+                            result.tile_ids.add(index)
+        return result
 
     def intersect(self, rect: pygame.Rect, switches: set[str]) -> list[int]:
         ans = []

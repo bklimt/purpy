@@ -4,7 +4,7 @@ import pygame
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
-from utils import intersect
+from utils import intersect, try_move_to, Direction
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
@@ -69,6 +69,13 @@ class Platform:
         if rect.bottom != self.y//16:
             return False
         return True
+
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction) -> int:
+        if not self.is_solid and direction != Direction.SOUTH:
+            return 0
+        area = pygame.Rect(self.x//16, self.y//16,
+                           self.tileset.tilewidth, self.tileset.tileheight)
+        return try_move_to(player_rect, area, direction)
 
 
 class MovingPlatform(Platform):

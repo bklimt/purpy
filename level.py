@@ -13,7 +13,7 @@ from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
 from tilemap import TileMap, load_map
-from utils import Direction
+from utils import Direction, cmp_in_direction, sign
 
 TARGET_WALK_SPEED = 32
 TARGET_AIRBORNE_SPEED = 16
@@ -31,12 +31,25 @@ TOAST_TIME = 100
 TOAST_HEIGHT = 12
 
 
-def sign(n: int):
-    if n < 0:
-        return -1
-    if n > 0:
-        return 1
-    return 0
+class MoveResult:
+    """ The results of trying to move. """
+    offset: int
+    tile_ids: set[int]
+    platforms: set[Platform]
+
+    def __init__(self):
+        self.offset = 0
+        self.tile_ids = set()
+        self.platforms = set()
+
+
+class PlatformMoveResult:
+    offset: int
+    platforms: set[Platform]
+
+    def __init__(self):
+        self.offset = 0
+        self.platforms = set()
 
 
 class Level(Scene):
@@ -55,13 +68,15 @@ class Level(Scene):
     toast_position: int = -TOAST_HEIGHT
     toast_counter: int = TOAST_TIME
 
+    # platforms, stars, and doors
     platforms: list[Platform]
+    stars: list[Star]
+    doors: list[Door]
+
     current_platform: Platform | None = None
     switches: set[str]
     current_switch_tiles: set[int]
-    doors: list[Door]
     current_door: Door | None
-    stars: list[Star]
 
     def __init__(self, parent: Scene | None, map_path: str):
         self.parent = parent
@@ -75,10 +90,10 @@ class Level(Scene):
         self.player.y = self.map.tileheight * 16
         self.transition: str = ''
         self.platforms = []
+        self.stars = []
+        self.doors = []
         self.switches = set()
         self.current_switch_tiles = set()
-        self.doors = []
-        self.stars = []
         self.star_count = 0
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
@@ -90,27 +105,150 @@ class Level(Scene):
             if obj.properties.get('star', False):
                 self.stars.append(Star(obj, self.map.tileset))
 
-    def update_player_trajectory(self, inputs: InputManager):
+    #
+    # Movement.
+    #
+
+    def update_player_trajectory_x(self, inputs: InputManager):
         # Apply controller input.
-        # Apply gravity.
+        target_dx = 0
+        if inputs.is_left_down() and not inputs.is_right_down():
+            if self.player.state == PlayerState.AIRBORNE:
+                # If you're in the air, you can only go fast if you already were.
+                target_dx = min(self.player.dx, -1 * TARGET_AIRBORNE_SPEED)
+            else:
+                target_dx = -1 * TARGET_WALK_SPEED
+        if inputs.is_right_down() and not inputs.is_left_down():
+            if self.player.state == PlayerState.AIRBORNE:
+                # If you're in the air, you can only go fast if you already were.
+                target_dx = max(self.player.dx, TARGET_AIRBORNE_SPEED)
+            else:
+                target_dx = TARGET_WALK_SPEED
+        if self.player.state == PlayerState.CROUCHING:
+            target_dx = 0
+
+        # Change the velocity toward the target velocity.
+        if self.player.dx < target_dx:
+            self.player.dx += WALK_SPEED_ACCELERATION
+        if self.player.dx > target_dx:
+            self.player.dx -= WALK_SPEED_ACCELERATION
+
         # Apply platforms.
-        pass
+        if self.current_platform is not None:
+            self.player.dx += self.current_platform.dx
 
-    def move_player_x(self):
-        pass
+    def update_player_trajectory_y(self, inputs: InputManager):
+        if self.player.state == PlayerState.WALL_SLIDING:
+            # When you first grab the wall, don't start sliding for a while.
+            if self.wall_slide_counter > 0:
+                self.wall_slide_counter -= 1
+                self.player.dy = 0
+            else:
+                self.player.dy = WALL_SLIDE_SPEED
+        elif self.player.state == PlayerState.STANDING:
+            # Fall at least one pixel so that we hit the ground again.
+            self.player.dy = max(self.player.dy, 16)
+        else:
+            # Apply gravity.
+            if self.player.dy < MAX_GRAVITY:
+                self.player.dy += GRAVITY_ACCELERATION
+            if self.player.dy > MAX_GRAVITY:
+                self.player.dy = MAX_GRAVITY
 
-    def move_player_y(self):
-        pass
+        # Apply platforms.
+        if self.current_platform is not None:
+            self.player.dy += self.current_platform.dy
+
+    def find_platform_intersections(self, player_rect: pygame.Rect, direction: Direction) -> PlatformMoveResult:
+        result = PlatformMoveResult()
+        for platform in self.platforms:
+            distance = platform.try_move_to(player_rect, direction)
+            cmp = cmp_in_direction(distance, result.offset, direction)
+            if cmp < 0:
+                result.offset = distance
+                result.platforms = set([platform])
+            elif cmp == 0:
+                result.platforms.add(platform)
+        return result
+
+    def try_move_player(self, direction: Direction) -> MoveResult:
+        """ Returns how far this player needs to move in direction to not intersect, in sub-pixels. """
+        player_rect = self.player.get_target_bounds_rect(direction)
+
+        result = MoveResult()
+
+        map_result = self.map.try_move_to(
+            player_rect, direction, self.switches)
+        platform_result = self.find_platform_intersections(
+            player_rect, direction)
+
+        if cmp_in_direction(platform_result.offset, map_result.offset, direction) <= 0:
+            result.offset = platform_result.offset
+            result.platforms = platform_result.platforms
+        else:
+            result.offset = map_result.offset
+            result.tile_ids = map_result.tile_ids
+
+        result.offset *= 16
+
+        return result
+
+    def move_player_x(self) -> bool:
+        pushing_against_wall: bool = False
+        self.player.x += self.player.dx
+        if self.player.dx < 0 or (self.player.dx == 0 and not self.player.facing_right):
+            # Moving left.
+            offset = self.try_move_player(Direction.WEST).offset
+            if offset != 0:
+                pushing_against_wall = True
+            self.player.x += offset
+            self.player.x += self.try_move_player(Direction.EAST).offset
+        else:
+            # Moving right.
+            offset = self.try_move_player(Direction.EAST).offset
+            if offset != 0:
+                pushing_against_wall = True
+            self.player.x += offset
+            self.player.x += self.try_move_player(Direction.WEST).offset
+
+        # If you're against the wall, you're stopped.
+        if pushing_against_wall:
+            self.player.dx = 0
+
+        return pushing_against_wall
+
+    def move_player_y(self, sounds: SoundManager) -> bool:
+        on_ground: bool = False
+        self.player.y += self.player.dy
+        if self.player.dy <= 0:
+            # Moving up.
+            self.player.y += self.try_move_player(Direction.NORTH).offset
+            self.player.y += self.try_move_player(Direction.SOUTH).offset
+        else:
+            # Moving down.
+            move_result = self.try_move_player(Direction.SOUTH)
+            if move_result.offset != 0:
+                on_ground = True
+            self.handle_switch_tiles(move_result.tile_ids, sounds)
+            if len(move_result.platforms) > 0:
+                # TODO: Be smarter about what platform we pick.
+                self.current_platform = move_result.platforms.pop()
+            else:
+                self.current_platform = None
+            self.player.y += move_result.offset
+            self.player.y += self.try_move_player(Direction.NORTH).offset
+        return on_ground
 
     def handle_switch_tiles(self, tiles: set[int], sounds: SoundManager):
         previous = self.current_switch_tiles
-        self.current_switch_tiles = tiles
+        self.current_switch_tiles = set()
         for t in tiles:
-            if t in previous:
-                continue
             switch = self.map.tileset.get_str_property(t, 'switch')
             if switch is None:
-                raise Exception('non-switch passed to switch code')
+                continue
+            self.current_switch_tiles.add(t)
+            if t in previous:
+                continue
             if switch.startswith('!'):
                 if switch[1:] in self.switches:
                     sounds.play(Sound.CLICK)
@@ -128,226 +266,23 @@ class Level(Scene):
                 print(f'switched on {switch}')
                 self.switches.add(switch)
 
-    def intersect_ground(self, player_rect: pygame.Rect, sounds: SoundManager) -> bool:
-        """ Checks the ground underneath the player. """
-        self.current_platform = None
-        for platform in self.platforms:
-            if platform.intersect_top(player_rect):
-                platform.occupied = True
-                self.current_platform = platform
-                # To make sure things stay pixel perfect, make sure the subpixels are the same.
-                self.player.y = ((self.player.y // 16) * 16) + \
-                    (self.current_platform.y % 16)
-            else:
-                platform.occupied = False
-        if self.current_platform is not None:
-            return True
-        tiles: list[int] = self.map.intersect(player_rect, self.switches)
-        switch_tiles: set[int] = set([
-            t for t in tiles if self.map.tileset.get_str_property(t, 'switch') is not None
-        ])
-        self.handle_switch_tiles(switch_tiles, sounds)
-        if len(tiles) > 0:
-            for tile in tiles:
-                if self.map.tileset.get_bool_property(tile, 'deadly'):
-                    self.player.is_dead = True
-            return True
-        return False
-
-    def intersect_vertical(self, player_rect: pygame.Rect, check_platforms: bool) -> bool:
-        """ Checks the ground when falling or jumping. """
-        if check_platforms:
-            for platform in self.platforms:
-                if platform.intersect_top(player_rect):
-                    return True
-        if self.intersect_standing(player_rect):
-            return True
-        return False
-
-    def intersect_horizontal(self, player_rect: pygame.Rect) -> bool:
-        """ Checks for collisions when moving right or left. """
-        return self.intersect_standing(player_rect)
-
-    def intersect_standing(self, player_rect: pygame.Rect) -> bool:
-        """ Checks for collisions when the player is just, like, standing there being cool. """
-        if len(self.map.intersect(player_rect, self.switches)) > 0:
-            return True
-        for platform in self.platforms:
-            if not platform.is_solid:
-                continue
-            if platform.intersect(player_rect):
-                return True
-        return False
-
-    def is_on_ground(self, sounds: SoundManager) -> bool:
-        if self.player.dy < 0:
-            self.current_platform = None
-            for platform in self.platforms:
-                platform.occupied = False
-            return False
-        player_rect = self.player.get_bounds_rect(
-            Direction.SOUTH,
-            (self.player.x//16, (self.player.y+16)//16))
-        return self.intersect_ground(player_rect, sounds)
-
-    def is_pressing_against_wall(self, input: InputManager) -> bool:
-        if input.is_left_down() and not input.is_right_down():
-            player_rect = self.player.get_bounds_rect(
-                Direction.WEST,
-                ((self.player.x-1)//16, self.player.y//16))
-            return self.intersect_horizontal(player_rect)
-        if input.is_right_down() and not input.is_left_down():
-            player_rect = self.player.get_bounds_rect(
-                Direction.EAST,
-                ((self.player.x+1)//16, self.player.y//16))
-            return self.intersect_horizontal(player_rect)
-        return False
-
-    def update_horizontal(self, input: InputManager) -> bool:
-        """ Handles moving right and left. Returns true if a wall is hit. """
-        # Apply the input to adjust the target velocity.
-        target_dx = 0
-        if input.is_left_down() and not input.is_right_down():
-            if self.player.state == PlayerState.AIRBORNE:
-                # If you're in the air, you can only go fast if you already were.
-                target_dx = min(self.player.dx, -1 * TARGET_AIRBORNE_SPEED)
-            else:
-                target_dx = -1 * TARGET_WALK_SPEED
-        if input.is_right_down() and not input.is_left_down():
-            if self.player.state == PlayerState.AIRBORNE:
-                # If you're in the air, you can only go fast if you already were.
-                target_dx = max(self.player.dx, TARGET_AIRBORNE_SPEED)
-            else:
-                target_dx = TARGET_WALK_SPEED
-        if self.player.state == PlayerState.CROUCHING:
-            target_dx = 0
-
-        # Change the velocity toward the target velocity.
-        if self.player.dx < target_dx:
-            self.player.dx += WALK_SPEED_ACCELERATION
-        if self.player.dx > target_dx:
-            self.player.dx -= WALK_SPEED_ACCELERATION
-
-        dx = self.player.dx
-        if self.current_platform is not None:
-            dx += self.current_platform.dx
-
-        # See if moving is possible.
-        target_x = self.player.x + self.player.dx
-        while self.player.x != target_x:
-            delta = target_x - self.player.x
-            if abs(delta) > 16:
-                if delta < 0:
-                    delta = -16
-                else:
-                    delta = 16
-            new_x = self.player.x + delta
-            direction: Direction = Direction.WEST if target_x < self.player.x else Direction.EAST
-            player_rect = self.player.get_bounds_rect(
-                direction,
-                (new_x//16, self.player.y//16))
-            if self.intersect_horizontal(player_rect):
-                self.player.dx = 0
-                return True
-            else:
-                self.player.x = new_x
-
-        return False
-
-    def update_vertical(self, input: InputManager) -> bool:
-        """ Handles moving up and down. Returns true if a wall is hit. """
-        if self.player.state == PlayerState.AIRBORNE:
-            # Apply gravity.
-            if self.player.dy < MAX_GRAVITY:
-                self.player.dy += GRAVITY_ACCELERATION
-            if self.player.dy > MAX_GRAVITY:
-                self.player.dy = MAX_GRAVITY
-        elif self.player.state == PlayerState.WALL_SLIDING:
-            # When you first grab the wall, don't start sliding for a while.
-            if self.wall_slide_counter > 0:
-                self.wall_slide_counter -= 1
-                self.player.dy = 0
-            else:
-                self.player.dy = WALL_SLIDE_SPEED
-        else:
-            self.player.dy = 0
-        # print(f'state = {self.player.state}, dy = {self.player.dy}')
-
-        # See if moving is possible.
-        target_y = self.player.y + self.player.dy
-        while self.player.y != target_y:
-            direction: Direction = Direction.SOUTH if target_y > self.player.y else Direction.NORTH
-            delta = target_y - self.player.y
-            if abs(delta) > 16:
-                if delta < 0:
-                    delta = -16
-                else:
-                    delta = 16
-            new_y = self.player.y + delta
-            player_rect = self.player.get_bounds_rect(
-                direction,
-                (self.player.x//16, new_y//16))
-            if self.intersect_vertical(player_rect, self.player.dy >= 0):
-                if self.player.dy < 0:
-                    self.player.dy = 0
-                return True
-            else:
-                self.player.y = new_y
-        return False
-
-    def update_move_with_platform(self):
-        if self.current_platform is None:
-            return
-        platform = self.current_platform
-        new_x = self.player.x + platform.dx
-        new_y = self.player.y + platform.dy
-        # TODO: Well, this isn't exactly right.
-        player_rect = self.player.get_bounds_rect(
-            Direction.NONE,
-            (new_x//16, new_y//16))
-        if not self.intersect_standing(player_rect):
-            self.player.x = new_x
-            self.player.y = new_y
-            # To make sure things stay pixel perfect, make sure the subpixels are the same.
-            self.player.y = ((self.player.y // 16) * 16) + (platform.y % 16)
-        else:
-            if platform.is_solid:
-                print(f'crushed by platform {platform.id}')
-                self.player.is_dead = True
-
-    def handle_solid_platforms(self):
-        for platform in self.platforms:
-            player_rect = self.player.get_bounds_rect(
-                Direction.NONE,
-                (self.player.x//16, self.player.y//16))
-            if not platform.is_solid:
-                continue
-            if platform.intersect(player_rect):
-                new_x = self.player.x + sign(platform.dx) * 16
-                new_y = self.player.y + sign(platform.dy)*16
-                player_rect = self.player.get_bounds_rect(
-                    Direction.NONE,
-                    (new_x//16, new_y//16))
-                if not self.intersect_standing(player_rect):
-                    self.player.x = new_x
-                    self.player.y = new_y
-                else:
-                    self.player.is_dead = True
-
-    def update(self, input: InputManager, sounds: SoundManager) -> Scene | None:
-        if input.is_cancel_triggered():
+    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
+        if inputs.is_cancel_triggered():
             return self.parent
-        if input.is_restart_down():
+        if inputs.is_restart_down():
             return Level(self.parent, self.map_path)
 
-        if self.player.state != PlayerState.STOPPED:
-            self.update_horizontal(input)
-        self.update_vertical(input)
+        if self.player.state == PlayerState.STOPPED:
+            # TODO: This probably shouldn't stop platforms and stuff like that.
+            return
 
-        on_ground = self.is_on_ground(sounds)
-        pressing_against_wall = self.is_pressing_against_wall(input)
-        crouch_down = input.is_crouch_down()
-        jump_pressed = input.is_jump_down()
+        self.update_player_trajectory_x(inputs)
+        self.update_player_trajectory_y(inputs)
+
+        pressing_against_wall = self.move_player_x()
+        on_ground = self.move_player_y(sounds)
+        crouch_down = inputs.is_crouch_down()
+        jump_pressed = inputs.is_jump_down()
 
         start_state = self.player.state
         if self.player.state == PlayerState.STANDING:
@@ -397,23 +332,14 @@ class Level(Scene):
             elif not crouch_down:
                 self.player.state = PlayerState.STANDING
 
-        player_rect = self.player.get_bounds_rect(
-            Direction.NONE,
-            (self.player.x//16, self.player.y//16))
-        in_wall = self.intersect_standing(player_rect)
-        if in_wall:
-            self.player.x -= 16
-
-        for platform in self.platforms:
-            platform.update()
-        self.update_move_with_platform()
-
-        self.handle_solid_platforms()
+        player_rect = self.player.get_target_bounds_rect(Direction.NONE)
+        # TODO: Fix when you get stuck in walls.
+        # in_wall = self.intersect_standing(player_rect)
+        # if in_wall:
+        #     self.player.x -= 16
+        #     player_rect = self.player.get_target_bounds_rect(Direction.NONE)
 
         self.current_door = None
-        player_rect = self.player.get_bounds_rect(
-            Direction.NONE,
-            (self.player.x//16, self.player.y//16))
         for door in self.doors:
             door.update(player_rect)
             if door.closed:
@@ -432,22 +358,22 @@ class Level(Scene):
                 self.toast_counter = TOAST_TIME
 
         if True:
-            inputs = []
+            attribs = []
             if on_ground:
-                inputs.append('on_ground')
+                attribs.append('on_ground')
             if pressing_against_wall:
-                inputs.append('pressing_against_wall')
+                attribs.append('pressing_against_wall')
             if crouch_down:
-                inputs.append('crouch_down')
+                attribs.append('crouch_down')
             if jump_pressed:
-                inputs.append('jump_pressed')
-            if in_wall:
-                inputs.append('in_wall')
+                attribs.append('jump_pressed')
+            # if in_wall:
+            #     attribs.append('in_wall')
             if self.player.is_idle:
-                inputs.append('idle')
+                attribs.append('idle')
             if self.current_platform is not None:
-                inputs.append(f'platform={self.current_platform.id}')
-            transition = f'{start_state} x ({", ".join(inputs)}) -> {self.player.state}'
+                attribs.append(f'platform={self.current_platform.id}')
+            transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
                 print(transition)
@@ -465,17 +391,16 @@ class Level(Scene):
 
         return self
 
+    # Keep everything after here.
+
     def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager):
         # Make sure the player is on the screen, and then center them if possible.
-        player_x: int = self.player.x//16
-        player_y: int = self.player.y//16
-
-        player_rect = self.player.get_bounds_rect(
-            Direction.NONE,
-            (player_x, player_y))
+        player_rect = self.player.get_target_bounds_rect(Direction.NONE)
         preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
-        player_draw_x: int = dest.width//2
-        player_draw_y: int = dest.height//2
+        player_x = self.player.x // 16
+        player_y = self.player.y // 16
+        player_draw_x: int = dest.width // 2
+        player_draw_y: int = dest.height // 2
         if player_draw_x > player_x:
             player_draw_x = player_x
         if player_draw_y > player_y + 4:
