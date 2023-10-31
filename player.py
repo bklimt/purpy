@@ -5,7 +5,7 @@ from enum import Enum
 from random import randint
 
 from spritesheet import SpriteSheet
-from utils import Direction
+from utils import Bounds, Direction
 
 FRAMES_PER_FRAME = 8
 IDLE_TIME = 240
@@ -92,7 +92,7 @@ class Player:
             pos = (pos[0] + randint(-1, 1), pos[1] + randint(-1, 1))
         self.sprite.blit(surface, pos, index, not self.facing_right)
 
-    def get_target_bounds_rect(self, direction: Direction) -> pygame.Rect:
+    def get_target_bounds_rect_old(self, direction: Direction) -> pygame.Rect:
         """ Returns the bounds rect in pixels to check when moving in direction. """
         x = self.x // 16
         y = self.y // 16
@@ -109,3 +109,19 @@ class Player:
                 return pygame.Rect(x+12, y+4, 4, 15)
             case Direction.WEST:
                 return pygame.Rect(x+8, y+4, 4, 15)
+
+    def get_target_bounds_rect(self, direction: Direction) -> Bounds:
+        """ Returns the bounds rect in pixels to check when moving in direction. """
+        if self.state == PlayerState.CROUCHING:
+            return Bounds(self.x+8*16, self.y+14*16, 8*16, 9*16)
+        match direction:
+            case Direction.NONE:
+                return Bounds(self.x+8*16, self.y+4*16, 8*16, 19*16)
+            case Direction.NORTH:
+                return Bounds(self.x+8*16, self.y+4*16, 8*16, 4*16)
+            case Direction.SOUTH:
+                return Bounds(self.x+8*16, self.y+19*16, 8*16, 4*16)
+            case Direction.EAST:
+                return Bounds(self.x+12*16, self.y+4*16, 4*16, 15*16)
+            case Direction.WEST:
+                return Bounds(self.x+8*16, self.y+4*16, 4*16, 15*16)

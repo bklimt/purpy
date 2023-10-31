@@ -6,7 +6,7 @@ from random import randint
 
 from tilemap import MapObject
 from tileset import TileSet
-from utils import intersect, try_move_to, Direction
+from utils import intersect, try_move_to_bounds, Direction
 
 
 class Star:
@@ -23,9 +23,6 @@ class Star:
 
     def intersects(self, player_rect: pygame.Rect):
         return intersect(self.area, player_rect)
-
-    def try_move_to(self, player_rect: pygame.Rect, direction: Direction) -> int:
-        return 0
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
         x = self.area.x + offset[0]
