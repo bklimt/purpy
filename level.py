@@ -222,7 +222,14 @@ class Level(Scene):
         if offset_sub != 0:
             crush_check = self.try_move_player(forward)
             if crush_check.offset_sub != 0:
-                if len(move_result1.platforms) > 0 or len(move_result2.platforms) > 0:
+                crushed = False
+                for platform in move_result1.platforms:
+                    if platform.is_solid:
+                        crushed = True
+                for platform in move_result2.platforms:
+                    if platform.is_solid:
+                        crushed = True
+                if crushed:
                     result.crushed_by_platform = True
                 else:
                     result.stuck_in_wall = True
