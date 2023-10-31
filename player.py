@@ -106,6 +106,6 @@ class Player:
             case Direction.SOUTH:
                 return pygame.Rect(x+8, y+19, 8, 4)
             case Direction.EAST:
-                return pygame.Rect(x+12, y+4, 4, 19)
+                return pygame.Rect(x+12, y+4, 4, 15)
             case Direction.WEST:
-                return pygame.Rect(x+8, y+4, 4, 19)
+                return pygame.Rect(x+8, y+4, 4, 15)

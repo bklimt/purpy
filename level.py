@@ -1,6 +1,7 @@
 
 import os.path
 import pygame
+import typing
 
 from door import Door
 from font import Font
@@ -13,7 +14,7 @@ from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
 from tilemap import TileMap, load_map
-from utils import Direction, cmp_in_direction, sign
+from utils import Direction, cmp_in_direction, opposite_direction
 
 TARGET_WALK_SPEED = 32
 TARGET_AIRBORNE_SPEED = 16
@@ -187,26 +188,45 @@ class Level(Scene):
 
         return result
 
+    def move_and_check(self,
+                       forward: Direction,
+                       apply_offset: typing.Callable[[int], typing.Any]) -> MoveResult:
+        """ Returns whether the first move hit a wall or platform. """
+        move_result = self.try_move_player(forward)
+        apply_offset(move_result.offset)
+
+        # Try the opposite direction.
+        offset = self.try_move_player(opposite_direction(forward)).offset
+        apply_offset(offset)
+
+        # See if we're crushed.
+        if offset != 0:
+            crush_check = self.try_move_player(forward)
+            if forward == Direction.SOUTH:
+                print(f'bonk! {crush_check.offset}')
+            if crush_check.offset != 0:
+                self.player.is_dead = True
+
+        return move_result
+
     def move_player_x(self, inputs: InputManager) -> bool:
         pushing_against_wall: bool = False
         dx = self.player.dx
         if self.current_platform is not None:
             dx += self.current_platform.dx
         self.player.x += dx
+
+        def inc_x(offset):
+            self.player.x += offset
+
         if dx < 0 or (dx == 0 and not self.player.facing_right):
             # Moving left.
-            offset = self.try_move_player(Direction.WEST).offset
-            if offset != 0 and inputs.is_left_down():
-                pushing_against_wall = True
-            self.player.x += offset
-            self.player.x += self.try_move_player(Direction.EAST).offset
+            hit_wall = self.move_and_check(Direction.WEST, inc_x).offset != 0
+            pushing_against_wall = hit_wall and inputs.is_left_down()
         else:
             # Moving right.
-            offset = self.try_move_player(Direction.EAST).offset
-            if offset != 0 and inputs.is_right_down():
-                pushing_against_wall = True
-            self.player.x += offset
-            self.player.x += self.try_move_player(Direction.WEST).offset
+            hit_wall = self.move_and_check(Direction.EAST, inc_x).offset != 0
+            pushing_against_wall = hit_wall and inputs.is_right_down()
 
         # If you're against the wall, you're stopped.
         if pushing_against_wall:
@@ -221,26 +241,25 @@ class Level(Scene):
             dy += self.current_platform.dy
         self.player.y += dy
 
+        def inc_y(offset):
+            self.player.y += offset
+
         if dy <= 0:
             # Moving up.
-            move_result = self.try_move_player(Direction.NORTH)
+            move_result = self.move_and_check(Direction.NORTH, inc_y)
             if move_result.offset != 0:
-                # We're on the ceiling.
                 self.player.dy = 0
-            self.player.y += move_result.offset
-            self.player.y += self.try_move_player(Direction.SOUTH).offset
-            # TODO: Make this work even when the platform is going up...???
+
             self.handle_current_platforms(set())
         else:
             # Moving down.
-            move_result = self.try_move_player(Direction.SOUTH)
-            if move_result.offset != 0:
-                on_ground = True
+            move_result = self.move_and_check(Direction.SOUTH, inc_y)
+            on_ground = move_result.offset != 0
+
             self.handle_spikes(move_result.tile_ids)
             self.handle_switch_tiles(move_result.tile_ids, sounds)
             self.handle_current_platforms(move_result.platforms)
-            self.player.y += move_result.offset
-            self.player.y += self.try_move_player(Direction.NORTH).offset
+
         return on_ground
 
     def handle_spikes(self, tiles: set[int]):
@@ -357,12 +376,16 @@ class Level(Scene):
         jump_pressed = inputs.is_jump_down()
         crouch_down = inputs.is_crouch_down()
 
-        start_state = self.player.state
+        start_state: PlayerState = self.player.state
         self.update_player_state(
             on_ground, pressing_against_wall, jump_pressed, crouch_down)
 
+        # Make sure you aren't stuck in a wall.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
-        # TODO: Fix when you get stuck in walls.
+        # for platform in self.platforms:
+        #     if platform.try_move_to(player_rect, Direction.SOUTH):
+        #        print(f'crushed by platform {platform.id}')
+        #        self.player.is_dead = True
         # in_wall = self.intersect_standing(player_rect)
         # if in_wall:
         #     self.player.x -= 16

@@ -13,6 +13,20 @@ class Direction(Enum):
     WEST = 4
 
 
+def opposite_direction(d: Direction) -> Direction:
+    match d:
+        case Direction.NONE:
+            raise Exception('cannot take the opposite of no direction')
+        case Direction.NORTH:
+            return Direction.SOUTH
+        case Direction.SOUTH:
+            return Direction.NORTH
+        case Direction.EAST:
+            return Direction.WEST
+        case Direction.WEST:
+            return Direction.EAST
+
+
 def sign(n: int):
     if n < 0:
         return -1
