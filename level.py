@@ -206,16 +206,16 @@ class Level(Scene):
         apply_offset(offset_sub)
 
         result = Level.MoveAndCheckResult()
-        if forward == Direction.SOUTH:
+        if forward == Direction.DOWN:
             result.on_ground = move_result1.offset_sub != 0
             result.on_tile_ids = set(move_result1.tile_ids)
             result.on_platforms = set(move_result1.platforms)
-        if forward == Direction.NORTH:
+        if forward == Direction.UP:
             result.on_ground = move_result2.offset_sub != 0
             result.hit_ceiling = move_result1.offset_sub != 0
             result.on_tile_ids = set(move_result2.tile_ids)
             result.on_platforms = set(move_result2.platforms)
-        if forward == Direction.WEST or forward == Direction.EAST:
+        if forward == Direction.LEFT or forward == Direction.RIGHT:
             result.against_wall = move_result1.offset_sub != 0
 
         # See if we're crushed.
@@ -256,11 +256,11 @@ class Level(Scene):
         pushing: bool
         if dx < 0 or (dx == 0 and not self.player.facing_right):
             # Moving left.
-            move_result = self.move_and_check(Direction.WEST, inc_x)
+            move_result = self.move_and_check(Direction.LEFT, inc_x)
             pushing = inputs.is_left_down()
         else:
             # Moving right.
-            move_result = self.move_and_check(Direction.EAST, inc_x)
+            move_result = self.move_and_check(Direction.RIGHT, inc_x)
             pushing = inputs.is_right_down()
 
         result.pushing_against_wall = pushing and move_result.against_wall
@@ -294,7 +294,7 @@ class Level(Scene):
 
         if dy <= 0:
             # Moving up.
-            move_result = self.move_and_check(Direction.NORTH, inc_y)
+            move_result = self.move_and_check(Direction.UP, inc_y)
             if move_result.hit_ceiling:
                 self.player.dy = 0
 
@@ -304,7 +304,7 @@ class Level(Scene):
             self.handle_current_platforms(move_result.on_platforms)
         else:
             # Moving down.
-            move_result = self.move_and_check(Direction.SOUTH, inc_y)
+            move_result = self.move_and_check(Direction.DOWN, inc_y)
             result.on_ground = move_result.on_ground
             result.tiles_ids = set(move_result.on_tile_ids)
             result.platforms = set(move_result.on_platforms)

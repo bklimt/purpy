@@ -5,7 +5,7 @@ from player import Player
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
-from utils import intersect, Bounds, Direction
+from utils import try_move_to_bounds, Bounds, Direction
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
@@ -21,34 +21,6 @@ def sign(n: int) -> int:
     if n > 0:
         return 1
     raise Exception('impossible')
-
-
-def try_move_to(actor: Bounds, target: Bounds, direction: Direction) -> int:
-    """Try to move the actor rect in direction by delta and see if it intersects target.
-
-    Returns the maximum distance the actor can move.
-    """
-    if actor.bottom_sub <= target.top_sub:
-        return 0
-    if actor.top_sub >= target.bottom_sub:
-        return 0
-    if actor.right_sub <= target.left_sub:
-        return 0
-    if actor.left_sub >= target.right_sub:
-        return 0
-
-    match direction:
-        case Direction.NONE:
-            raise Exception('cannot try_move_to in no direction')
-        case Direction.NORTH:
-            return target.bottom_sub - actor.top_sub
-        case Direction.SOUTH:
-            return target.top_sub - actor.bottom_sub
-        case Direction.EAST:
-            return target.left_sub - actor.right_sub
-        case Direction.WEST:
-            return target.right_sub - actor.left_sub
-    raise Exception('unimplemented')
 
 
 class Platform:
@@ -92,16 +64,16 @@ class Platform:
                 self.y,
                 self.tileset.tilewidth * 16,
                 self.tileset.tileheight * 16)
-            return try_move_to(player_rect, area, direction)
+            return try_move_to_bounds(player_rect, area, direction)
         else:
-            if direction != Direction.SOUTH:
+            if direction != Direction.DOWN:
                 return 0
             area = Bounds(
                 self.x,
                 self.y,
                 self.tileset.tilewidth * 16,
                 4 * 16)
-            return try_move_to(player_rect, area, direction)
+            return try_move_to_bounds(player_rect, area, direction)
 
 
 class MovingPlatform(Platform):

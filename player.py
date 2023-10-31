@@ -99,11 +99,11 @@ class Player:
         match direction:
             case Direction.NONE:
                 return Bounds(self.x+8*16, self.y+4*16, 8*16, 19*16)
-            case Direction.NORTH:
+            case Direction.UP:
                 return Bounds(self.x+8*16, self.y+4*16, 8*16, 4*16)
-            case Direction.SOUTH:
+            case Direction.DOWN:
                 return Bounds(self.x+8*16, self.y+19*16, 8*16, 4*16)
-            case Direction.EAST:
+            case Direction.RIGHT:
                 return Bounds(self.x+12*16, self.y+4*16, 4*16, 15*16)
-            case Direction.WEST:
+            case Direction.LEFT:
                 return Bounds(self.x+8*16, self.y+4*16, 4*16, 15*16)

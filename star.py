@@ -6,7 +6,7 @@ from random import randint
 
 from tilemap import MapObject
 from tileset import TileSet
-from utils import intersect, try_move_to_bounds, Direction
+from utils import intersect
 
 
 class Star:

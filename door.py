@@ -56,6 +56,3 @@ class Door:
     def close(self):
         self.closing = True
         self.frame = 0
-
-    def try_move_to(self, player_rect: pygame.Rect, direction: Direction) -> int:
-        return 0

@@ -2,29 +2,27 @@
 from enum import Enum
 import pygame
 
-# TODO: Change these to up down left and right.
-
 
 class Direction(Enum):
     NONE = 0
-    NORTH = 1
-    SOUTH = 2
-    EAST = 3
-    WEST = 4
+    UP = 1
+    DOWN = 2
+    LEFT = 3
+    RIGHT = 4
 
 
 def opposite_direction(d: Direction) -> Direction:
     match d:
         case Direction.NONE:
             raise Exception('cannot take the opposite of no direction')
-        case Direction.NORTH:
-            return Direction.SOUTH
-        case Direction.SOUTH:
-            return Direction.NORTH
-        case Direction.EAST:
-            return Direction.WEST
-        case Direction.WEST:
-            return Direction.EAST
+        case Direction.UP:
+            return Direction.DOWN
+        case Direction.DOWN:
+            return Direction.UP
+        case Direction.RIGHT:
+            return Direction.LEFT
+        case Direction.LEFT:
+            return Direction.RIGHT
 
 
 def sign(n: int):
@@ -36,7 +34,7 @@ def sign(n: int):
 
 
 def cmp_in_direction(a: int, b: int, direction: Direction):
-    if direction == Direction.NORTH or direction == Direction.WEST:
+    if direction == Direction.UP or direction == Direction.LEFT:
         return sign(b - a)
     else:
         return sign(a - b)
@@ -127,13 +125,13 @@ def try_move_to_bounds(actor: Bounds, target: Bounds, direction: Direction) -> i
     match direction:
         case Direction.NONE:
             raise Exception('cannot try_move_to in no direction')
-        case Direction.NORTH:
+        case Direction.UP:
             return target.bottom_sub - actor.top_sub
-        case Direction.SOUTH:
+        case Direction.DOWN:
             return target.top_sub - actor.bottom_sub
-        case Direction.EAST:
+        case Direction.RIGHT:
             return target.left_sub - actor.right_sub
-        case Direction.WEST:
+        case Direction.LEFT:
             return target.right_sub - actor.left_sub
     raise Exception('unimplemented')
 
