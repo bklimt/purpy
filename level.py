@@ -112,9 +112,6 @@ class Level(Scene):
         if self.player.dx > target_dx:
             self.player.dx -= WALK_SPEED_ACCELERATION
 
-        if self.player.state == PlayerState.WALL_SLIDING:
-            print(f'sliding with dx = {self.player.dx}')
-
     def update_player_trajectory_y(self, inputs: InputManager):
         if self.player.state == PlayerState.WALL_SLIDING:
             # When you first grab the wall, don't start sliding for a while.
@@ -125,11 +122,7 @@ class Level(Scene):
                 self.player.dy = WALL_SLIDE_SPEED
         elif self.player.state == PlayerState.STANDING:
             # Fall at least one pixel so that we hit the ground again.
-            if self.current_platform is not None:
-                print(f'player dy was {self.player.dy}')
             self.player.dy = max(self.player.dy, 16)
-            if self.current_platform is not None:
-                print(f'player dy is now {self.player.dy}')
         else:
             # Apply gravity.
             if self.player.dy < MAX_GRAVITY:
@@ -180,9 +173,6 @@ class Level(Scene):
         platform_result = self.find_platform_intersections(
             player_rect, direction)
 
-        print(
-            f'trying to move in direction {direction} gets map offset {map_result.offset_sub} at {player_rect.x_sub}')
-
         result = Level.TryMovePlayerResult()
         if cmp_in_direction(platform_result.offset_sub, map_result.offset_sub, direction) <= 0:
             result.offset_sub = platform_result.offset_sub
@@ -228,7 +218,6 @@ class Level(Scene):
         self.player.x += dx
 
         def inc_x(offset):
-            print(f'increasing player x by {offset}')
             self.player.x += offset
 
         if dx < 0 or (dx == 0 and not self.player.facing_right):
@@ -241,11 +230,6 @@ class Level(Scene):
             hit_wall = self.move_and_check(
                 Direction.EAST, inc_x)[0].offset_sub != 0
             result.pushing_against_wall = hit_wall and inputs.is_right_down()
-            if self.player.state == PlayerState.WALL_SLIDING and not result.pushing_against_wall:
-                print('no longer pushing against wall on right')
-                print(f'hit_wall = {hit_wall}')
-                print(
-                    f'player bounds = {self.player.get_target_bounds_rect(Direction.EAST)}')
 
         # If you're against the wall, you're stopped.
         if result.pushing_against_wall:
@@ -265,22 +249,9 @@ class Level(Scene):
         if self.current_platform is not None:
             # This could be positive or negative.
             dy += self.current_platform.dy
-            print(f'adding {dy} to {self.player.y}')
         self.player.y += dy
-        if self.current_platform is not None:
-            print(f'y is now {self.player.y}')
-
-        old_platform = self.current_platform
-        was_on_platform = self.current_platform is not None
-        if self.current_platform is not None:
-            print(
-                f'current platform y = {self.current_platform.y}, player y = {self.player.y}')
-            print(
-                f'current platform dy = {self.current_platform.dy}, player dy = {self.player.dy}, dy = {dy}')
 
         def inc_y(offset):
-            if was_on_platform and offset != 0:
-                print(f'offsetting player y by {offset}')
             self.player.y += offset
 
         if dy <= 0:
@@ -303,15 +274,6 @@ class Level(Scene):
             self.handle_spikes(move_result.tile_ids)
             self.handle_switch_tiles(move_result.tile_ids, sounds)
             self.handle_current_platforms(move_result.platforms)
-
-        is_on_platform = self.current_platform is not None
-
-        if was_on_platform and not is_on_platform:
-            if old_platform is None:
-                raise Exception('no')
-            print(
-                f'left the platform, platform dy = {old_platform.dy}, player dy = {dy}')
-            print(f'platforms = {result.platforms}')
 
         return result
 
