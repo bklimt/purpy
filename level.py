@@ -183,10 +183,19 @@ class Level(Scene):
 
         return result
 
+    class MoveAndCheckResult:
+        on_ground: bool = False
+        on_tile_ids: set[int] = set()
+        on_platforms: set[Platform] = set()
+        hit_ceiling: bool = False
+        against_wall: bool = False
+        crushed_by_platform: bool = False
+        stuck_in_wall: bool = False
+
     def move_and_check(self,
                        forward: Direction,
                        apply_offset: typing.Callable[[int], typing.Any]
-                       ) -> tuple[TryMovePlayerResult, TryMovePlayerResult]:
+                       ) -> MoveAndCheckResult:
         """ Returns whether the first move hit a wall or platform. """
         move_result1 = self.try_move_player(forward)
         apply_offset(move_result1.offset_sub)
@@ -196,18 +205,34 @@ class Level(Scene):
         offset_sub = move_result2.offset_sub
         apply_offset(offset_sub)
 
+        result = Level.MoveAndCheckResult()
+        if forward == Direction.SOUTH:
+            result.on_ground = move_result1.offset_sub != 0
+            result.on_tile_ids = set(move_result1.tile_ids)
+            result.on_platforms = set(move_result1.platforms)
+        if forward == Direction.NORTH:
+            result.on_ground = move_result2.offset_sub != 0
+            result.hit_ceiling = move_result1.offset_sub != 0
+            result.on_tile_ids = set(move_result2.tile_ids)
+            result.on_platforms = set(move_result2.platforms)
+        if forward == Direction.WEST or forward == Direction.EAST:
+            result.against_wall = move_result1.offset_sub != 0
+
         # See if we're crushed.
         if offset_sub != 0:
             crush_check = self.try_move_player(forward)
-            if forward == Direction.SOUTH:
-                print(f'bonk! {crush_check.offset_sub}')
             if crush_check.offset_sub != 0:
-                self.player.is_dead = True
+                if len(move_result1.platforms) > 0 or len(move_result2.platforms) > 0:
+                    result.crushed_by_platform = True
+                else:
+                    result.stuck_in_wall = True
 
-        return (move_result1, move_result2)
+        return result
 
     class MovePlayerXResult:
         pushing_against_wall: bool = False
+        stuck_in_wall: bool = False
+        crushed_by_platform: bool = False
 
     def move_player_x(self, inputs: InputManager) -> MovePlayerXResult:
         result = Level.MovePlayerXResult()
@@ -220,16 +245,20 @@ class Level(Scene):
         def inc_x(offset):
             self.player.x += offset
 
+        move_result: Level.MoveAndCheckResult
+        pushing: bool
         if dx < 0 or (dx == 0 and not self.player.facing_right):
             # Moving left.
-            hit_wall = self.move_and_check(
-                Direction.WEST, inc_x)[0].offset_sub != 0
-            result.pushing_against_wall = hit_wall and inputs.is_left_down()
+            move_result = self.move_and_check(Direction.WEST, inc_x)
+            pushing = inputs.is_left_down()
         else:
             # Moving right.
-            hit_wall = self.move_and_check(
-                Direction.EAST, inc_x)[0].offset_sub != 0
-            result.pushing_against_wall = hit_wall and inputs.is_right_down()
+            move_result = self.move_and_check(Direction.EAST, inc_x)
+            pushing = inputs.is_right_down()
+
+        result.pushing_against_wall = pushing and move_result.against_wall
+        result.crushed_by_platform = move_result.crushed_by_platform
+        result.stuck_in_wall = move_result.stuck_in_wall
 
         # If you're against the wall, you're stopped.
         if result.pushing_against_wall:
@@ -241,6 +270,8 @@ class Level(Scene):
         on_ground: bool = False
         platforms: set[Platform] = set()
         tiles_ids: set[int] = set()
+        stuck_in_wall: bool = False
+        crushed_by_platform: bool = False
 
     def move_player_y(self, sounds: SoundManager) -> MovePlayerYResult:
         result = Level.MovePlayerYResult()
@@ -256,24 +287,26 @@ class Level(Scene):
 
         if dy <= 0:
             # Moving up.
-            move_result_up, move_result_down = (
-                self.move_and_check(Direction.NORTH, inc_y))
-            if move_result_up.offset_sub != 0:
+            move_result = self.move_and_check(Direction.NORTH, inc_y)
+            if move_result.hit_ceiling:
                 self.player.dy = 0
 
-            result.on_ground = move_result_down.offset_sub != 0
-            self.handle_current_platforms(move_result_down.platforms)
+            result.on_ground = move_result.on_ground
+            result.crushed_by_platform = move_result.crushed_by_platform
+            result.stuck_in_wall = move_result.stuck_in_wall
+            self.handle_current_platforms(move_result.on_platforms)
         else:
             # Moving down.
-            move_result, _ = (
-                self.move_and_check(Direction.SOUTH, inc_y))
-            result.on_ground = move_result.offset_sub != 0
-            result.tiles_ids = set(move_result.tile_ids)
-            result.platforms = set(move_result.platforms)
+            move_result = self.move_and_check(Direction.SOUTH, inc_y)
+            result.on_ground = move_result.on_ground
+            result.tiles_ids = set(move_result.on_tile_ids)
+            result.platforms = set(move_result.on_platforms)
+            result.crushed_by_platform = move_result.crushed_by_platform
+            result.stuck_in_wall = move_result.stuck_in_wall
 
-            self.handle_spikes(move_result.tile_ids)
-            self.handle_switch_tiles(move_result.tile_ids, sounds)
-            self.handle_current_platforms(move_result.platforms)
+            self.handle_spikes(move_result.on_tile_ids)
+            self.handle_switch_tiles(move_result.on_tile_ids, sounds)
+            self.handle_current_platforms(move_result.on_platforms)
 
         return result
 
@@ -324,6 +357,8 @@ class Level(Scene):
         pushing_against_wall: bool = False
         jump_pressed: bool = False
         crouch_down: bool = False
+        stuck_in_wall: bool = False
+        crushed_by_platform: bool = False
 
     def update_player_movement(self, inputs: InputManager, sounds: SoundManager) -> PlayerMovementResult:
         self.update_player_trajectory_x(inputs)
@@ -337,11 +372,16 @@ class Level(Scene):
         result.pushing_against_wall = x_result.pushing_against_wall
         result.jump_pressed = inputs.is_jump_down()
         result.crouch_down = inputs.is_crouch_down()
+        result.stuck_in_wall = x_result.stuck_in_wall or y_result.stuck_in_wall
+        result.crushed_by_platform = x_result.crushed_by_platform or y_result.crushed_by_platform
 
         return result
 
     def update_player_state(self, movement: PlayerMovementResult):
-        if self.player.state == PlayerState.STANDING:
+        if movement.crushed_by_platform:
+            self.player.state = PlayerState.STOPPED
+            self.player.is_dead = True
+        elif self.player.state == PlayerState.STANDING:
             if not movement.on_ground:
                 self.player.state = PlayerState.AIRBORNE
                 self.player.dy = 0
@@ -407,14 +447,8 @@ class Level(Scene):
 
         # Make sure you aren't stuck in a wall.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
-        # for platform in self.platforms:
-        #     if platform.try_move_to(player_rect, Direction.SOUTH):
-        #        print(f'crushed by platform {platform.id}')
-        #        self.player.is_dead = True
-        # in_wall = self.intersect_standing(player_rect)
-        # if in_wall:
-        #     self.player.x -= 16
-        #     player_rect = self.player.get_target_bounds_rect(Direction.NONE)
+        in_wall = movement.stuck_in_wall
+        crushed = movement.crushed_by_platform
 
         self.current_door = None
         for door in self.doors:
@@ -444,8 +478,10 @@ class Level(Scene):
                 attribs.append('crouch_down')
             if movement.jump_pressed:
                 attribs.append('jump_pressed')
-            # if in_wall:
-            #     attribs.append('in_wall')
+            if in_wall:
+                attribs.append('in_wall')
+            if crushed:
+                attribs.append('crushed')
             if self.player.is_idle:
                 attribs.append('idle')
             if self.current_platform is not None:
