@@ -227,6 +227,7 @@ class Level(Scene):
             # Moving up.
             self.player.y += self.try_move_player(Direction.NORTH).offset
             self.player.y += self.try_move_player(Direction.SOUTH).offset
+            self.handle_current_platforms(set())
         else:
             # Moving down.
             move_result = self.try_move_player(Direction.SOUTH)
