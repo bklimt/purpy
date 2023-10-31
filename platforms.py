@@ -85,20 +85,6 @@ class Platform:
         area = self.tileset.get_source_rect(self.tile_id)
         surface.blit(self.tileset.surface, (x, y), area)
 
-    def intersect_old(self, rect: pygame.Rect) -> bool:
-        area = pygame.Rect(self.x//16, self.y//16,
-                           self.tileset.tilewidth, self.tileset.tileheight)
-        return intersect(rect, area)
-
-    def intersect_top_old(self, rect: pygame.Rect) -> bool:
-        if rect.right < self.x//16:
-            return False
-        if rect.left > self.x//16 + self.tileset.tilewidth:
-            return False
-        if rect.bottom != self.y//16:
-            return False
-        return True
-
     def try_move_to(self, player_rect: Bounds, direction: Direction) -> int:
         if self.is_solid:
             area = Bounds(

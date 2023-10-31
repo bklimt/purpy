@@ -41,8 +41,6 @@ def cmp_in_direction(a: int, b: int, direction: Direction):
     else:
         return sign(a - b)
 
-    # TODO: Remove Rect accessors from here.
-
 
 class Bounds:
     x_sub: int
@@ -137,34 +135,6 @@ def try_move_to_bounds(actor: Bounds, target: Bounds, direction: Direction) -> i
             return target.left_sub - actor.right_sub
         case Direction.WEST:
             return target.right_sub - actor.left_sub
-    raise Exception('unimplemented')
-
-
-def try_move_to_rect_old(actor: pygame.Rect, target: pygame.Rect, direction: Direction) -> int:
-    """Try to move the actor rect in direction by delta and see if it intersects target.
-
-    Returns the maximum distance the actor can move.
-    """
-    if actor.bottom <= target.top:
-        return 0
-    if actor.top >= target.bottom:
-        return 0
-    if actor.right <= target.left:
-        return 0
-    if actor.left >= target.right:
-        return 0
-
-    match direction:
-        case Direction.NONE:
-            raise Exception('cannot try_move_to in no direction')
-        case Direction.NORTH:
-            return target.bottom - actor.top
-        case Direction.SOUTH:
-            return target.top - actor.bottom
-        case Direction.EAST:
-            return target.left - actor.right
-        case Direction.WEST:
-            return target.right - actor.left
     raise Exception('unimplemented')
 
 

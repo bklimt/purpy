@@ -358,42 +358,6 @@ class TileMap:
                         ans.append(index)
         return ans
 
-    def intersect_old(self, rect: pygame.Rect, switches: set[str]) -> list[int]:
-        ans = []
-        row1 = rect.top // self.tileheight
-        col1 = rect.left // self.tilewidth
-        row2 = rect.bottom // self.tileheight
-        col2 = rect.right // self.tilewidth
-        if row1 < 0:
-            row1 = 0
-        if col1 < 0:
-            col1 = 0
-        if row2 < 0:
-            row2 = 0
-        if col2 < 0:
-            col2 = 0
-        for row in range(row1, row2+1):
-            for col in range(col1, col2+1):
-                for layer in self.layers:
-                    if not isinstance(layer, TileLayer):
-                        continue
-                    if layer.player or self.player_layer is None:
-                        index = layer.data[row][col]
-                        if index == 0:
-                            continue
-                        index -= 1
-                        if not self.is_condition_met(index, switches):
-                            alt = self.tileset.get_int_property(
-                                index, 'alternate')
-                            if alt is None:
-                                continue
-                            # Use an alt tile instead of the original.
-                            index = alt
-                        if not self.tileset.get_bool_property(index, 'solid', True):
-                            continue
-                        ans.append(index)
-        return ans
-
     def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:
         preferred_x: int | None = None
         preferred_y: int | None = None
