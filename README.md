@@ -8,4 +8,4 @@ purpy
 
 ## TODO
 * Fix getting stuck in walls.
-* Fix always stay on highest platform / bagel.
+* Fall off non-solid platforms instead of getting crushed.
