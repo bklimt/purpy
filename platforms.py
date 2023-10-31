@@ -71,11 +71,16 @@ class Platform:
         return True
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction) -> int:
-        if not self.is_solid and direction != Direction.SOUTH:
-            return 0
-        area = pygame.Rect(self.x//16, self.y//16,
-                           self.tileset.tilewidth, self.tileset.tileheight)
-        return try_move_to(player_rect, area, direction)
+        if self.is_solid:
+            area = pygame.Rect(self.x//16, self.y//16,
+                               self.tileset.tilewidth, self.tileset.tileheight)
+            return try_move_to(player_rect, area, direction)
+        else:
+            if direction != Direction.SOUTH:
+                return 0
+            area = pygame.Rect(self.x//16, self.y//16,
+                               self.tileset.tilewidth, 4)
+            return try_move_to(player_rect, area, direction)
 
 
 class MovingPlatform(Platform):

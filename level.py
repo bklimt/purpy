@@ -127,10 +127,6 @@ class Level(Scene):
         if self.player.state == PlayerState.CROUCHING:
             target_dx = 0
 
-        # Apply platforms.
-        if self.current_platform is not None:
-            target_dx += self.current_platform.dx
-
         # Change the velocity toward the target velocity.
         if self.player.dx < target_dx:
             self.player.dx += WALK_SPEED_ACCELERATION
@@ -155,10 +151,6 @@ class Level(Scene):
             if self.player.dy > MAX_GRAVITY:
                 self.player.dy = MAX_GRAVITY
 
-        # Apply platforms.
-        if self.current_platform is not None:
-            self.player.dy += self.current_platform.dy
-
     def find_platform_intersections(self, player_rect: pygame.Rect, direction: Direction) -> PlatformMoveResult:
         result = PlatformMoveResult()
         for platform in self.platforms:
@@ -178,14 +170,10 @@ class Level(Scene):
         """ Returns how far this player needs to move in direction to not intersect, in sub-pixels. """
         player_rect = self.player.get_target_bounds_rect(direction)
 
-        try:
-            map_result = self.map.try_move_to(
-                player_rect, direction, self.switches)
-            platform_result = self.find_platform_intersections(
-                player_rect, direction)
-        except:
-            raise Exception(
-                f'oh noes! player = {player_rect}, direction = {direction}')
+        map_result = self.map.try_move_to(
+            player_rect, direction, self.switches)
+        platform_result = self.find_platform_intersections(
+            player_rect, direction)
 
         result = MoveResult()
         if cmp_in_direction(platform_result.offset, map_result.offset, direction) <= 0:
@@ -199,22 +187,23 @@ class Level(Scene):
 
         return result
 
-    def move_player_x(self) -> bool:
+    def move_player_x(self, inputs: InputManager) -> bool:
         pushing_against_wall: bool = False
-        self.player.x += self.player.dx
-        if self.player.dx < 0 or (self.player.dx == 0 and not self.player.facing_right):
+        dx = self.player.dx
+        if self.current_platform is not None:
+            dx += self.current_platform.dx
+        self.player.x += dx
+        if dx < 0 or (dx == 0 and not self.player.facing_right):
             # Moving left.
             offset = self.try_move_player(Direction.WEST).offset
-            if offset != 0:
-                # TODO: This should require checking the input as well.
+            if offset != 0 and inputs.is_left_down():
                 pushing_against_wall = True
             self.player.x += offset
             self.player.x += self.try_move_player(Direction.EAST).offset
         else:
             # Moving right.
             offset = self.try_move_player(Direction.EAST).offset
-            if offset != 0:
-                # TODO: This should require checking the input as well.
+            if offset != 0 and inputs.is_right_down():
                 pushing_against_wall = True
             self.player.x += offset
             self.player.x += self.try_move_player(Direction.WEST).offset
@@ -227,10 +216,18 @@ class Level(Scene):
 
     def move_player_y(self, sounds: SoundManager) -> bool:
         on_ground: bool = False
-        self.player.y += self.player.dy
-        if self.player.dy <= 0:
+        dy = self.player.dy
+        if self.current_platform is not None:
+            dy += self.current_platform.dy
+        self.player.y += dy
+
+        if dy <= 0:
             # Moving up.
-            self.player.y += self.try_move_player(Direction.NORTH).offset
+            move_result = self.try_move_player(Direction.NORTH)
+            if move_result.offset != 0:
+                # We're on the ceiling.
+                self.player.dy = 0
+            self.player.y += move_result.offset
             self.player.y += self.try_move_player(Direction.SOUTH).offset
             # TODO: Make this work even when the platform is going up...???
             self.handle_current_platforms(set())
@@ -304,6 +301,7 @@ class Level(Scene):
         elif self.player.state == PlayerState.AIRBORNE:
             if on_ground:
                 self.player.state = PlayerState.STANDING
+                self.player.dy = 0
             else:
                 if pressing_against_wall and self.player.dy >= 0:
                     self.player.state = PlayerState.WALL_SLIDING
@@ -351,7 +349,7 @@ class Level(Scene):
         self.update_player_trajectory_x(inputs)
         self.update_player_trajectory_y(inputs)
 
-        pressing_against_wall = self.move_player_x()
+        pressing_against_wall = self.move_player_x(inputs)
         on_ground = self.move_player_y(sounds)
         jump_pressed = inputs.is_jump_down()
         crouch_down = inputs.is_crouch_down()

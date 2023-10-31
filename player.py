@@ -92,16 +92,20 @@ class Player:
             pos = (pos[0] + randint(-1, 1), pos[1] + randint(-1, 1))
         self.sprite.blit(surface, pos, index, not self.facing_right)
 
-    # 8 4 8 19
-    def rect_old(self, pos: tuple[int, int]) -> pygame.Rect:
-        """ Returns the player rect in pixels, given that position. """
-        if self.state == PlayerState.CROUCHING:
-            return pygame.Rect(pos[0]+8, pos[1]+14, 8, 9)
-        else:
-            return pygame.Rect(pos[0]+8, pos[1]+4, 8, 19)
-
-    def get_target_bounds_rect(self, direction: Direction):
-        """ Takes a subpixel delta and returns the bounds rect to check when moving that way. """
+    def get_target_bounds_rect(self, direction: Direction) -> pygame.Rect:
+        """ Returns the bounds rect in pixels to check when moving in direction. """
         x = self.x // 16
         y = self.y // 16
-        return self.rect_old((x, y))
+        if self.state == PlayerState.CROUCHING:
+            return pygame.Rect(x+8, y+14, 8, 9)
+        match direction:
+            case Direction.NONE:
+                return pygame.Rect(x+8, y+4, 8, 19)
+            case Direction.NORTH:
+                return pygame.Rect(x+8, y+4, 8, 4)
+            case Direction.SOUTH:
+                return pygame.Rect(x+8, y+19, 8, 4)
+            case Direction.EAST:
+                return pygame.Rect(x+12, y+4, 4, 19)
+            case Direction.WEST:
+                return pygame.Rect(x+8, y+4, 4, 19)
