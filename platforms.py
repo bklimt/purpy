@@ -1,10 +1,11 @@
 
 import pygame
 
+from player import Player
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
-from utils import intersect
+from utils import try_move_to_bounds, Bounds, Direction
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
@@ -56,19 +57,23 @@ class Platform:
         area = self.tileset.get_source_rect(self.tile_id)
         surface.blit(self.tileset.surface, (x, y), area)
 
-    def intersect(self, rect: pygame.Rect) -> bool:
-        area = pygame.Rect(self.x//16, self.y//16,
-                           self.tileset.tilewidth, self.tileset.tileheight)
-        return intersect(rect, area)
-
-    def intersect_top(self, rect: pygame.Rect) -> bool:
-        if rect.right < self.x//16:
-            return False
-        if rect.left > self.x//16 + self.tileset.tilewidth:
-            return False
-        if rect.bottom != self.y//16:
-            return False
-        return True
+    def try_move_to(self, player_rect: Bounds, direction: Direction) -> int:
+        if self.is_solid:
+            area = Bounds(
+                self.x,
+                self.y,
+                self.tileset.tilewidth * 16,
+                self.tileset.tileheight * 16)
+            return try_move_to_bounds(player_rect, area, direction)
+        else:
+            if direction != Direction.DOWN:
+                return 0
+            area = Bounds(
+                self.x,
+                self.y,
+                self.tileset.tilewidth * 16,
+                4 * 16)
+            return try_move_to_bounds(player_rect, area, direction)
 
 
 class MovingPlatform(Platform):
