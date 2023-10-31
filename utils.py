@@ -21,30 +21,6 @@ def sign(n: int):
     return 0
 
 
-# TODO: Remove this
-def get_movement_coordinate_old(rect: pygame.Rect, direction: Direction) -> int:
-    """ Returns the coordinate in the direction being moved. """
-    match direction:
-        case Direction.NONE:
-            raise Exception('no relevant coordinate')
-        case Direction.NORTH:
-            return -rect.bottom
-        case Direction.SOUTH:
-            return rect.top
-        case Direction.EAST:
-            return rect.left
-        case Direction.WEST:
-            return -rect.right
-
-
-# TODO: Remove this
-def distance_in_direction_key_old(direction: Direction):
-    """ Returns a function for sorting by which is closest when moving in direction. """
-    if direction == Direction.NORTH or direction == Direction.WEST:
-        return lambda distance: distance
-    return lambda distance: -distance
-
-
 def cmp_in_direction(a: int, b: int, direction: Direction):
     if direction == Direction.NORTH or direction == Direction.WEST:
         return sign(b - a)

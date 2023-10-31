@@ -163,6 +163,9 @@ class Level(Scene):
         result = PlatformMoveResult()
         for platform in self.platforms:
             distance = platform.try_move_to(player_rect, direction)
+            if distance == 0:
+                continue
+
             cmp = cmp_in_direction(distance, result.offset, direction)
             if cmp < 0:
                 result.offset = distance
@@ -230,14 +233,20 @@ class Level(Scene):
             if move_result.offset != 0:
                 on_ground = True
             self.handle_switch_tiles(move_result.tile_ids, sounds)
-            if len(move_result.platforms) > 0:
-                # TODO: Be smarter about what platform we pick.
-                self.current_platform = move_result.platforms.pop()
-            else:
-                self.current_platform = None
+            self.handle_current_platforms(move_result.platforms)
             self.player.y += move_result.offset
             self.player.y += self.try_move_player(Direction.NORTH).offset
         return on_ground
+
+    def handle_current_platforms(self, platforms: set[Platform]):
+        self.current_platform = None
+        for platform in self.platforms:
+            platform.occupied = False
+
+        for platform in platforms:
+            platform.occupied = True
+            # TODO: Be smarter about what platform we pick.
+            self.current_platform = platform
 
     def handle_switch_tiles(self, tiles: set[int], sounds: SoundManager):
         previous = self.current_switch_tiles
@@ -266,25 +275,12 @@ class Level(Scene):
                 print(f'switched on {switch}')
                 self.switches.add(switch)
 
-    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
-        if inputs.is_cancel_triggered():
-            return self.parent
-        if inputs.is_restart_down():
-            return Level(self.parent, self.map_path)
-
-        if self.player.state == PlayerState.STOPPED:
-            # TODO: This probably shouldn't stop platforms and stuff like that.
-            return
-
-        self.update_player_trajectory_x(inputs)
-        self.update_player_trajectory_y(inputs)
-
-        pressing_against_wall = self.move_player_x()
-        on_ground = self.move_player_y(sounds)
-        crouch_down = inputs.is_crouch_down()
-        jump_pressed = inputs.is_jump_down()
-
-        start_state = self.player.state
+    def update_player_state(
+            self,
+            on_ground: bool,
+            pressing_against_wall: bool,
+            jump_pressed: bool,
+            crouch_down: bool):
         if self.player.state == PlayerState.STANDING:
             if not on_ground:
                 self.player.state = PlayerState.AIRBORNE
@@ -331,6 +327,31 @@ class Level(Scene):
                 self.player.dy = 0
             elif not crouch_down:
                 self.player.state = PlayerState.STANDING
+
+    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
+        if inputs.is_cancel_triggered():
+            return self.parent
+        if inputs.is_restart_down():
+            return Level(self.parent, self.map_path)
+
+        for platform in self.platforms:
+            platform.update()
+
+        if self.player.state == PlayerState.STOPPED:
+            # TODO: This probably shouldn't stop platforms and stuff like that.
+            return
+
+        self.update_player_trajectory_x(inputs)
+        self.update_player_trajectory_y(inputs)
+
+        pressing_against_wall = self.move_player_x()
+        on_ground = self.move_player_y(sounds)
+        jump_pressed = inputs.is_jump_down()
+        crouch_down = inputs.is_crouch_down()
+
+        start_state = self.player.state
+        self.update_player_state(
+            on_ground, pressing_against_wall, jump_pressed, crouch_down)
 
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
         # TODO: Fix when you get stuck in walls.
@@ -390,8 +411,6 @@ class Level(Scene):
                 self.toast_position += 1
 
         return self
-
-    # Keep everything after here.
 
     def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager):
         # Make sure the player is on the screen, and then center them if possible.
