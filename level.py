@@ -342,12 +342,9 @@ class Level(Scene):
         for platform in self.platforms:
             platform.update()
 
-        if self.player.state == PlayerState.STOPPED:
-            # TODO: This probably shouldn't stop platforms and stuff like that.
-            return
-
-        self.update_player_trajectory_x(inputs)
-        self.update_player_trajectory_y(inputs)
+        if self.player.state != PlayerState.STOPPED:
+            self.update_player_trajectory_x(inputs)
+            self.update_player_trajectory_y(inputs)
 
         pressing_against_wall = self.move_player_x(inputs)
         on_ground = self.move_player_y(sounds)
