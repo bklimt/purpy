@@ -102,7 +102,7 @@ class Player:
             case Direction.UP:
                 return Bounds(self.x+8*16, self.y+4*16, 8*16, 4*16)
             case Direction.DOWN:
-                return Bounds(self.x+8*16, self.y+19*16, 8*16, 4*16)
+                return Bounds(self.x+8*16, self.y+21*16, 8*16, 2*16)
             case Direction.RIGHT:
                 return Bounds(self.x+12*16, self.y+4*16, 4*16, 15*16)
             case Direction.LEFT:

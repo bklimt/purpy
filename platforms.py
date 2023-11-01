@@ -167,10 +167,11 @@ class Bagel(Platform):
 class Conveyor(Platform):
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
+        speed = int(obj.properties.get('speed', 24))
         if obj.properties.get('convey', 'E') == 'E':
-            self.dx = int(obj.properties.get('speed', 16))
+            self.dx = speed
         else:
-            self.dx = -1 * int(obj.properties.get('speed', 16))
+            self.dx = -1 * speed
 
     def update(self):
         pass

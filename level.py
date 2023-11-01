@@ -17,6 +17,7 @@ from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
 
 TARGET_WALK_SPEED = 32
 TARGET_AIRBORNE_SPEED = 16
+AIRBORNE_SPEED_ACCELERATION = 1
 WALK_SPEED_ACCELERATION = 1
 MAX_GRAVITY = 36
 WALL_SLIDE_SPEED = 4
@@ -103,19 +104,21 @@ class Level(Scene):
                 target_dx = TARGET_AIRBORNE_SPEED
             else:
                 target_dx = TARGET_WALK_SPEED
-        else:
-            if self.player.state == PlayerState.AIRBORNE:
-                # If you're in the air, don't slow down.
-                target_dx = sign(self.player.dx) * TARGET_AIRBORNE_SPEED
 
         if self.player.state == PlayerState.CROUCHING:
             target_dx = 0
 
         # Change the velocity toward the target velocity.
-        if self.player.dx < target_dx:
-            self.player.dx += WALK_SPEED_ACCELERATION
-        if self.player.dx > target_dx:
-            self.player.dx -= WALK_SPEED_ACCELERATION
+        if self.player.state == PlayerState.AIRBORNE:
+            if self.player.dx < target_dx:
+                self.player.dx += AIRBORNE_SPEED_ACCELERATION
+            if self.player.dx > target_dx:
+                self.player.dx -= AIRBORNE_SPEED_ACCELERATION
+        else:
+            if self.player.dx < target_dx:
+                self.player.dx += WALK_SPEED_ACCELERATION
+            if self.player.dx > target_dx:
+                self.player.dx -= WALK_SPEED_ACCELERATION
 
     def update_player_trajectory_y(self, inputs: InputManager):
         if self.player.state == PlayerState.WALL_SLIDING:
@@ -216,7 +219,8 @@ class Level(Scene):
             result.on_tile_ids = set(move_result1.tile_ids)
             result.on_platforms = set(move_result1.platforms)
         if forward == Direction.UP:
-            result.on_ground = move_result2.offset_sub != 0
+            if self.player.state != PlayerState.AIRBORNE:
+                result.on_ground = move_result2.offset_sub != 0
             result.hit_ceiling = move_result1.offset_sub != 0
             result.on_tile_ids = set(move_result2.tile_ids)
             result.on_platforms = set(move_result2.platforms)
