@@ -162,3 +162,15 @@ class Bagel(Platform):
                     self.dy = 0
             else:
                 self.remaining = BAGEL_WAIT_TIME
+
+
+class Conveyor(Platform):
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
+        if obj.properties.get('convey', 'E') == 'E':
+            self.dx = int(obj.properties.get('speed', 16))
+        else:
+            self.dx = -1 * int(obj.properties.get('speed', 16))
+
+    def update(self):
+        pass

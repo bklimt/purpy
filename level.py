@@ -8,20 +8,20 @@ from imagemanager import ImageManager
 from inputmanager import InputManager
 from kill import KillScreen
 from player import Player, PlayerState
-from platforms import Bagel, MovingPlatform, Platform
+from platforms import Bagel, Conveyor, MovingPlatform, Platform
 from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
 from tilemap import TileMap, load_map
-from utils import Bounds, Direction, cmp_in_direction, opposite_direction
+from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
 
 TARGET_WALK_SPEED = 32
 TARGET_AIRBORNE_SPEED = 16
 WALK_SPEED_ACCELERATION = 1
-MAX_GRAVITY = 24
+MAX_GRAVITY = 36
 WALL_SLIDE_SPEED = 4
-GRAVITY_ACCELERATION = 1
-JUMP_SPEED = 40
+GRAVITY_ACCELERATION = 2
+JUMP_SPEED = 60
 WALL_JUMP_HORIZONTAL_SPEED = 24
 WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
@@ -79,6 +79,8 @@ class Level(Scene):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
             if obj.properties.get('bagel', False):
                 self.platforms.append(Bagel(obj, self.map.tileset))
+            if obj.properties.get('convey', '') != '':
+                self.platforms.append(Conveyor(obj, self.map.tileset))
             if obj.properties.get('door', False):
                 self.doors.append(Door(obj))
             if obj.properties.get('star', False):
@@ -93,16 +95,19 @@ class Level(Scene):
         target_dx = 0
         if inputs.is_left_down() and not inputs.is_right_down():
             if self.player.state == PlayerState.AIRBORNE:
-                # If you're in the air, you can only go fast if you already were.
-                target_dx = min(self.player.dx, -1 * TARGET_AIRBORNE_SPEED)
+                target_dx = -1 * TARGET_AIRBORNE_SPEED
             else:
                 target_dx = -1 * TARGET_WALK_SPEED
-        if inputs.is_right_down() and not inputs.is_left_down():
+        elif inputs.is_right_down() and not inputs.is_left_down():
             if self.player.state == PlayerState.AIRBORNE:
-                # If you're in the air, you can only go fast if you already were.
-                target_dx = max(self.player.dx, TARGET_AIRBORNE_SPEED)
+                target_dx = TARGET_AIRBORNE_SPEED
             else:
                 target_dx = TARGET_WALK_SPEED
+        else:
+            if self.player.state == PlayerState.AIRBORNE:
+                # If you're in the air, don't slow down.
+                target_dx = sign(self.player.dx) * TARGET_AIRBORNE_SPEED
+
         if self.player.state == PlayerState.CROUCHING:
             target_dx = 0
 
@@ -392,6 +397,8 @@ class Level(Scene):
             if not movement.on_ground:
                 self.player.state = PlayerState.AIRBORNE
                 self.player.dy = 0
+                if self.current_platform is not None:
+                    self.player.dx = self.current_platform.dx
             elif movement.crouch_down:
                 self.player.state = PlayerState.CROUCHING
             elif movement.jump_pressed:
@@ -401,6 +408,8 @@ class Level(Scene):
                 else:
                     self.player.state = PlayerState.AIRBORNE
                     self.player.dy = -1 * JUMP_SPEED
+                    if self.current_platform is not None:
+                        self.player.dx += self.current_platform.dx
         elif self.player.state == PlayerState.AIRBORNE:
             if movement.on_ground:
                 self.player.state = PlayerState.STANDING

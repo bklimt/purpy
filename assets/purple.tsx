@@ -172,21 +172,25 @@
  <tile id="170">
   <properties>
    <property name="convey" value="E"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="171">
   <properties>
    <property name="convey" value="E"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="172">
   <properties>
    <property name="convey" value="W"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="173">
   <properties>
    <property name="convey" value="W"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="184">
@@ -202,21 +206,25 @@
  <tile id="186">
   <properties>
    <property name="convey" value="E"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="187">
   <properties>
    <property name="convey" value="E"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="188">
   <properties>
    <property name="convey" value="W"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="189">
   <properties>
    <property name="convey" value="W"/>
+   <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="192">
