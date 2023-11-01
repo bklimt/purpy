@@ -8,3 +8,11 @@ purpy
 
 ## Running
 * `python3 main.py`
+
+## TODO
+* Add instructions for how to make levels.
+* Implement locked doors.
+* Implement saving which stars you have.
+* Implement better menus.
+* Store tile override path in map file.
+* Improve controls.
