@@ -159,6 +159,66 @@
    <property name="spiral" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="168">
+  <properties>
+   <property name="oneway" value="E"/>
+  </properties>
+ </tile>
+ <tile id="169">
+  <properties>
+   <property name="oneway" value="W"/>
+  </properties>
+ </tile>
+ <tile id="170">
+  <properties>
+   <property name="convey" value="E"/>
+  </properties>
+ </tile>
+ <tile id="171">
+  <properties>
+   <property name="convey" value="E"/>
+  </properties>
+ </tile>
+ <tile id="172">
+  <properties>
+   <property name="convey" value="W"/>
+  </properties>
+ </tile>
+ <tile id="173">
+  <properties>
+   <property name="convey" value="W"/>
+  </properties>
+ </tile>
+ <tile id="184">
+  <properties>
+   <property name="oneway" value="S"/>
+  </properties>
+ </tile>
+ <tile id="185">
+  <properties>
+   <property name="oneway" value="N"/>
+  </properties>
+ </tile>
+ <tile id="186">
+  <properties>
+   <property name="convey" value="E"/>
+  </properties>
+ </tile>
+ <tile id="187">
+  <properties>
+   <property name="convey" value="E"/>
+  </properties>
+ </tile>
+ <tile id="188">
+  <properties>
+   <property name="convey" value="W"/>
+  </properties>
+ </tile>
+ <tile id="189">
+  <properties>
+   <property name="convey" value="W"/>
+  </properties>
+ </tile>
  <tile id="192">
   <properties>
    <property name="door" type="bool" value="true"/>

@@ -259,6 +259,21 @@ class TileMap:
             self.tilewidth,
             self.tileheight)
 
+    def is_solid_in_direction(self, tile_id: int, direction: Direction) -> bool:
+        oneway = self.tileset.get_str_property(tile_id, 'oneway')
+        if oneway is None:
+            return True
+        match direction:
+            case Direction.UP:
+                return oneway == 'S'
+            case Direction.DOWN:
+                return oneway == 'N'
+            case Direction.RIGHT:
+                return oneway == 'W'
+            case Direction.LEFT:
+                return oneway == 'E'
+        raise Exception('unexpection direction')
+
     class MoveResult:
         offset_sub: int = 0
         tile_ids: set[int]
@@ -309,6 +324,8 @@ class TileMap:
                             # Use an alt tile instead of the original.
                             index = alt
                         if not self.tileset.get_bool_property(index, 'solid', True):
+                            continue
+                        if not self.is_solid_in_direction(index, direction):
                             continue
                         offset = try_move_to_bounds(
                             bounds, tile_bounds, direction)
