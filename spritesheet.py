@@ -30,3 +30,28 @@ class SpriteSheet:
         if reverse:
             texture = self.reverse
         surface.blit(texture, pos, self.sprite(index, reverse))
+
+
+class Animation:
+    spritesheet: SpriteSheet
+    index: int = 0
+    frames: int
+    frames_per_frame: int = 2
+    timer: int
+
+    def __init__(self, surface: pygame.Surface, sprite_width: int, sprite_height: int):
+        self.spritesheet = SpriteSheet(surface, sprite_width, sprite_height)
+        if surface.get_height() != sprite_height:
+            raise Exception('animations can only have one row')
+        self.frames = surface.get_width() // sprite_width
+        self.timer = self.frames_per_frame
+
+    def update(self):
+        if self.timer == 0:
+            self.index = (self.index + 1) % self.frames
+            self.timer = self.frames_per_frame
+        else:
+            self.timer -= 1
+
+    def blit(self, surface: pygame.Surface, pos: tuple[int, int], reverse: bool):
+        self.spritesheet.blit(surface, pos, self.index, reverse)

@@ -54,8 +54,12 @@ class Platform:
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
         x = self.x//16 + offset[0]
         y = self.y//16 + offset[1]
-        area = self.tileset.get_source_rect(self.tile_id)
-        surface.blit(self.tileset.surface, (x, y), area)
+        if self.tile_id in self.tileset.animations:
+            anim = self.tileset.animations[self.tile_id]
+            anim.blit(surface, (x, y), False)
+        else:
+            area = self.tileset.get_source_rect(self.tile_id)
+            surface.blit(self.tileset.surface, (x, y), area)
 
     def try_move_to(self, player_rect: Bounds, direction: Direction) -> int:
         if self.is_solid:

@@ -4,7 +4,6 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
-from player import Player
 from tileset import TileSet, load_tileset
 from utils import Bounds, Direction, intersect, try_move_to_bounds, cmp_in_direction
 
@@ -250,7 +249,10 @@ class TileMap:
 
                 # Draw the rest of the turtle.
                 pos = (pos_x, pos_y)
-                surface.blit(self.tileset.surface, pos, source)
+                if index in self.tileset.animations:
+                    self.tileset.animations[index].blit(surface, pos, False)
+                else:
+                    surface.blit(self.tileset.surface, pos, source)
 
     def get_rect(self, row: int, col: int) -> pygame.Rect:
         return pygame.Rect(
@@ -390,6 +392,9 @@ class TileMap:
             if isinstance(p_y, int):
                 preferred_y = p_y
         return (preferred_x, preferred_y)
+
+    def update_animations(self):
+        self.tileset.update_animations()
 
 
 def load_map(path: str):
