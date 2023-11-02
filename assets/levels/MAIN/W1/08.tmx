@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="88" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="62">
+ <tileset firstgid="1" source="../../../purple.tsx"/>
+ <layer id="1" name="Tile Layer 1" width="40" height="88">
+  <data encoding="csv">
+101,98,98,98,98,98,98,98,98,102,101,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,98,102,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,65,67,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+117,66,66,66,67,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,65,66,66,66,0,0,0,66,66,118,
+101,98,98,98,99,0,0,0,0,81,83,0,0,0,0,0,0,97,99,0,0,0,0,0,0,0,0,0,0,0,81,101,98,98,0,0,0,98,98,102,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,65,67,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,97,99,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,65,67,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,97,99,0,0,0,0,0,0,0,0,0,0,0,97,99,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,65,67,0,0,0,0,0,0,0,0,0,0,0,65,67,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,97,99,0,0,0,0,0,0,97,99,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,65,67,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,97,99,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,65,67,0,0,0,0,0,0,65,67,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+83,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+92,0,0,0,0,0,0,0,0,91,92,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,75,76,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,97,99,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,65,67,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,81,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,91,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,1,3,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,17,19,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,17,19,0,0,81,83,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,17,19,0,0,81,83,49,50,50,50,50,50,50,50,50,50,51,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,17,19,0,0,97,99,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,113,115,0,0,0,0,0,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,68,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,17,19,0,0,113,115,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,100,0,0,0,17,
+19,0,0,0,0,0,0,0,0,81,83,0,0,17,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,83,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,97,99,0,0,33,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,97,99,0,0,0,0,0,0,0,17,
+53,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,54
+</data>
+ </layer>
+ <objectgroup id="2" name="coolio">
+  <object id="18" gid="130" x="8" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="19" gid="130" x="16" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="20" gid="130" x="24" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="21" gid="130" x="40" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="22" gid="130" x="48" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="23" gid="130" x="56" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="24" gid="130" x="64" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="25" gid="130" x="32" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="26" gid="130" x="88" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="27" gid="130" x="96" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="28" gid="130" x="112" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="29" gid="130" x="120" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="30" gid="130" x="104" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="36" gid="130" x="168" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="37" gid="130" x="176" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="38" gid="130" x="192" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="39" gid="130" x="200" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="40" gid="130" x="192" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="41" gid="130" x="184" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="42" gid="130" x="208" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="43" gid="130" x="216" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="44" gid="130" x="224" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="45" gid="130" x="232" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="46" gid="130" x="248" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="47" gid="130" x="240" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="48" gid="130" x="264" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="49" gid="130" x="256" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="50" gid="130" x="272" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="51" gid="130" x="288" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="52" gid="130" x="296" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="53" gid="130" x="304" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="54" gid="130" x="280" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="55" gid="130" x="128" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="56" gid="130" x="160" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="57" gid="130" x="152" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="58" gid="130" x="80" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="59" gid="130" x="72" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="60" gid="130" x="144" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+  <object id="61" gid="130" x="136" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="S"/>
+    <property name="distance" type="int" value="97"/>
+    <property name="speed" type="int" value="16"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>

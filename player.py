@@ -5,6 +5,7 @@ from enum import Enum
 from random import randint
 
 from spritesheet import SpriteSheet
+from utils import Bounds, Direction
 
 FRAMES_PER_FRAME = 8
 IDLE_TIME = 240
@@ -15,6 +16,7 @@ class PlayerState(Enum):
     STANDING = 2
     CROUCHING = 3
     WALL_SLIDING = 4
+    STOPPED = 5
 
 
 class Player:
@@ -61,7 +63,7 @@ class Player:
                     if self.frame > 9:
                         self.frame = 6
             index = self.frame
-        elif self.state == PlayerState.STANDING:
+        elif self.state == PlayerState.STANDING or self.state == PlayerState.STOPPED:
             if self.idle_counter > 0:
                 self.idle_counter -= 1
                 index = 0
@@ -88,12 +90,23 @@ class Player:
 
         if self.is_dead:
             pos = (pos[0] + randint(-1, 1), pos[1] + randint(-1, 1))
-        self.sprite.blit(surface, pos, index, not self.facing_right)
+        self.sprite.blit(surface,
+                         pos,
+                         index=index,
+                         reverse=not self.facing_right)
 
-    # 8 4 8 19
-    def rect(self, pos: tuple[int, int]) -> pygame.Rect:
-        """ Returns the player rect in pixels, given that position. """
+    def get_target_bounds_rect(self, direction: Direction) -> Bounds:
+        """ Returns the bounds rect in pixels to check when moving in direction. """
         if self.state == PlayerState.CROUCHING:
-            return pygame.Rect(pos[0]+8, pos[1]+14, 8, 9)
-        else:
-            return pygame.Rect(pos[0]+8, pos[1]+4, 8, 19)
+            return Bounds(self.x+8*16, self.y+14*16, 8*16, 9*16)
+        match direction:
+            case Direction.NONE:
+                return Bounds(self.x+8*16, self.y+4*16, 8*16, 19*16)
+            case Direction.UP:
+                return Bounds(self.x+8*16, self.y+4*16, 8*16, 4*16)
+            case Direction.DOWN:
+                return Bounds(self.x+8*16, self.y+21*16, 8*16, 2*16)
+            case Direction.RIGHT:
+                return Bounds(self.x+12*16, self.y+4*16, 4*16, 15*16)
+            case Direction.LEFT:
+                return Bounds(self.x+8*16, self.y+4*16, 4*16, 15*16)

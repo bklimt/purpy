@@ -4,6 +4,8 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from spritesheet import Animation
+
 
 class TileSetImage:
     source: str
@@ -24,6 +26,7 @@ class TileSet:
     columns: int
     image: TileSetImage
     surface: pygame.Surface
+    animations: dict[int, Animation]
     properties: dict[int, dict[str, str | bool | int]]
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str):
@@ -34,6 +37,8 @@ class TileSet:
         self.columns = int(root.attrib['columns'])
         self.image = [TileSetImage(node)
                       for node in root if node.tag == 'image'][0]
+
+        self.animations = {}
         self.properties = {}
 
         img_path = os.path.join(os.path.dirname(path), self.image.source)
@@ -58,6 +63,25 @@ class TileSet:
                     else:
                         raise Exception(f'unsupported property type {typ}')
         print(self.properties)
+
+    def load_tile_animations(self, path: str):
+        """ Loads a directory of animations to replace tiles. """
+        print(f'loading tile animations from {path}')
+        filenames = os.listdir(path)
+        for filename in filenames:
+            if filename.endswith('.png'):
+                tile_id = int(filename[:-4])
+                filepath = os.path.join(path, filename)
+                print(f'loading animation for tile {tile_id} from {filepath}')
+                surface = pygame.image.load(filepath)
+                animation = Animation(surface, 8, 8)
+                self.animations[tile_id] = animation
+            else:
+                print(f'skipping file {filename}')
+
+    def update_animations(self):
+        for tile_id in self.animations.keys():
+            self.animations[tile_id].update()
 
     @property
     def rows(self) -> int:

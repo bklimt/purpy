@@ -1,9 +1,11 @@
 
 import pygame
 
+from player import Player
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
+from utils import try_move_to_bounds, Bounds, Direction
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
@@ -52,28 +54,30 @@ class Platform:
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
         x = self.x//16 + offset[0]
         y = self.y//16 + offset[1]
-        area = self.tileset.get_source_rect(self.tile_id)
-        surface.blit(self.tileset.surface, (x, y), area)
+        if self.tile_id in self.tileset.animations:
+            anim = self.tileset.animations[self.tile_id]
+            anim.blit(surface, (x, y), False)
+        else:
+            area = self.tileset.get_source_rect(self.tile_id)
+            surface.blit(self.tileset.surface, (x, y), area)
 
-    def intersect(self, rect: pygame.Rect) -> bool:
-        if rect.right < self.x//16:
-            return False
-        if rect.bottom < self.y//16:
-            return False
-        if rect.left > self.x//16 + self.tileset.tilewidth:
-            return False
-        if rect.top > self.y//16 + self.tileset.tileheight:
-            return False
-        return True
-
-    def intersect_top(self, rect: pygame.Rect) -> bool:
-        if rect.right < self.x//16:
-            return False
-        if rect.left > self.x//16 + self.tileset.tilewidth:
-            return False
-        if rect.bottom != self.y//16:
-            return False
-        return True
+    def try_move_to(self, player_rect: Bounds, direction: Direction) -> int:
+        if self.is_solid:
+            area = Bounds(
+                self.x,
+                self.y,
+                self.tileset.tilewidth * 16,
+                self.tileset.tileheight * 16)
+            return try_move_to_bounds(player_rect, area, direction)
+        else:
+            if direction != Direction.DOWN:
+                return 0
+            area = Bounds(
+                self.x,
+                self.y,
+                self.tileset.tilewidth * 16,
+                4 * 16)
+            return try_move_to_bounds(player_rect, area, direction)
 
 
 class MovingPlatform(Platform):
@@ -162,3 +166,16 @@ class Bagel(Platform):
                     self.dy = 0
             else:
                 self.remaining = BAGEL_WAIT_TIME
+
+
+class Conveyor(Platform):
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
+        speed = int(obj.properties.get('speed', 24))
+        if obj.properties.get('convey', 'E') == 'E':
+            self.dx = speed
+        else:
+            self.dx = -1 * speed
+
+    def update(self):
+        pass

@@ -5,18 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from tileset import TileSet, load_tileset
-
-
-def intersect(rect1: pygame.Rect, rect2: pygame.Rect) -> bool:
-    if rect1.right < rect2.left:
-        return False
-    if rect1.left > rect2.right:
-        return False
-    if rect1.bottom < rect2.top:
-        return False
-    if rect1.top > rect2.bottom:
-        return False
-    return True
+from utils import Bounds, Direction, intersect, try_move_to_bounds, cmp_in_direction
 
 
 class ImageLayer:
@@ -260,10 +249,100 @@ class TileMap:
 
                 # Draw the rest of the turtle.
                 pos = (pos_x, pos_y)
-                surface.blit(self.tileset.surface, pos, source)
+                if index in self.tileset.animations:
+                    self.tileset.animations[index].blit(surface, pos, False)
+                else:
+                    surface.blit(self.tileset.surface, pos, source)
 
-    def intersect(self, rect: pygame.Rect, switches: set[str]) -> list[int]:
+    def get_rect(self, row: int, col: int) -> pygame.Rect:
+        return pygame.Rect(
+            col * self.tilewidth,
+            row * self.tileheight,
+            self.tilewidth,
+            self.tileheight)
+
+    def is_solid_in_direction(self, tile_id: int, direction: Direction) -> bool:
+        oneway = self.tileset.get_str_property(tile_id, 'oneway')
+        if oneway is None:
+            return True
+        match direction:
+            case Direction.UP:
+                return oneway == 'S'
+            case Direction.DOWN:
+                return oneway == 'N'
+            case Direction.RIGHT:
+                return oneway == 'W'
+            case Direction.LEFT:
+                return oneway == 'E'
+        raise Exception('unexpection direction')
+
+    class MoveResult:
+        offset_sub: int = 0
+        tile_ids: set[int]
+
+        def __init__(self):
+            self.tile_ids = set()
+
+    def try_move_to(self,
+                    bounds: Bounds,
+                    direction: Direction,
+                    switches: set[str]) -> MoveResult:
+        """ Returns the offset needed to account for the closest one. """
+        result = TileMap.MoveResult()
+        player_rect = bounds.rect
+        row1 = player_rect.top // self.tileheight
+        col1 = player_rect.left // self.tilewidth
+        row2 = player_rect.bottom // self.tileheight
+        col2 = player_rect.right // self.tilewidth
+        if row1 < 0:
+            row1 = 0
+        if col1 < 0:
+            col1 = 0
+        if row2 < 0:
+            row2 = 0
+        if col2 < 0:
+            col2 = 0
+        for row in range(row1, row2+1):
+            for col in range(col1, col2+1):
+                tile_rect = self.get_rect(row, col)
+                tile_bounds = Bounds(
+                    tile_rect.x * 16,
+                    tile_rect.y * 16,
+                    tile_rect.w * 16,
+                    tile_rect.h * 16)
+                for layer in self.layers:
+                    if not isinstance(layer, TileLayer):
+                        continue
+                    if layer.player or self.player_layer is None:
+                        index = layer.data[row][col]
+                        if index == 0:
+                            continue
+                        index -= 1
+                        if not self.is_condition_met(index, switches):
+                            alt = self.tileset.get_int_property(
+                                index, 'alternate')
+                            if alt is None:
+                                continue
+                            # Use an alt tile instead of the original.
+                            index = alt
+                        if not self.tileset.get_bool_property(index, 'solid', True):
+                            continue
+                        if not self.is_solid_in_direction(index, direction):
+                            continue
+                        offset = try_move_to_bounds(
+                            bounds, tile_bounds, direction)
+                        cmp = cmp_in_direction(
+                            offset, result.offset_sub, direction)
+                        if cmp < 0:
+                            result.offset_sub = offset
+                            result.tile_ids = set([index])
+                        elif cmp == 0:
+                            result.tile_ids.add(index)
+        return result
+
+    def intersect(self, bounds: Bounds, switches: set[str]) -> list[int]:
         ans = []
+        rect = bounds.rect
         row1 = rect.top // self.tileheight
         col1 = rect.left // self.tilewidth
         row2 = rect.bottom // self.tileheight
@@ -313,6 +392,9 @@ class TileMap:
             if isinstance(p_y, int):
                 preferred_y = p_y
         return (preferred_x, preferred_y)
+
+    def update_animations(self):
+        self.tileset.update_animations()
 
 
 def load_map(path: str):
