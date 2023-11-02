@@ -6,6 +6,7 @@ from enum import Enum
 
 class Sound(Enum):
     CLICK = 0
+    STAR = 1
 
 
 class SoundManager:
@@ -14,6 +15,7 @@ class SoundManager:
     def __init__(self):
         self.sounds = {
             Sound.CLICK: pygame.mixer.Sound('assets/sounds/click.wav'),
+            Sound.STAR: pygame.mixer.Sound('assets/sounds/star.wav'),
         }
 
     def play(self, sound: Sound):

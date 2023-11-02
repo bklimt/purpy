@@ -1,3 +1,4 @@
+# pyright: reportWildcardImportFromLibrary=false
 
 from random import randint
 import typing
@@ -30,7 +31,6 @@ class OpenGLRenderer:
         glViewport(0, 0, window.w, window.h)
         glEnable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
-        glEnable(GL_VERTEX_ARRAY)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         self.init_static()
         self.init_shader()
@@ -106,8 +106,8 @@ class OpenGLRenderer:
         texture_id = glGenTextures(1)
         glActiveTexture(GL_TEXTURE0)
         glBindTexture(GL_TEXTURE_2D, texture_id)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,

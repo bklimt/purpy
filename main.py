@@ -1,4 +1,3 @@
-# pyright: reportWildcardImportFromLibrary=false
 
 import pygame
 import sys

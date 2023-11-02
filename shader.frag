@@ -29,8 +29,8 @@ vec4 scanline(float y) {
 void main() {
     vec2 uv = ((gl_FragCoord.xy - iOffset) / iResolution);
     vec2 uv1 = tube_warp(uv, vec2(0.0, 0.0));
-    vec2 uv2 = tube_warp(uv, vec2(0.003, 0.0));
-    vec2 uv3 = tube_warp(uv, vec2(-0.003, 0.0));
+    vec2 uv2 = tube_warp(uv, vec2(0.002, 0.0));
+    vec2 uv3 = tube_warp(uv, vec2(-0.002, 0.0));
 
     if (uv1.x < 0.0 || uv1.y < 0.0 || uv1.x > 1.0 || uv1.y > 1.0) {
         gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
@@ -49,7 +49,7 @@ void main() {
     color.b = texture2D(u_texture, uv3).b;
     color.a = 1.0;
 
-    color = mix(mix(color, random, 0.05), scan, 0.05);
+    color = mix(mix(color, random, 0.04), scan, 0.01);
 
     gl_FragColor = color;
 }
