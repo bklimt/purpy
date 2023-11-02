@@ -581,7 +581,7 @@ class Level(Scene):
         # Do the actual drawing.
         self.map.draw_background(surface, dest, map_offset, self.switches)
         for door in self.doors:
-            door.draw_background(surface, map_offset)
+            door.draw_background(surface, map_offset, images)
         for platform in self.platforms:
             platform.draw(surface, map_offset)
         for star in self.stars:

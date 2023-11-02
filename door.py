@@ -3,6 +3,7 @@ import pygame
 
 from enum import Enum, IntEnum
 
+from imagemanager import ImageManager
 from spritesheet import SpriteSheet
 from tilemap import MapObject
 from utils import intersect
@@ -34,6 +35,7 @@ class Door:
     sprite: SpriteSheet
     destination: str | None
     stars_needed: int
+    stars_remaining: int
     active: bool
 
     state: DoorState
@@ -55,16 +57,14 @@ class Door:
         if not isinstance(stars_needed, int):
             raise Exception(f'stars_needed was not an int: {stars_needed}')
         self.stars_needed = stars_needed
+        self.stars_remaining = stars_needed
 
         self.state = DoorState.LOCKED if self.stars_needed > 0 else DoorState.OPEN
 
-    def draw_background(self, surface: pygame.Surface, offset: tuple[int, int]):
+    def draw_background(self, surface: pygame.Surface, offset: tuple[int, int], images: ImageManager):
         pos = (self.x + offset[0], self.y + offset[1])
         layer = DoorLayer.ACTIVE if self.active else DoorLayer.INACTIVE
         self.sprite.blit(surface, pos, 0, layer=layer)
-
-    def draw_foreground(self, surface: pygame.Surface, offset: tuple[int, int]):
-        pos = (self.x + offset[0], self.y + offset[1])
         if self.state == DoorState.LOCKED:
             self.sprite.blit(surface,
                              pos,
@@ -75,6 +75,14 @@ class Door:
                              pos,
                              index=(self.frame // DOOR_SPEED),
                              layer=DoorLayer.LOCKED)
+        if self.stars_remaining > 0:
+            s = str(self.stars_remaining)
+            if len(s) == 1:
+                s = '0' + s
+            images.font.draw_string(surface, (pos[0] + 8, pos[1] + 12), s)
+
+    def draw_foreground(self, surface: pygame.Surface, offset: tuple[int, int]):
+        pos = (self.x + offset[0], self.y + offset[1])
         if self.state == DoorState.CLOSING:
             self.sprite.blit(surface,
                              pos,
@@ -93,6 +101,7 @@ class Door:
 
     def update(self, player_rect: pygame.Rect, star_count: int):
         self.active = self.is_inside(player_rect)
+        self.stars_remaining = max(0, self.stars_needed - star_count)
 
         if self.state == DoorState.UNLOCKING:
             max_frame = UNLOCKING_FRAMES * DOOR_SPEED
