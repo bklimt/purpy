@@ -1,3 +1,4 @@
+# pyright: reportWildcardImportFromLibrary=false
 
 from random import randint
 import typing
@@ -30,7 +31,6 @@ class OpenGLRenderer:
         glViewport(0, 0, window.w, window.h)
         glEnable(GL_BLEND)
         glEnable(GL_TEXTURE_2D)
-        glEnable(GL_VERTEX_ARRAY)
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
         self.init_static()
         self.init_shader()
