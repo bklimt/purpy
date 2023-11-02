@@ -90,7 +90,10 @@ class Player:
 
         if self.is_dead:
             pos = (pos[0] + randint(-1, 1), pos[1] + randint(-1, 1))
-        self.sprite.blit(surface, pos, index, not self.facing_right)
+        self.sprite.blit(surface,
+                         pos,
+                         index=index,
+                         reverse=not self.facing_right)
 
     def get_target_bounds_rect(self, direction: Direction) -> Bounds:
         """ Returns the bounds rect in pixels to check when moving in direction. """

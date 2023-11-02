@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#125d55" nextlayerid="4" nextobjectid="17">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#125d55" nextlayerid="4" nextobjectid="21">
  <tileset firstgid="1" source="../../purple.tsx"/>
  <layer id="2" name="Background" width="40" height="22">
   <data encoding="csv">
@@ -60,6 +60,7 @@
   <object id="1" gid="193" x="256" y="144" width="8" height="8">
    <properties>
     <property name="destination" value="assets/levels/EXPRMNTL/SPIKES.TMX"/>
+    <property name="stars_needed" type="int" value="4"/>
    </properties>
   </object>
   <object id="2" gid="194" x="264" y="144" width="8" height="8"/>
@@ -77,5 +78,9 @@
   <object id="14" gid="242" x="264" y="168" width="8" height="8"/>
   <object id="15" gid="243" x="272" y="168" width="8" height="8"/>
   <object id="16" gid="244" x="280" y="168" width="8" height="8"/>
+  <object id="17" gid="145" x="72" y="152" width="8" height="8"/>
+  <object id="18" gid="145" x="152" y="152" width="8" height="8"/>
+  <object id="19" gid="145" x="232" y="152" width="8" height="8"/>
+  <object id="20" gid="145" x="152" y="128" width="8" height="8"/>
  </objectgroup>
 </map>

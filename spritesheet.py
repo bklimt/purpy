@@ -16,20 +16,26 @@ class SpriteSheet:
         self.reverse = pygame.transform.flip(surface, True, False)
         self.columns = surface.get_width() // sprite_width
 
-    def sprite(self, index: int, reverse: bool) -> pygame.Rect:
+    def sprite(self, index: int, layer: int, reverse: bool) -> pygame.Rect:
         column = index % self.columns
         row = index // self.columns
         if reverse:
             column = (self.columns - 1) - column
+        row += layer
         x = column * self.sprite_width
         y = row * self.sprite_height
         return pygame.Rect(x, y, self.sprite_width, self.sprite_height)
 
-    def blit(self, surface: pygame.Surface, pos: tuple[int, int], index: int, reverse: bool):
+    def blit(self,
+             surface: pygame.Surface,
+             pos: tuple[int, int],
+             index: int = 0,
+             layer: int = 0,
+             reverse: bool = False):
         texture = self.surface
         if reverse:
             texture = self.reverse
-        surface.blit(texture, pos, self.sprite(index, reverse))
+        surface.blit(texture, pos, self.sprite(index, layer, reverse))
 
 
 class Animation:

@@ -409,8 +409,9 @@ class Level(Scene):
                 self.player.state = PlayerState.CROUCHING
             elif movement.jump_pressed:
                 if self.current_door is not None:
-                    self.player.state = PlayerState.STOPPED
-                    self.current_door.close()
+                    if self.current_door.is_open:
+                        self.player.state = PlayerState.STOPPED
+                        self.current_door.close()
                 else:
                     self.player.state = PlayerState.AIRBORNE
                     self.player.dy = -1 * JUMP_SPEED
@@ -476,8 +477,8 @@ class Level(Scene):
 
         self.current_door = None
         for door in self.doors:
-            door.update(player_rect.rect)
-            if door.closed:
+            door.update(player_rect.rect, self.star_count)
+            if door.is_closed:
                 if door.destination is not None:
                     return Level(self.parent, door.destination)
                 return Level(self.parent, self.map_path)

@@ -230,6 +230,7 @@
  <tile id="192">
   <properties>
    <property name="door" type="bool" value="true"/>
+   <property name="stars_needed" type="int" value="0"/>
   </properties>
  </tile>
  <wangsets>
