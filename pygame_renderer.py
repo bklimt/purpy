@@ -1,6 +1,8 @@
 
 import pygame
 
+from renderoptions import RenderOptions
+
 
 class PygameRenderer:
     game_window: pygame.Surface
@@ -16,7 +18,7 @@ class PygameRenderer:
         self.scaled_back_buffer = pygame.Surface(
             self.scaled_back_buffer_dest.size)
 
-    def render(self, surface: pygame.Surface):
+    def render(self, surface: pygame.Surface, options: RenderOptions):
         # Clear the window with black.
         # Scale the back buffer to the right size.
         pygame.transform.scale(

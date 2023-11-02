@@ -9,6 +9,7 @@ from level import Level
 from inputmanager import InputManager
 from imagemanager import ImageManager
 from renderer import Renderer
+from renderoptions import RenderOptions
 
 USE_OPENGL = True
 
@@ -88,9 +89,10 @@ class Game:
         back_buffer_src = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
         self.back_buffer.fill((0, 0, 0), back_buffer_src)
         # Draw the scene.
-        self.scene.draw(self.back_buffer, back_buffer_src, self.images)
-
-        self.renderer.render(self.back_buffer)
+        options = RenderOptions()
+        self.scene.draw(self.back_buffer, back_buffer_src,
+                        self.images, options)
+        self.renderer.render(self.back_buffer, options)
 
         return True
 

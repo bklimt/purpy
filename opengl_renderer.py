@@ -8,6 +8,8 @@ import pygame
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileShader
 
+from renderoptions import RenderOptions
+
 
 class OpenGLRenderer:
     program: typing.Any
@@ -95,12 +97,20 @@ class OpenGLRenderer:
         glEnableVertexAttribArray(0)
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices)
 
-    def render(self, surface: pygame.Surface):
+    def render(self, surface: pygame.Surface, options: RenderOptions):
         glClearColor(0, 0, 1, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
 
-        time_loc = glGetUniformLocation(self.program, 'iTime')
-        glUniform1f(time_loc, pygame.time.get_ticks() / 1000.0)
+        glUniform1f(glGetUniformLocation(self.program, 'iTime'),
+                    pygame.time.get_ticks() / 1000.0)
+
+        glUniform1i(glGetUniformLocation(self.program, 'iSpotlightEnabled'),
+                    options.spotlight_enabled)
+        glUniform2f(glGetUniformLocation(self.program, 'iSpotlightPosition'),
+                    options.spotlight_position[0],
+                    options.spotlight_position[1])
+        glUniform1f(glGetUniformLocation(self.program, 'iSpotlightRadius'),
+                    options.spotlight_radius)
 
         texture_data = pygame.image.tobytes(surface, 'RGBA', True)
         texture_id = glGenTextures(1)

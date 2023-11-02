@@ -9,6 +9,7 @@ from inputmanager import InputManager
 from kill import KillScreen
 from player import Player, PlayerState
 from platforms import Bagel, Conveyor, MovingPlatform, Platform
+from renderoptions import RenderOptions
 from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
@@ -32,7 +33,7 @@ TOAST_TIME = 100
 TOAST_HEIGHT = 12
 
 
-class Level(Scene):
+class Level:
     parent: Scene | None
     map_path: str
     name: str
@@ -529,7 +530,7 @@ class Level(Scene):
 
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager):
+    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager, options: RenderOptions):
         # Make sure the player is on the screen, and then center them if possible.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
         preferred_x, preferred_y = self.map.get_preferred_view(
@@ -599,3 +600,6 @@ class Level(Scene):
         top_bar.fill(top_bar_bgcolor)
         images.font.draw_string(top_bar, (2, 2), self.toast_text)
         surface.blit(top_bar, top_bar_area)
+
+        options.spotlight_enabled = True
+        options.spotlight_position = (player_draw_x + 12, player_draw_y + 12)
