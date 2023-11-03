@@ -4,7 +4,7 @@ import typing
 
 from imagemanager import ImageManager
 from inputmanager import InputManager
-from renderoptions import RenderOptions
+from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import SoundManager
 
@@ -22,14 +22,15 @@ class KillScreen:
             return self.next()
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager, options: RenderOptions):
+    def draw(self, context: RenderContext, images: ImageManager) -> None:
+        dest = context.logical_area
+        self.previous.draw(context, images)
+
         red_color = pygame.Color(255, 0, 0, 127)
         red_surface = pygame.Surface(dest.size, pygame.SRCALPHA)
         red_surface.fill(red_color, dest)
-        self.previous.draw(surface, dest, images, options)
-        options.spotlight_enabled = False
+        surface = context.hud_surface
         surface.blit(red_surface, dest)
-
         text = "DEAD"
         text_pos = (
             dest.width//2 - len(text) * 4,

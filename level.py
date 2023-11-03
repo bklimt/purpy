@@ -9,7 +9,7 @@ from inputmanager import InputManager
 from kill import KillScreen
 from player import Player, PlayerState
 from platforms import Bagel, Conveyor, MovingPlatform, Platform
-from renderoptions import RenderOptions
+from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
@@ -530,7 +530,9 @@ class Level:
 
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager, options: RenderOptions):
+    def draw(self, context: RenderContext, images: ImageManager) -> None:
+        dest = context.logical_area
+
         # Make sure the player is on the screen, and then center them if possible.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
         preferred_x, preferred_y = self.map.get_preferred_view(
@@ -580,6 +582,7 @@ class Level:
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
+        surface = context.player_surface
         self.map.draw_background(surface, dest, map_offset, self.switches)
         for door in self.doors:
             door.draw_background(surface, map_offset, images)
@@ -599,7 +602,8 @@ class Level:
         top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
         top_bar.fill(top_bar_bgcolor)
         images.font.draw_string(top_bar, (2, 2), self.toast_text)
-        surface.blit(top_bar, top_bar_area)
+        context.hud_surface.blit(top_bar, top_bar_area)
 
-        options.spotlight_enabled = True
-        options.spotlight_position = (player_draw_x + 12, player_draw_y + 12)
+        context.options.spotlight_enabled = True
+        context.options.spotlight_position = (
+            player_draw_x + 12, player_draw_y + 12)

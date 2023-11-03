@@ -1,12 +1,10 @@
 
 import os
-import pygame
 
-from font import Font
 from imagemanager import ImageManager
 from inputmanager import InputManager
 from level import Level
-from renderoptions import RenderOptions
+from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import SoundManager
 
@@ -39,7 +37,9 @@ class LevelSelect:
                 return Level(self, new_path)
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager, options: RenderOptions):
+    def draw(self, context: RenderContext, images: ImageManager) -> None:
+        surface = context.hud_surface
+
         x = 4
         y = 4
         dir_str = os.path.join(self.directory, "")

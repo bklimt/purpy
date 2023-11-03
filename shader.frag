@@ -3,8 +3,12 @@
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iOffset;
-uniform sampler2D u_texture;
-uniform sampler2D iStatic;
+uniform vec2 iTextureSize;
+
+// Textures
+uniform sampler2D iStaticTexture;
+uniform sampler2D iPlayerTexture;
+uniform sampler2D iHudTexture;
 
 uniform bool iSpotlightEnabled;
 uniform vec2 iSpotlightPosition;
@@ -36,11 +40,21 @@ vec4 spotlight(vec2 position) {
         return vec4(1.0, 1.0, 1.0, 0.0);
     }
     position.y = 1.0 - position.y;
-    position *= textureSize(u_texture, 0);
+    position *= iTextureSize;
     float d = distance(iSpotlightPosition, position);
     // float a = 1.0 - clamp(d / iSpotlightRadius, 0.0, 1.0);
     float a = smoothstep(0.0, 1.0, d / iSpotlightRadius) * 0.85;
     return vec4(0.0, 0.0, 0.0, a);
+}
+
+vec4 sample_texture(sampler2D texture, vec2 uv1, vec2 uv2, vec2 uv3) {
+    vec4 color;
+    color.r = texture2D(texture, uv2).r;
+    color.g = texture2D(texture, uv1).g;
+    color.b = texture2D(texture, uv3).b;
+    // TODO: Be smarter about this.
+    color.a = texture2D(texture, uv1).a;
+    return color;
 }
 
 void main() {
@@ -58,16 +72,15 @@ void main() {
 
     vec2 random_pos = uv1;
     random_pos.y += iTime * 10.0;
-    vec4 random = texture2D(iStatic, random_pos);
-
-    vec4 color;
-    color.r = texture2D(u_texture, uv2).r;
-    color.g = texture2D(u_texture, uv1).g;
-    color.b = texture2D(u_texture, uv3).b;
-    color.a = 1.0;
+    vec4 random = texture2D(iStaticTexture, random_pos);
 
     vec4 spot = spotlight(uv1);
-    color = vec4(mix(color.rgb, spot.rgb, spot.a), 1.0);
+
+    vec4 player_color = sample_texture(iPlayerTexture, uv1, uv2, uv3);
+    player_color = vec4(mix(player_color.rgb, spot.rgb, spot.a), 1.0);
+
+    vec4 hud_color = sample_texture(iHudTexture, uv1, uv2, uv3);
+    vec4 color = vec4(mix(hud_color.rgb, player_color.rgb, 1.0 - hud_color.a), 1.0);
 
     color = mix(mix(color, random, 0.04), scan, 0.01);
 
