@@ -1,5 +1,6 @@
 #version 120
 
+// Screen Info
 uniform float iTime;
 uniform vec2 iResolution;
 uniform vec2 iOffset;
@@ -10,13 +11,14 @@ uniform sampler2D iStaticTexture;
 uniform sampler2D iPlayerTexture;
 uniform sampler2D iHudTexture;
 
+// Lighting
 uniform bool iSpotlightEnabled;
 uniform vec2 iSpotlightPosition;
 uniform float iSpotlightRadius;
 
 // This is like, halfway between GL_LINEAR and GL_NEAREST.
 // It requires the texture be sampled with GL_LINEAR.
-vec2 make_nearest(vec2 coord) {
+vec2 fuzz_sample_uv(vec2 coord) {
     coord *= iTextureSize;
     coord += 0.5;
 
@@ -47,7 +49,7 @@ vec2 tube_warp(vec2 coord, vec2 offset) {
 vec4 scanline(float y) {
     y *= iResolution.y;
     y += (iTime * 5.0);
-    y /= 1.2;
+    y /= 1.5;
     float scanline_mag = sin(y);
     vec3 scanline_color = vec3(scanline_mag, scanline_mag, scanline_mag);
     return vec4(scanline_color, 1.0);
@@ -65,18 +67,19 @@ vec4 spotlight(vec2 position) {
     return vec4(0.0, 0.0, 0.0, a);
 }
 
-vec4 sample_texture(sampler2D texture, vec2 uv1, vec2 uv2, vec2 uv3) {
-    uv1 = make_nearest(uv1);
-    uv2 = make_nearest(uv2);
-    uv3 = make_nearest(uv3);
+// Like texture2D, but fuzzes partway between linear and nearest.
+vec4 sample_texture(sampler2D texture, vec2 uv) {
+    return texture2D(texture, fuzz_sample_uv(uv));
+}
 
-    vec4 color1 = texture2D(texture, uv1);
-    vec4 color2 = texture2D(texture, uv2);
-    vec4 color3 = texture2D(texture, uv3);
+vec4 get_scene_pixel(vec2 uv) {
+    vec4 spot = spotlight(uv);
 
-    float alpha = max(color1.a, max(color2.a, color3.a));
-    
-    vec4 color = vec4(color2.r, color1.g, color3.b, alpha);
+    vec4 player_color = sample_texture(iPlayerTexture, uv);
+    player_color = vec4(mix(player_color.rgb, spot.rgb, spot.a), 1.0);
+
+    vec4 hud_color = sample_texture(iHudTexture, uv);
+    vec4 color = vec4(mix(hud_color.rgb, player_color.rgb, 1.0 - hud_color.a), 1.0);
 
     return color;
 }
@@ -98,15 +101,12 @@ void main() {
     random_pos.y += iTime * 10.0;
     vec4 random = texture2D(iStaticTexture, random_pos);
 
-    vec4 spot = spotlight(uv1);
+    vec4 color1 = get_scene_pixel(uv1);
+    vec4 color2 = get_scene_pixel(uv2);
+    vec4 color3 = get_scene_pixel(uv3);
+    vec4 color = vec4(color2.r, color1.g, color3.b, 1.0);
 
-    vec4 player_color = sample_texture(iPlayerTexture, uv1, uv2, uv3);
-    player_color = vec4(mix(player_color.rgb, spot.rgb, spot.a), 1.0);
-
-    vec4 hud_color = sample_texture(iHudTexture, uv1, uv2, uv3);
-    vec4 color = vec4(mix(hud_color.rgb, player_color.rgb, 1.0 - hud_color.a), 1.0);
-
-    color = mix(mix(color, random, 0.04), scan, 0.01);
+    color = mix(mix(color, random, 0.04), scan, 0.015);
 
     gl_FragColor = color;
 }
