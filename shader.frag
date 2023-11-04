@@ -90,16 +90,49 @@ vec4 get_scene_pixel(vec2 uv) {
     return color;
 }
 
-void main() {
-    vec2 uv = ((gl_FragCoord.xy - iOffset) / iResolution);
+vec4 frame(vec2 uv) {
+    uv -= 0.5;
+
+    // Make a squircle glossy screen.
+    float sqr = pow(uv.x, 4.0) + pow(uv.y, 4.0);
+    if (sqr < 0.02) {
+        vec3 white = vec3(1.0, 1.0, 1.0);
+        vec3 beige = vec3(0.99, 0.85, 0.70);
+        float sqr2 = pow(uv.x, 4.0) + pow((uv.y - 0.5), 4.0);
+        if (sqr2 < 0.09) {
+            return vec4(mix(beige, white, sqr2*2.0), 0.1);
+        } else {
+            return vec4(beige, 0.1);
+        }
+    } else {
+        // Make a frame.
+        float corner = smoothstep(0.7, 1.0, 0.85 - abs(abs(uv.x)-abs(uv.y)));
+        corner = corner * corner;
+
+        vec3 shiny = vec3(1.0, 1.0, 1.0);
+        // vec3 color = vec3(0.23, 0.28, 0.23);
+        vec3 color = vec3(0.12, 0.14, 0.12);
+        vec3 result = mix(color, shiny, corner);
+
+        return vec4(result, 1.0);
+    }
+}
+
+vec4 gamescreen(vec2 uv) {
+    // Shrink the screen slightly.
+    uv *= 1.05;
+    uv -= 0.025;
+
     vec2 uv1 = tube_warp(uv, vec2(0.0, 0.0));
     vec2 uv2 = tube_warp(uv, vec2(0.002, 0.0));
     vec2 uv3 = tube_warp(uv, vec2(-0.002, 0.0));
 
-    if (uv1.x < 0.0 || uv1.y < 0.0 || uv1.x > 1.0 || uv1.y > 1.0) {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
-        return;
+    // Fade in the very edges.
+    float min_edge = min(uv1.x, min(uv1.y, min(1.0 - uv1.x, 1.0 - uv1.y)));
+    if (min_edge < 0.0) {
+        return vec4(0.0, 0.0, 0.0, 0.0);
     }
+    float alpha = smoothstep(0.0, 1.0, min_edge * 150.0);
 
     vec4 scan = scanline(uv1.y);
 
@@ -112,7 +145,14 @@ void main() {
     vec4 color3 = get_scene_pixel(uv3);
     vec4 color = vec4(color2.r, color1.g, color3.b, 1.0);
 
-    color = mix(mix(color, random, 0.04), scan, 0.015);
+    return vec4(mix(mix(color, random, 0.04), scan, 0.015).rgb, alpha);
+}
 
-    gl_FragColor = color;
+void main() {
+    vec2 uv = ((gl_FragCoord.xy - iOffset) / iResolution);
+
+    vec4 frame_color = frame(uv);
+    vec4 game_color = gamescreen(uv);
+
+    gl_FragColor = vec4(mix(frame_color.rgb, game_color.rgb, game_color.a), 1.0);
 }
