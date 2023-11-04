@@ -14,6 +14,23 @@ uniform bool iSpotlightEnabled;
 uniform vec2 iSpotlightPosition;
 uniform float iSpotlightRadius;
 
+// This is like, halfway between GL_LINEAR and GL_NEAREST.
+// It requires the texture be sampled with GL_LINEAR.
+vec2 make_nearest(vec2 coord) {
+    coord *= iTextureSize;
+    coord += 0.5;
+
+    vec2 coordFloor = floor(coord) + 0.5;
+    vec2 coordFract = fract(coord);
+
+    coordFract = smoothstep(-0.5, 0.5, coordFract - 0.5);
+    // coordFract = vec2(0.0, 0.0);
+
+    coord = coordFloor + coordFract;
+    coord /= iTextureSize;
+    return coord;
+}
+
 vec2 tube_warp(vec2 coord, vec2 offset) {
     coord = (coord * 2.0) - 1.0;
     coord *= 0.5;
@@ -23,6 +40,7 @@ vec2 tube_warp(vec2 coord, vec2 offset) {
 
     coord += offset;
     coord += 0.5;
+
     return coord;
 }
 
@@ -48,12 +66,18 @@ vec4 spotlight(vec2 position) {
 }
 
 vec4 sample_texture(sampler2D texture, vec2 uv1, vec2 uv2, vec2 uv3) {
-    vec4 color;
-    color.r = texture2D(texture, uv2).r;
-    color.g = texture2D(texture, uv1).g;
-    color.b = texture2D(texture, uv3).b;
-    // TODO: Be smarter about this.
-    color.a = texture2D(texture, uv1).a;
+    uv1 = make_nearest(uv1);
+    uv2 = make_nearest(uv2);
+    uv3 = make_nearest(uv3);
+
+    vec4 color1 = texture2D(texture, uv1);
+    vec4 color2 = texture2D(texture, uv2);
+    vec4 color3 = texture2D(texture, uv3);
+
+    float alpha = max(color1.a, max(color2.a, color3.a));
+    
+    vec4 color = vec4(color2.r, color1.g, color3.b, alpha);
+
     return color;
 }
 
