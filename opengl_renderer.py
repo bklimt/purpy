@@ -122,20 +122,25 @@ class OpenGLRenderer:
         glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, vertices)
 
     def set_shader_inputs(self, context: RenderContext):
-        options = context.options
-
         glUniform1f(glGetUniformLocation(self.program, 'iTime'),
                     pygame.time.get_ticks() / 1000.0)
         glUniform2f(glGetUniformLocation(self.program, 'iTextureSize'),
                     context.logical_size[0], context.logical_size[1])
 
-        glUniform1i(glGetUniformLocation(self.program, 'iSpotlightEnabled'),
-                    options.spotlight_enabled)
-        glUniform2f(glGetUniformLocation(self.program, 'iSpotlightPosition'),
-                    options.spotlight_position[0],
-                    options.spotlight_position[1])
-        glUniform1f(glGetUniformLocation(self.program, 'iSpotlightRadius'),
-                    options.spotlight_radius)
+        ls = context.lights
+        if len(ls) > 20:
+            ls = ls[:20]
+
+        glUniform1i(glGetUniformLocation(
+            self.program, 'iSpotlightCount'), len(ls))
+
+        glUniform2fv(glGetUniformLocation(self.program, 'iSpotlightPosition'),
+                     len(ls),
+                     [l.position for l in ls])
+
+        glUniform1fv(glGetUniformLocation(self.program, 'iSpotlightRadius'),
+                     len(ls),
+                     [l.radius for l in ls])
 
     def render(self, context: RenderContext):
         # TODO: Render every surface.

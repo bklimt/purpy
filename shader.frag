@@ -12,9 +12,9 @@ uniform sampler2D iPlayerTexture;
 uniform sampler2D iHudTexture;
 
 // Lighting
-uniform bool iSpotlightEnabled;
-uniform vec2 iSpotlightPosition;
-uniform float iSpotlightRadius;
+uniform int iSpotlightCount;
+uniform vec2 iSpotlightPosition[20];
+uniform float iSpotlightRadius[20];
 
 // This is like, halfway between GL_LINEAR and GL_NEAREST.
 // It requires the texture be sampled with GL_LINEAR.
@@ -56,15 +56,21 @@ vec4 scanline(float y) {
 }
 
 vec4 spotlight(vec2 position) {
-    if (!iSpotlightEnabled) {
+    if (iSpotlightCount == 0) {
         return vec4(1.0, 1.0, 1.0, 0.0);
     }
     position.y = 1.0 - position.y;
     position *= iTextureSize;
-    float d = distance(iSpotlightPosition, position);
-    // float a = 1.0 - clamp(d / iSpotlightRadius, 0.0, 1.0);
-    float a = smoothstep(0.0, 1.0, d / iSpotlightRadius) * 0.85;
-    return vec4(0.0, 0.0, 0.0, a);
+
+    float alpha = 1.0;
+    int i;
+    for (i = 0; i < iSpotlightCount; ++i) {
+        float d = distance(iSpotlightPosition[i], position);
+        float a = smoothstep(0.0, 1.0, d / iSpotlightRadius[i]) * 0.85;
+        alpha = min(alpha, a);
+    }
+
+    return vec4(0.0, 0.0, 0.0, alpha);
 }
 
 // Like texture2D, but fuzzes partway between linear and nearest.

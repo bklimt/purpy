@@ -589,7 +589,7 @@ class Level:
         for platform in self.platforms:
             platform.draw(surface, map_offset)
         for star in self.stars:
-            star.draw(surface, map_offset)
+            star.draw(context, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
         for door in self.doors:
             door.draw_foreground(surface, map_offset)
@@ -604,6 +604,6 @@ class Level:
         images.font.draw_string(top_bar, (2, 2), self.toast_text)
         context.hud_surface.blit(top_bar, top_bar_area)
 
-        context.options.spotlight_enabled = True
-        context.options.spotlight_position = (
-            player_draw_x + 12, player_draw_y + 12)
+        spotlight_pos = (player_draw_x + 12, player_draw_y + 12)
+        spotlight_radius = 120.0
+        context.add_light(spotlight_pos, spotlight_radius)

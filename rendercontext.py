@@ -1,7 +1,16 @@
 
 import pygame
 
-from renderoptions import RenderOptions
+MAX_LIGHTS = 20
+
+
+class Light:
+    position: tuple[int, int] = (0, 0)
+    radius: float = 120.0
+
+    def __init__(self, position: tuple[int, int], radius: float):
+        self.position = position
+        self.radius = radius
 
 
 class RenderContext:
@@ -11,7 +20,7 @@ class RenderContext:
     foreground_surface: pygame.Surface
     player_surface: pygame.Surface
     background_surface: pygame.Surface
-    options: RenderOptions
+    lights: list[Light]
 
     def __init__(self, logical_size: tuple[int, int]):
         self.logical_size = logical_size
@@ -20,12 +29,15 @@ class RenderContext:
         self.foreground_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
         self.player_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
         self.background_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
-        self.options = RenderOptions()
+        self.lights = []
 
     def clear(self):
-        self.options = RenderOptions()
+        self.lights.clear()
         black = pygame.Color(0, 0, 0, 0)
         self.background_surface.fill(black, self.logical_area)
         self.player_surface.fill(black, self.logical_area)
         self.foreground_surface.fill(black, self.logical_area)
         self.hud_surface.fill(black, self.logical_area)
+
+    def add_light(self, position: tuple[int, int], radius: float):
+        self.lights.append(Light(position, radius))
