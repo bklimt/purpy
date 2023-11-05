@@ -75,8 +75,6 @@ class Level(Scene):
         self.switches = set()
         self.current_switch_tiles = set()
         self.star_count = 0
-        # TODO: Put this somewhere else.
-        self.map.tileset.load_tile_animations('assets/tiles')
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))

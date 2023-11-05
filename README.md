@@ -10,10 +10,8 @@ purpy
 * `python3 main.py`
 
 ## TODO
-* Add instructions for how to make levels.
 * Implement saving which stars you have.
 * Implement better menus.
-* Store tile override path in map file.
 * Improve controls.
 
 ## Making Levels
@@ -27,25 +25,28 @@ Several different layer types are supported. `Background` and `Tile` layers are 
 `Tile` layers are for grids of blocks. If there's more than one tile layer, one of them must be marked as the `player` layer. That is the layer where the player is rendered, and is the only layer the player can interact with directly.
 
 *Properties*
-* `boolean player` - The tile layer marked with this property is the layer where the player interacts.
+* `bool player` - The tile layer marked with this property is the layer where the player interacts.
 
 ### Tile Properties
 
 Each tile in a tile layer can have certain properities that affect its rendering and behavior.
 
 *Properties*
-* `boolean solid` - If this is present and set to `false`, then the player can pass through the tile from any direction. Defaults to `true`.
+* `bool solid` - If this is present and set to `false`, then the player can pass through the tile from any direction. Defaults to `true`.
 
 ### Animated Tiles
 
-`TODO` - This feature is still in development.
+Tiles in a tileset (`.tsx` file) can be overridden with animated versions of some tiles. This is done by setting a path to a directory containing the animations. Each file in the directory should be a `.png` named with the tile id to replace. For example, `123.png` would replace the rendering for tile id `123`. The `.png` should have a single row of `8x8` images, with no padding.
+
+*Properties*
+* `string animations` - The path to the directory with the animations, relative to the `.tsx` file.
 
 ### Spikes
 
 Spike blocks are blocks that kill the player when the player touches them from above.
 
 *Properties*
-* `boolean deadly` - If this is present and set to `true`, then the block will be treated as a spike.
+* `bool deadly` - If this is present and set to `true`, then the block will be treated as a spike.
 
 ### One-way Walls
 
@@ -84,18 +85,18 @@ If the platform is `solid`, it can also push the player in other directions. The
 If the platform is _not_ `solid`, then the player can pass through it from the bottom or sides. If a player would be crushed by a non-solid platform moving up, then the player will fall through it.
 
 *Properties*
-* `boolean platform` - If present and true, then this object will be a platform.
+* `bool platform` - If present and true, then this object will be a platform.
 * `string direction` - The direction the platform should move from its starting point. Can be `'N'`, `'S'`, `'E'`, or `'W'`.
 * `int distance` - The distance in blocks to move, before turning around and going back to the start.
 * `int speed` - The speed of the movement, in 1/16 subpixels per frame. Defaults to `4`. Values above `16` may have odd behavior.
-* `boolean solid` - Whether the platform is `solid`, as described above. Defaults to `false`.
+* `bool solid` - Whether the platform is `solid`, as described above. Defaults to `false`.
 
 ### Bagels
 
 A platform that wiggles when you stand on it, and then falls after a short time. Does not obey other platform properties.
 
 *Properties*
-* `boolean bagel` - If set to `true`, this object will be a bagel.
+* `bool bagel` - If set to `true`, this object will be a bagel.
 
 ### Conveyor Belts
 
@@ -104,14 +105,14 @@ A platform that doesn't move itself, but does move the player when the player is
 *Properties*
 * `string convey` - If set, makes this object into a conveyor belt. Can be `'E'` or `'W'`, which sets the direction the belt moves.
 * `int speed` - The speed that the belt will move the player. Defaults to `24`.
-* `boolean solid` - Works the same as solid on other platforms.
+* `bool solid` - Works the same as solid on other platforms.
 
 ### Stars
 
 Stars are little doodads you can collect. They vibrate a little and light up.
 
 *Properties*
-* `boolean star` - If set to true, this object will be a star.
+* `bool star` - If set to true, this object will be a star.
 
 ### Doors
 
