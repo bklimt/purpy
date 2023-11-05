@@ -55,8 +55,9 @@ class TestIntersect(unittest.TestCase):
         self.assertEqual(1281, player.bottom_sub)
 
         # The slope goes from the top of the tile to the middle.
+        # The slope in sub-pixels is (4 * 16) / (8 * 16) = 0.5.
         left_y = 0
-        right_y = 3
+        right_y = 4
 
         result = try_move_to_slope_bounds(
             player, tile, left_y, right_y, Direction.DOWN)
@@ -66,7 +67,14 @@ class TestIntersect(unittest.TestCase):
         player.y_sub = tile.bottom_sub - 384 - 1
         result = try_move_to_slope_bounds(
             player, tile, left_y, right_y, Direction.DOWN)
-        self.assertEqual(-91, result)
+        self.assertEqual(-78, result)
+
+        # Now try with a lower slope.
+        left_y = 4
+        right_y = 8
+        result = try_move_to_slope_bounds(
+            player, tile, left_y, right_y, Direction.DOWN)
+        self.assertEqual(-14, result)
 
 
 if __name__ == '__main__':

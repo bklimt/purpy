@@ -342,8 +342,8 @@ class TileMap:
                             offset = try_move_to_slope_bounds(
                                 bounds,
                                 tile_bounds,
-                                left_y * 16,
-                                right_y * 16,
+                                left_y,
+                                right_y,
                                 direction)
                         else:
                             offset = try_move_to_bounds(
