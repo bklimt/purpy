@@ -54,6 +54,7 @@ class Level(Scene):
     doors: list[Door]
 
     current_platform: Platform | None = None
+    current_slope: int | None = None
     switches: set[str]
     current_switch_tiles: set[int]
     current_door: Door | None
@@ -285,7 +286,7 @@ class Level(Scene):
     class MovePlayerYResult:
         on_ground: bool = False
         platforms: set[Platform] = set()
-        tiles_ids: set[int] = set()
+        tile_ids: set[int] = set()
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
 
@@ -310,21 +311,30 @@ class Level(Scene):
             result.on_ground = move_result.on_ground
             result.crushed_by_platform = move_result.crushed_by_platform
             result.stuck_in_wall = move_result.stuck_in_wall
+
+            self.handle_slopes(move_result.on_tile_ids)
             self.handle_current_platforms(move_result.on_platforms)
         else:
             # Moving down.
             move_result = self.move_and_check(Direction.DOWN, inc_y)
             result.on_ground = move_result.on_ground
-            result.tiles_ids = set(move_result.on_tile_ids)
+            result.tile_ids = set(move_result.on_tile_ids)
             result.platforms = set(move_result.on_platforms)
             result.crushed_by_platform = move_result.crushed_by_platform
             result.stuck_in_wall = move_result.stuck_in_wall
 
             self.handle_spikes(move_result.on_tile_ids)
             self.handle_switch_tiles(move_result.on_tile_ids, sounds)
+            self.handle_slopes(move_result.on_tile_ids)
             self.handle_current_platforms(move_result.on_platforms)
 
         return result
+
+    def handle_slopes(self, tiles: set[int]) -> None:
+        self.current_slope = None
+        for tile_id in tiles:
+            if self.map.tileset.get_bool_property(tile_id, 'slope', False):
+                self.current_slope = tile_id
 
     def handle_spikes(self, tiles: set[int]):
         for tile_id in tiles:
@@ -509,6 +519,8 @@ class Level(Scene):
                 attribs.append('idle')
             if self.current_platform is not None:
                 attribs.append(f'platform={self.current_platform.id}')
+            if self.current_slope is not None:
+                attribs.append(f'slope={self.current_slope}')
             transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
