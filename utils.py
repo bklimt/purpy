@@ -46,7 +46,7 @@ class Bounds:
     w_sub: int
     h_sub: int
 
-    def __init__(self, x_sub, y_sub, w_sub, h_sub):
+    def __init__(self, x_sub: int, y_sub: int, w_sub: int, h_sub: int):
         self.x_sub = x_sub
         self.y_sub = y_sub
         self.w_sub = w_sub
@@ -134,6 +134,53 @@ def try_move_to_bounds(actor: Bounds, target: Bounds, direction: Direction) -> i
         case Direction.LEFT:
             return target.right_sub - actor.left_sub
     raise Exception('unimplemented')
+
+
+def try_move_to_slope_bounds(
+        actor: Bounds,
+        target: Bounds,
+        left_y: int,
+        right_y: int,
+        direction: Direction) -> int:
+    """Try to move the actor rect in direction by delta and see if it intersects target.
+
+    Returns the maximum distance the actor can move.
+    """
+    print(f'trying to move {actor} into {target}')
+
+    if actor.bottom_sub <= target.top_sub:
+        print('out 1')
+        return 0
+    if actor.top_sub >= target.bottom_sub:
+        print('out 2')
+        return 0
+    if actor.right_sub <= target.left_sub:
+        print('out 3')
+        return 0
+    if actor.left_sub >= target.right_sub:
+        print('out 4')
+        return 0
+
+    if direction != Direction.DOWN:
+        print('out 5')
+        return 0
+
+    left_y_sub = left_y * 16
+    right_y_sub = right_y * 16
+
+    # Now for the actual difficult case.
+    actor_center_x_sub = (actor.left_sub + actor.right_sub) // 2
+    target_y_sub = int(target.y_sub + ((right_y_sub - left_y_sub) / target.w_sub)
+                       * (actor_center_x_sub - target.x_sub) + left_y_sub)
+
+    print(f'center_x = {actor_center_x_sub}')
+    print(f'target_y_sub = {target_y_sub}')
+    print(f'actor_bottom = {actor.bottom_sub}')
+
+    if target_y_sub < actor.bottom_sub:
+        return target_y_sub - actor.bottom_sub
+    else:
+        return 0
 
 
 def intersect(rect1: pygame.Rect, rect2: pygame.Rect) -> bool:
