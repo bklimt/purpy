@@ -27,7 +27,8 @@ class TileSet:
     image: TileSetImage
     surface: pygame.Surface
     animations: dict[int, Animation]
-    properties: dict[int, dict[str, str | bool | int]]
+    properties: dict[str, str | bool | int]
+    tile_properties: dict[int, dict[str, str | bool | int]]
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str):
         self.name = root.attrib['name']
@@ -39,30 +40,54 @@ class TileSet:
                       for node in root if node.tag == 'image'][0]
 
         self.animations = {}
-        self.properties = {}
+        self.tile_properties = {}
 
         img_path = os.path.join(os.path.dirname(path), self.image.source)
         print('loading tileset texture from ' + img_path)
         img = pygame.image.load(img_path)
         self.surface = pygame.Surface.convert_alpha(img)
 
+        self.properties = {}
+        for node in [node for node in root if node.tag == 'properties']:
+            for pnode in [pnode for pnode in node if pnode.tag == 'property']:
+                name = pnode.attrib['name']
+                typ = pnode.attrib.get('type', 'str')
+                val = pnode.attrib['value']
+                if typ == "str":
+                    self.properties[name] = val
+                elif typ == "int":
+                    self.properties[name] = int(val)
+                elif typ == "bool":
+                    self.properties[name] = (val == 'true')
+                else:
+                    raise Exception(f'unsupported property type {typ}')
+
         for tile in [tile for tile in root if tile.tag == 'tile']:
             tile_id = int(tile.attrib['id'])
-            self.properties[tile_id] = {}
+            self.tile_properties[tile_id] = {}
             for node in [node for node in tile if node.tag == 'properties']:
                 for pnode in [pnode for pnode in node if pnode.tag == 'property']:
                     name = pnode.attrib['name']
                     typ = pnode.attrib.get('type', 'str')
                     val = pnode.attrib['value']
                     if typ == "str":
-                        self.properties[tile_id][name] = val
+                        self.tile_properties[tile_id][name] = val
                     elif typ == "int":
-                        self.properties[tile_id][name] = int(val)
+                        self.tile_properties[tile_id][name] = int(val)
                     elif typ == "bool":
-                        self.properties[tile_id][name] = (val == 'true')
+                        self.tile_properties[tile_id][name] = (val == 'true')
                     else:
                         raise Exception(f'unsupported property type {typ}')
         print(self.properties)
+        print(self.tile_properties)
+
+        tile_animations_path = self.properties.get('animations', None)
+        if tile_animations_path is not None:
+            if not isinstance(tile_animations_path, str):
+                raise Exception('animations property must be a string')
+            tile_animations_path = os.path.join(
+                os.path.dirname(path), tile_animations_path)
+            self.load_tile_animations(tile_animations_path)
 
     def load_tile_animations(self, path: str):
         """ Loads a directory of animations to replace tiles. """
@@ -97,7 +122,7 @@ class TileSet:
         return pygame.Rect(x, y, self.tilewidth, self.tileheight)
 
     def get_str_property(self, tile: int, key: str) -> str | None:
-        props = self.properties.get(tile, {})
+        props = self.tile_properties.get(tile, {})
         val = props.get(key, None)
         if val is None:
             return None
@@ -106,7 +131,7 @@ class TileSet:
         return val
 
     def get_int_property(self, tile: int, key: str) -> int | None:
-        props = self.properties.get(tile, {})
+        props = self.tile_properties.get(tile, {})
         val = props.get(key, None)
         if val is None:
             return None
@@ -115,7 +140,7 @@ class TileSet:
         return val
 
     def get_bool_property(self, tile: int, key: str, default: bool = False) -> bool:
-        props = self.properties.get(tile, {})
+        props = self.tile_properties.get(tile, {})
         val = props.get(key, default)
         if not isinstance(val, bool):
             raise Exception(f'expected bool for {key} but got {val}')
