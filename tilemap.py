@@ -79,7 +79,7 @@ class MapObject:
         self.gid = int(gid_str) if gid_str is not None else None
         self.properties = {}
         if self.gid is not None:
-            for k, v in tileset.properties.get(self.gid - 1, {}).items():
+            for k, v in tileset.tile_properties.get(self.gid - 1, {}).items():
                 self.properties[k] = v
         for props in [child for child in node if child.tag == 'properties']:
             for prop in [child for child in props if child.tag == 'property']:

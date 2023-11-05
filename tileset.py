@@ -39,9 +39,6 @@ class TileSet:
         self.image = [TileSetImage(node)
                       for node in root if node.tag == 'image'][0]
 
-        self.animations = {}
-        self.tile_properties = {}
-
         img_path = os.path.join(os.path.dirname(path), self.image.source)
         print('loading tileset texture from ' + img_path)
         img = pygame.image.load(img_path)
@@ -62,6 +59,7 @@ class TileSet:
                 else:
                     raise Exception(f'unsupported property type {typ}')
 
+        self.tile_properties = {}
         for tile in [tile for tile in root if tile.tag == 'tile']:
             tile_id = int(tile.attrib['id'])
             self.tile_properties[tile_id] = {}
@@ -78,9 +76,10 @@ class TileSet:
                         self.tile_properties[tile_id][name] = (val == 'true')
                     else:
                         raise Exception(f'unsupported property type {typ}')
-        print(self.properties)
-        print(self.tile_properties)
+        print(f'properties: {self.properties}')
+        print(f'tile properties: {self.tile_properties}')
 
+        self.animations = {}
         tile_animations_path = self.properties.get('animations', None)
         if tile_animations_path is not None:
             if not isinstance(tile_animations_path, str):
