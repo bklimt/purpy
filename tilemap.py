@@ -5,7 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from tileset import TileSet, load_tileset
-from utils import Bounds, Direction, try_move_to_bounds, try_move_to_slope_bounds, cmp_in_direction
+from utils import Bounds, Direction, intersect, try_move_to_bounds, try_move_to_slope_bounds, cmp_in_direction
 
 
 class ImageLayer:
