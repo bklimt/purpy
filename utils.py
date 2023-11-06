@@ -170,9 +170,6 @@ def try_move_to_slope_bounds(
     elif actor_center_x_sub > target.right_sub:
         target_y_sub = target.top_sub + right_y_sub
     else:
-        if actor_center_x_sub < target.x_sub:
-            raise Exception(
-                f'{actor_center_x_sub} < {target.x_sub} but {actor_center_x_sub} >= {target.left_sub}')
         x_sub_offset = actor_center_x_sub - target.x_sub
         slope_sub = (right_y_sub - left_y_sub) / target.w_sub
         target_y_sub = int(target.y_sub + slope_sub *
