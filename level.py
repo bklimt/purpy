@@ -54,7 +54,7 @@ class Level(Scene):
     doors: list[Door]
 
     current_platform: Platform | None = None
-    current_slope: int | None = None
+    current_slopes: set[int]
     switches: set[str]
     current_switch_tiles: set[int]
     current_door: Door | None
@@ -76,6 +76,7 @@ class Level(Scene):
         self.switches = set()
         self.current_switch_tiles = set()
         self.star_count = 0
+        self.current_slopes = set()
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
@@ -297,6 +298,19 @@ class Level(Scene):
         if self.current_platform is not None:
             # This could be positive or negative.
             dy += self.current_platform.dy
+
+        # If you're on a slope, make sure to fall at least the slope amount.
+        if dy >= 0:
+            slope_fall = 0
+            for slope in self.current_slopes:
+                left_y = self.map.tileset.get_int_property(
+                    slope, 'left_y') or 0
+                right_y = self.map.tileset.get_int_property(
+                    slope, 'right_y') or 0
+                fall = abs(left_y - right_y) * 16
+                slope_fall = max(fall, slope_fall)
+            dy = max(dy, slope_fall)
+
         self.player.y += dy
 
         def inc_y(offset):
@@ -331,10 +345,10 @@ class Level(Scene):
         return result
 
     def handle_slopes(self, tiles: set[int]) -> None:
-        self.current_slope = None
+        self.current_slopes.clear()
         for tile_id in tiles:
             if self.map.tileset.get_bool_property(tile_id, 'slope', False):
-                self.current_slope = tile_id
+                self.current_slopes.add(tile_id)
 
     def handle_spikes(self, tiles: set[int]):
         for tile_id in tiles:
@@ -519,8 +533,8 @@ class Level(Scene):
                 attribs.append('idle')
             if self.current_platform is not None:
                 attribs.append(f'platform={self.current_platform.id}')
-            if self.current_slope is not None:
-                attribs.append(f'slope={self.current_slope}')
+            if len(self.current_slopes) > 0:
+                attribs.append(f'slopes={self.current_slopes}')
             transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition

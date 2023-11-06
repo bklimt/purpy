@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
+<tileset version="1.8" tiledversion="1.8.0" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
  <transformations hflip="0" vflip="0" rotate="0" preferuntransformed="1"/>
  <properties>
   <property name="animations" value="tiles"/>
@@ -31,6 +31,16 @@
    <property name="left_y" type="int" value="4"/>
    <property name="right_y" type="int" value="0"/>
    <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="39">
+  <properties>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="55">
+  <properties>
+   <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
  <tile id="128">

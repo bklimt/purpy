@@ -163,11 +163,16 @@ def try_move_to_slope_bounds(
     left_y_sub = left_y * 16
     right_y_sub = right_y * 16
 
-    # Now for the actual difficult case.
     actor_center_x_sub = (actor.left_sub + actor.right_sub) // 2
     x_sub_offset = actor_center_x_sub - target.x_sub
     slope_sub = (right_y_sub - left_y_sub) / target.w_sub
     target_y_sub = int(target.y_sub + slope_sub * x_sub_offset + left_y_sub)
+
+    if actor_center_x_sub < target.left_sub:
+        target_y_sub = target.top_sub + left_y_sub
+
+    if actor_center_x_sub > target.right_sub:
+        target_y_sub = target.top_sub + right_y_sub
 
     if False:
         print(f'center_x = {actor_center_x_sub}')
