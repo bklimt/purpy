@@ -291,6 +291,25 @@ class Level(Scene):
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
 
+    def get_slope_dy(self):
+        slope_fall = 0
+        for slope in self.current_slopes:
+            left_y = self.map.tileset.get_int_property(
+                slope, 'left_y') or 0
+            right_y = self.map.tileset.get_int_property(
+                slope, 'right_y') or 0
+            fall: int = 0
+            if self.player.dx > 0 or (self.player.dx == 0 and self.player.facing_right):
+                # The player is facing right.
+                if right_y > left_y:
+                    fall = (right_y - left_y) * 16
+            else:
+                # The player is facing left.
+                if left_y > right_y:
+                    fall = (left_y - right_y) * 16
+            slope_fall = max(fall, slope_fall)
+        return slope_fall
+
     def move_player_y(self, sounds: SoundManager) -> MovePlayerYResult:
         result = Level.MovePlayerYResult()
 
@@ -301,15 +320,7 @@ class Level(Scene):
 
         # If you're on a slope, make sure to fall at least the slope amount.
         if dy >= 0:
-            slope_fall = 0
-            for slope in self.current_slopes:
-                left_y = self.map.tileset.get_int_property(
-                    slope, 'left_y') or 0
-                right_y = self.map.tileset.get_int_property(
-                    slope, 'right_y') or 0
-                fall = abs(left_y - right_y) * 16
-                slope_fall = max(fall, slope_fall)
-            dy = max(dy, slope_fall)
+            dy = max(dy, self.get_slope_dy())
 
         self.player.y += dy
 
