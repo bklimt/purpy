@@ -184,11 +184,11 @@ class Level(Scene):
             player_rect, direction)
 
         result = Level.TryMovePlayerResult()
-        if cmp_in_direction(platform_result.offset_sub, map_result.offset_sub, direction) <= 0:
+        if cmp_in_direction(platform_result.offset_sub, map_result.hard_offset_sub, direction) <= 0:
             result.offset_sub = platform_result.offset_sub
             result.platforms = platform_result.platforms
         else:
-            result.offset_sub = map_result.offset_sub
+            result.offset_sub = map_result.hard_offset_sub
             result.tile_ids = map_result.tile_ids
 
         return result

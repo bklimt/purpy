@@ -97,17 +97,15 @@ class Player:
 
         pos_sub = (pos[0]*16, pos[1]*16)
 
-        left = self.get_target_bounds_at(pos_sub, Direction.LEFT)
-        surface.fill(pygame.Color(255, 0, 255, 63), left.rect)
-
-        right = self.get_target_bounds_at(pos_sub, Direction.RIGHT)
-        surface.fill(pygame.Color(127, 127, 63, 63), right.rect)
-
-        up = self.get_target_bounds_at(pos_sub, Direction.UP)
-        surface.fill(pygame.Color(255, 127, 0, 63), up.rect)
-
-        down = self.get_target_bounds_at(pos_sub, Direction.DOWN)
-        surface.fill(pygame.Color(0, 255, 127, 63), down.rect)
+        if False:
+            left = self.get_target_bounds_at(pos_sub, Direction.LEFT)
+            surface.fill(pygame.Color(255, 0, 255, 63), left.rect)
+            right = self.get_target_bounds_at(pos_sub, Direction.RIGHT)
+            surface.fill(pygame.Color(127, 127, 63, 63), right.rect)
+            up = self.get_target_bounds_at(pos_sub, Direction.UP)
+            surface.fill(pygame.Color(255, 127, 0, 63), up.rect)
+            down = self.get_target_bounds_at(pos_sub, Direction.DOWN)
+            surface.fill(pygame.Color(0, 255, 127, 63), down.rect)
 
     def get_target_bounds_at(self, pos: tuple[int, int], direction: Direction) -> Bounds:
         x = pos[0]
