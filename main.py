@@ -9,6 +9,7 @@ from level import Level
 from inputmanager import InputManager
 from imagemanager import ImageManager
 from renderer import Renderer
+from rendercontext import RenderContext
 
 USE_OPENGL = True
 
@@ -26,9 +27,9 @@ FRAME_RATE = 60
 
 class Game:
     clock = pygame.time.Clock()
-    back_buffer: pygame.Surface
     static: pygame.Surface
     renderer: Renderer
+    render_context: RenderContext
 
     images: ImageManager
     inputs: InputManager
@@ -38,13 +39,13 @@ class Game:
 
     def __init__(self):
         pygame.init()
-
-        self.back_buffer = pygame.Surface((LOGICAL_WIDTH, LOGICAL_HEIGHT))
         pygame.display.set_caption('purpy')
 
         logical = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
         destination = self.compute_scaled_buffer_dest()
         window = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        print('initializing render context')
+        self.render_context = RenderContext((LOGICAL_WIDTH, LOGICAL_HEIGHT))
         print('initializing renderer')
         if USE_OPENGL:
             self.renderer = OpenGLRenderer(logical, destination, window)
@@ -84,13 +85,10 @@ class Game:
 
         self.inputs.update()
 
-        # Clear the back buffer with solid black.
-        back_buffer_src = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
-        self.back_buffer.fill((0, 0, 0), back_buffer_src)
         # Draw the scene.
-        self.scene.draw(self.back_buffer, back_buffer_src, self.images)
-
-        self.renderer.render(self.back_buffer)
+        self.render_context.clear()
+        self.scene.draw(self.render_context, self.images)
+        self.renderer.render(self.render_context)
 
         return True
 

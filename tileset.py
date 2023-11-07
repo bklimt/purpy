@@ -5,6 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from spritesheet import Animation
+from utils import load_properties
 
 
 class TileSetImage:
@@ -44,39 +45,13 @@ class TileSet:
         img = pygame.image.load(img_path)
         self.surface = pygame.Surface.convert_alpha(img)
 
-        self.properties = {}
-        for node in [node for node in root if node.tag == 'properties']:
-            for pnode in [pnode for pnode in node if pnode.tag == 'property']:
-                name = pnode.attrib['name']
-                typ = pnode.attrib.get('type', 'str')
-                val = pnode.attrib['value']
-                if typ == "str":
-                    self.properties[name] = val
-                elif typ == "int":
-                    self.properties[name] = int(val)
-                elif typ == "bool":
-                    self.properties[name] = (val == 'true')
-                else:
-                    raise Exception(f'unsupported property type {typ}')
+        self.properties = load_properties(root)
 
         self.tile_properties = {}
         for tile in [tile for tile in root if tile.tag == 'tile']:
             tile_id = int(tile.attrib['id'])
-            self.tile_properties[tile_id] = {}
-            for node in [node for node in tile if node.tag == 'properties']:
-                for pnode in [pnode for pnode in node if pnode.tag == 'property']:
-                    name = pnode.attrib['name']
-                    typ = pnode.attrib.get('type', 'str')
-                    val = pnode.attrib['value']
-                    if typ == "str":
-                        self.tile_properties[tile_id][name] = val
-                    elif typ == "int":
-                        self.tile_properties[tile_id][name] = int(val)
-                    elif typ == "bool":
-                        self.tile_properties[tile_id][name] = (val == 'true')
-                    else:
-                        raise Exception(f'unsupported property type {typ}')
-        print(f'properties: {self.properties}')
+            self.tile_properties[tile_id] = load_properties(tile)
+        print(f'tileset properties: {self.properties}')
         print(f'tile properties: {self.tile_properties}')
 
         self.animations = {}

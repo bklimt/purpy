@@ -9,6 +9,7 @@ from inputmanager import InputManager
 from kill import KillScreen
 from player import Player, PlayerState
 from platforms import Bagel, Conveyor, MovingPlatform, Platform
+from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
@@ -32,7 +33,7 @@ TOAST_TIME = 100
 TOAST_HEIGHT = 12
 
 
-class Level(Scene):
+class Level:
     parent: Scene | None
     map_path: str
     name: str
@@ -564,7 +565,9 @@ class Level(Scene):
 
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager):
+    def draw(self, context: RenderContext, images: ImageManager) -> None:
+        dest = context.logical_area
+
         # Make sure the player is on the screen, and then center them if possible.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
         preferred_x, preferred_y = self.map.get_preferred_view(
@@ -614,13 +617,14 @@ class Level(Scene):
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
+        surface = context.player_surface
         self.map.draw_background(surface, dest, map_offset, self.switches)
         for door in self.doors:
             door.draw_background(surface, map_offset, images)
         for platform in self.platforms:
             platform.draw(surface, map_offset)
         for star in self.stars:
-            star.draw(surface, map_offset)
+            star.draw(context, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))
         for door in self.doors:
             door.draw_foreground(surface, map_offset)
@@ -633,4 +637,10 @@ class Level(Scene):
         top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
         top_bar.fill(top_bar_bgcolor)
         images.font.draw_string(top_bar, (2, 2), self.toast_text)
-        surface.blit(top_bar, top_bar_area)
+        context.hud_surface.blit(top_bar, top_bar_area)
+
+        context.dark = self.map.is_dark
+
+        spotlight_pos = (player_draw_x + 12, player_draw_y + 12)
+        spotlight_radius = 120.0
+        context.add_light(spotlight_pos, spotlight_radius)
