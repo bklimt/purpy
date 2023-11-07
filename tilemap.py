@@ -5,7 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from tileset import TileSet, load_tileset
-from utils import Bounds, Direction, intersect, try_move_to_bounds, cmp_in_direction
+from utils import Bounds, Direction, intersect, try_move_to_bounds, try_move_to_slope_bounds, cmp_in_direction
 
 
 class ImageLayer:
@@ -277,11 +277,32 @@ class TileMap:
         raise Exception('unexpection direction')
 
     class MoveResult:
-        offset_sub: int = 0
+        # This is the offset that stops the player.
+        hard_offset_sub: int = 0
+        # This is the offset for being on a slope.
+        soft_offset_sub: int = 0
         tile_ids: set[int]
 
         def __init__(self):
             self.tile_ids = set()
+
+        def consider_tile(self,
+                          index: int,
+                          hard_offset_sub: int,
+                          soft_offset_sub: int,
+                          direction: Direction):
+            cmp = cmp_in_direction(
+                hard_offset_sub, self.hard_offset_sub, direction)
+            if cmp < 0:
+                self.hard_offset_sub = hard_offset_sub
+
+            cmp = cmp_in_direction(
+                soft_offset_sub, self.soft_offset_sub, direction)
+            if cmp < 0:
+                self.soft_offset_sub = soft_offset_sub
+                self.tile_ids = set([index])
+            elif cmp == 0:
+                self.tile_ids.add(index)
 
     def try_move_to(self,
                     bounds: Bounds,
@@ -329,15 +350,31 @@ class TileMap:
                             continue
                         if not self.is_solid_in_direction(index, direction):
                             continue
-                        offset = try_move_to_bounds(
-                            bounds, tile_bounds, direction)
-                        cmp = cmp_in_direction(
-                            offset, result.offset_sub, direction)
-                        if cmp < 0:
-                            result.offset_sub = offset
-                            result.tile_ids = set([index])
-                        elif cmp == 0:
-                            result.tile_ids.add(index)
+
+                        soft_offset_sub = try_move_to_bounds(
+                            bounds,
+                            tile_bounds,
+                            direction)
+                        hard_offset_sub = soft_offset_sub
+
+                        if self.tileset.get_bool_property(index, 'slope', False):
+                            left_y = self.tileset.get_int_property(
+                                index, 'left_y')
+                            right_y = self.tileset.get_int_property(
+                                index, 'right_y')
+                            if left_y is None:
+                                left_y = 0
+                            if right_y is None:
+                                right_y = 0
+                            hard_offset_sub = try_move_to_slope_bounds(
+                                bounds,
+                                tile_bounds,
+                                left_y,
+                                right_y,
+                                direction)
+
+                        result.consider_tile(
+                            index, hard_offset_sub, soft_offset_sub, direction)
         return result
 
     def intersect(self, bounds: Bounds, switches: set[str]) -> list[int]:
