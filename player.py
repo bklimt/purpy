@@ -12,11 +12,12 @@ IDLE_TIME = 240
 
 
 class PlayerState(Enum):
-    AIRBORNE = 1
+    FALLING = 1
     STANDING = 2
     CROUCHING = 3
     WALL_SLIDING = 4
     STOPPED = 5
+    JUMPING = 6
 
 
 class Player:
@@ -47,8 +48,10 @@ class Player:
             self.facing_right = True
         # IDLE, IDLE, IDLE, CROUCH, WAVE, JUMP, RUN, RUN, RUN, RUN
         index = 0
-        if self.state == PlayerState.AIRBORNE:
+        if self.state == PlayerState.FALLING:
             index = 5
+        elif self.state == PlayerState.JUMPING:
+            index = 6
         elif self.state == PlayerState.WALL_SLIDING:
             index = 10
         elif self.dx != 0 and self.state == PlayerState.STANDING:

@@ -16,19 +16,27 @@ from star import Star
 from tilemap import TileMap, load_map
 from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
 
-TARGET_WALK_SPEED = 32
-TARGET_AIRBORNE_SPEED = 16
-AIRBORNE_SPEED_ACCELERATION = 1
+# Vertical speed.
+TARGET_WALK_SPEED = 24
 WALK_SPEED_ACCELERATION = 1
-MAX_GRAVITY = 36
+WALK_SPEED_DECELERATION = 2
+SLIDE_SPEED_DECELERATION = 1
+
+# Horizontal speed.
+JUMP_INITIAL_SPEED = 38
+JUMP_ACCELERATION = 1
+JUMP_MAX_GRAVITY = 32
+FALL_ACCELERATION = 5
+FALL_MAX_GRAVITY = 48
+
 WALL_SLIDE_SPEED = 4
-GRAVITY_ACCELERATION = 2
-JUMP_SPEED = 60
 WALL_JUMP_HORIZONTAL_SPEED = 24
 WALL_JUMP_VERTICAL_SPEED = 24
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
+
 VIEWPORT_PAN_SPEED = 5
+
 TOAST_TIME = 100
 TOAST_HEIGHT = 12
 
@@ -95,35 +103,63 @@ class Level:
     #
 
     def update_player_trajectory_x(self, inputs: InputManager):
+        if self.player.state == PlayerState.CROUCHING:
+            if self.player.dx > 0:
+                self.player.dx = max(0, self.player.dx -
+                                     SLIDE_SPEED_DECELERATION)
+            elif self.player.dx < 0:
+                self.player.dx = min(0, self.player.dx +
+                                     SLIDE_SPEED_DECELERATION)
+            return
+
         # Apply controller input.
         target_dx = 0
         if inputs.is_left_down() and not inputs.is_right_down():
-            if self.player.state == PlayerState.AIRBORNE:
-                target_dx = -1 * TARGET_AIRBORNE_SPEED
-            else:
-                target_dx = -1 * TARGET_WALK_SPEED
+            target_dx = -1 * TARGET_WALK_SPEED
         elif inputs.is_right_down() and not inputs.is_left_down():
-            if self.player.state == PlayerState.AIRBORNE:
-                target_dx = TARGET_AIRBORNE_SPEED
-            else:
-                target_dx = TARGET_WALK_SPEED
-
-        if self.player.state == PlayerState.CROUCHING:
-            target_dx = 0
+            target_dx = TARGET_WALK_SPEED
 
         # Change the velocity toward the target velocity.
-        if self.player.state == PlayerState.AIRBORNE:
-            if self.player.dx < target_dx:
-                self.player.dx += AIRBORNE_SPEED_ACCELERATION
-            if self.player.dx > target_dx:
-                self.player.dx -= AIRBORNE_SPEED_ACCELERATION
-        else:
-            if self.player.dx < target_dx:
+        if self.player.dx > 0:
+            # We're facing right.
+            if target_dx > self.player.dx:
                 self.player.dx += WALK_SPEED_ACCELERATION
-            if self.player.dx > target_dx:
+                self.player.dx = max(target_dx, self.player.dx)
+            if target_dx < self.player.dx:
+                self.player.dx -= WALK_SPEED_DECELERATION
+                self.player.dx = min(target_dx, self.player.dx)
+        elif self.player.dx < 0:
+            # We're facing left.
+            if target_dx > self.player.dx:
+                self.player.dx += WALK_SPEED_DECELERATION
+                self.player.dx = max(target_dx, self.player.dx)
+            if target_dx < self.player.dx:
                 self.player.dx -= WALK_SPEED_ACCELERATION
+                self.player.dx = min(target_dx, self.player.dx)
+        else:
+            # We're stopped.
+            if target_dx > self.player.dx:
+                self.player.dx += WALK_SPEED_ACCELERATION
+                self.player.dx = max(target_dx, self.player.dx)
+            if target_dx < self.player.dx:
+                self.player.dx -= WALK_SPEED_ACCELERATION
+                self.player.dx = min(target_dx, self.player.dx)
 
     def update_player_trajectory_y(self, inputs: InputManager):
+        if (self.player.state == PlayerState.STANDING or
+                self.player.state == PlayerState.CROUCHING):
+            # Fall at least one pixel so that we hit the ground again.
+            self.player.dy = max(self.player.dy, 16)
+        elif self.player.state == PlayerState.JUMPING:
+            # Apply gravity.
+            if self.player.dy < JUMP_MAX_GRAVITY:
+                self.player.dy += JUMP_ACCELERATION
+            self.player.dy = min(self.player.dy, JUMP_MAX_GRAVITY)
+        elif self.player.state == PlayerState.FALLING:
+            # Apply gravity.
+            if self.player.dy < FALL_MAX_GRAVITY:
+                self.player.dy += FALL_ACCELERATION
+            self.player.dy = min(self.player.dy, FALL_MAX_GRAVITY)
         if self.player.state == PlayerState.WALL_SLIDING:
             # When you first grab the wall, don't start sliding for a while.
             if self.wall_slide_counter > 0:
@@ -131,15 +167,6 @@ class Level:
                 self.player.dy = 0
             else:
                 self.player.dy = WALL_SLIDE_SPEED
-        elif self.player.state == PlayerState.STANDING:
-            # Fall at least one pixel so that we hit the ground again.
-            self.player.dy = max(self.player.dy, 16)
-        else:
-            # Apply gravity.
-            if self.player.dy < MAX_GRAVITY:
-                self.player.dy += GRAVITY_ACCELERATION
-            if self.player.dy > MAX_GRAVITY:
-                self.player.dy = MAX_GRAVITY
 
     class PlatformIntersectionResult:
         offset_sub: int
@@ -222,7 +249,9 @@ class Level:
             result.on_tile_ids = set(move_result1.tile_ids)
             result.on_platforms = set(move_result1.platforms)
         if forward == Direction.UP:
-            if self.player.state != PlayerState.AIRBORNE:
+            # If we're traveling up, then if we hit something below, it's not the ground,
+            # unless we're standing on a platform.
+            if self.player.state != PlayerState.JUMPING and self.player.state != PlayerState.FALLING:
                 result.on_ground = move_result2.offset_sub != 0
             result.hit_ceiling = move_result1.offset_sub != 0
             result.on_tile_ids = set(move_result2.tile_ids)
@@ -407,7 +436,8 @@ class Level:
     class PlayerMovementResult:
         on_ground: bool = False
         pushing_against_wall: bool = False
-        jump_pressed: bool = False
+        jump_down: bool = False
+        jump_triggered: bool = False
         crouch_down: bool = False
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
@@ -422,7 +452,8 @@ class Level:
 
         result.on_ground = y_result.on_ground
         result.pushing_against_wall = x_result.pushing_against_wall
-        result.jump_pressed = inputs.is_jump_down()
+        result.jump_down = inputs.is_jump_down()
+        result.jump_triggered = inputs.is_jump_triggered()
         result.crouch_down = inputs.is_crouch_down()
         result.stuck_in_wall = x_result.stuck_in_wall or y_result.stuck_in_wall
         result.crushed_by_platform = x_result.crushed_by_platform or y_result.crushed_by_platform
@@ -435,23 +466,23 @@ class Level:
             self.player.is_dead = True
         elif self.player.state == PlayerState.STANDING:
             if not movement.on_ground:
-                self.player.state = PlayerState.AIRBORNE
+                self.player.state = PlayerState.FALLING
                 self.player.dy = 0
                 if self.current_platform is not None:
                     self.player.dx = self.current_platform.dx
             elif movement.crouch_down:
                 self.player.state = PlayerState.CROUCHING
-            elif movement.jump_pressed:
+            elif movement.jump_triggered:
                 if self.current_door is not None:
                     if self.current_door.is_open:
                         self.player.state = PlayerState.STOPPED
                         self.current_door.close()
                 else:
-                    self.player.state = PlayerState.AIRBORNE
-                    self.player.dy = -1 * JUMP_SPEED
+                    self.player.state = PlayerState.JUMPING
+                    self.player.dy = -1 * JUMP_INITIAL_SPEED
                     if self.current_platform is not None:
                         self.player.dx += self.current_platform.dx
-        elif self.player.state == PlayerState.AIRBORNE:
+        elif self.player.state == PlayerState.FALLING:
             if movement.on_ground:
                 self.player.state = PlayerState.STANDING
                 self.player.dy = 0
@@ -459,9 +490,18 @@ class Level:
                 if movement.pushing_against_wall and self.player.dy >= 0:
                     self.player.state = PlayerState.WALL_SLIDING
                     self.wall_slide_counter = WALL_SLIDE_TIME
+        elif self.player.state == PlayerState.JUMPING:
+            if movement.on_ground:
+                self.player.state = PlayerState.STANDING
+                self.player.dy = 0
+            elif self.player.dy >= 0:
+                self.player.state = PlayerState.FALLING
+            else:
+                if not movement.jump_down:
+                    self.player.state = PlayerState.FALLING
         elif self.player.state == PlayerState.WALL_SLIDING:
-            if movement.jump_pressed:
-                self.player.state = PlayerState.AIRBORNE
+            if movement.jump_triggered:
+                self.player.state = PlayerState.JUMPING
                 self.player.dy = -1 * WALL_JUMP_VERTICAL_SPEED
                 if self.player.facing_right:
                     self.player.dx = -1 * WALL_JUMP_HORIZONTAL_SPEED
@@ -474,14 +514,14 @@ class Level:
                 self.wall_stick_facing_right = self.player.facing_right
             else:
                 if self.wall_stick_facing_right != self.player.facing_right:
-                    self.player.state = PlayerState.AIRBORNE
+                    self.player.state = PlayerState.FALLING
                 elif self.wall_stick_counter > 0:
                     self.wall_stick_counter -= 1
                 else:
-                    self.player.state = PlayerState.AIRBORNE
+                    self.player.state = PlayerState.FALLING
         elif self.player.state == PlayerState.CROUCHING:
             if not movement.on_ground:
-                self.player.state = PlayerState.AIRBORNE
+                self.player.state = PlayerState.FALLING
                 self.player.dy = 0
             elif not movement.crouch_down:
                 self.player.state = PlayerState.STANDING
@@ -535,8 +575,10 @@ class Level:
                 attribs.append('pushing_against_wall')
             if movement.crouch_down:
                 attribs.append('crouch_down')
-            if movement.jump_pressed:
-                attribs.append('jump_pressed')
+            if movement.jump_triggered:
+                attribs.append('jump_triggered')
+            if movement.jump_down:
+                attribs.append('jump_down')
             if in_wall:
                 attribs.append('in_wall')
             if crushed:
