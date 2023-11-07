@@ -5,7 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from tileset import TileSet, load_tileset
-from utils import Bounds, Direction, intersect, try_move_to_bounds, try_move_to_slope_bounds, cmp_in_direction
+from utils import Bounds, Direction, assert_bool, intersect, try_move_to_bounds, try_move_to_slope_bounds, cmp_in_direction, load_properties
 
 
 class ImageLayer:
@@ -116,6 +116,7 @@ class TileMap:
     layers: list[ImageLayer | TileLayer]
     player_layer: int | None
     objects: list[MapObject]
+    properties: dict[str, str | int | bool]
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str):
         self.width = int(root.attrib['width'])
@@ -127,6 +128,9 @@ class TileMap:
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
         self.tileset = load_tileset(os.path.join(
             os.path.dirname(path), self.tilesetsource))
+
+        self.properties = load_properties(root)
+        print(f'map properties: {self.properties}')
 
         self.layers = []
         for layer in root:
@@ -151,6 +155,10 @@ class TileMap:
                 self.objects.append(MapObject(obj, self.tileset))
         for obj in self.objects:
             print(f'loaded object {obj}')
+
+    @property
+    def is_dark(self) -> bool:
+        return assert_bool(self.properties.get('dark', False))
 
     def is_condition_met(self, tile: int, switches: set[str]):
         condition = self.tileset.get_str_property(tile, 'condition')

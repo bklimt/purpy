@@ -126,6 +126,8 @@ class OpenGLRenderer:
                     pygame.time.get_ticks() / 1000.0)
         glUniform2f(glGetUniformLocation(self.program, 'iTextureSize'),
                     context.logical_size[0], context.logical_size[1])
+        glUniform1i(glGetUniformLocation(self.program, 'iDark'),
+                    context.dark)
 
         ls = context.lights
         if len(ls) > 20:

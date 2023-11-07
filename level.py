@@ -639,6 +639,8 @@ class Level:
         images.font.draw_string(top_bar, (2, 2), self.toast_text)
         context.hud_surface.blit(top_bar, top_bar_area)
 
+        context.dark = self.map.is_dark
+
         spotlight_pos = (player_draw_x + 12, player_draw_y + 12)
         spotlight_radius = 120.0
         context.add_light(spotlight_pos, spotlight_radius)

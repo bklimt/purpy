@@ -12,6 +12,7 @@ uniform sampler2D iPlayerTexture;
 uniform sampler2D iHudTexture;
 
 // Lighting
+uniform bool iDark;
 uniform int iSpotlightCount;
 uniform vec2 iSpotlightPosition[20];
 uniform float iSpotlightRadius[20];
@@ -56,6 +57,9 @@ vec4 scanline(float y) {
 }
 
 vec4 spotlight(vec2 position) {
+    if (!iDark) {
+        return vec4(1.0, 1.0, 1.0, 0.0);
+    }
     if (iSpotlightCount == 0) {
         return vec4(1.0, 1.0, 1.0, 0.0);
     }

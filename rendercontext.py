@@ -20,6 +20,7 @@ class RenderContext:
     foreground_surface: pygame.Surface
     player_surface: pygame.Surface
     background_surface: pygame.Surface
+    dark: bool = False
     lights: list[Light]
 
     def __init__(self, logical_size: tuple[int, int]):
