@@ -5,6 +5,44 @@
   <property name="animations" value="tiles"/>
  </properties>
  <image source="purple.png" width="128" height="128"/>
+ <tile id="6">
+  <properties>
+   <property name="left_y" type="int" value="0"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="7">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="8"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="22">
+  <properties>
+   <property name="left_y" type="int" value="8"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="23">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="0"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="39">
+  <properties>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="55">
+  <properties>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
  <tile id="128">
   <properties>
    <property name="bagel" type="bool" value="true"/>

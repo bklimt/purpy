@@ -12,6 +12,15 @@
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Python: utils_test.py",
+            "type": "python",
+            "request": "launch",
+            "program": "utils_test.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }

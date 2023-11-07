@@ -55,6 +55,7 @@ class Level:
     doors: list[Door]
 
     current_platform: Platform | None = None
+    current_slopes: set[int]
     switches: set[str]
     current_switch_tiles: set[int]
     current_door: Door | None
@@ -76,6 +77,7 @@ class Level:
         self.switches = set()
         self.current_switch_tiles = set()
         self.star_count = 0
+        self.current_slopes = set()
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
                 self.platforms.append(MovingPlatform(obj, self.map.tileset))
@@ -183,11 +185,11 @@ class Level:
             player_rect, direction)
 
         result = Level.TryMovePlayerResult()
-        if cmp_in_direction(platform_result.offset_sub, map_result.offset_sub, direction) <= 0:
+        if cmp_in_direction(platform_result.offset_sub, map_result.hard_offset_sub, direction) <= 0:
             result.offset_sub = platform_result.offset_sub
             result.platforms = platform_result.platforms
         else:
-            result.offset_sub = map_result.offset_sub
+            result.offset_sub = map_result.hard_offset_sub
             result.tile_ids = map_result.tile_ids
 
         return result
@@ -286,9 +288,28 @@ class Level:
     class MovePlayerYResult:
         on_ground: bool = False
         platforms: set[Platform] = set()
-        tiles_ids: set[int] = set()
+        tile_ids: set[int] = set()
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
+
+    def get_slope_dy(self):
+        slope_fall = 0
+        for slope in self.current_slopes:
+            left_y = self.map.tileset.get_int_property(
+                slope, 'left_y') or 0
+            right_y = self.map.tileset.get_int_property(
+                slope, 'right_y') or 0
+            fall: int = 0
+            if self.player.dx > 0 or (self.player.dx == 0 and self.player.facing_right):
+                # The player is facing right.
+                if right_y > left_y:
+                    fall = (right_y - left_y) * 16
+            else:
+                # The player is facing left.
+                if left_y > right_y:
+                    fall = (left_y - right_y) * 16
+            slope_fall = max(fall, slope_fall)
+        return slope_fall
 
     def move_player_y(self, sounds: SoundManager) -> MovePlayerYResult:
         result = Level.MovePlayerYResult()
@@ -297,6 +318,11 @@ class Level:
         if self.current_platform is not None:
             # This could be positive or negative.
             dy += self.current_platform.dy
+
+        # If you're on a slope, make sure to fall at least the slope amount.
+        if dy >= 0:
+            dy = max(dy, self.get_slope_dy())
+
         self.player.y += dy
 
         def inc_y(offset):
@@ -311,21 +337,30 @@ class Level:
             result.on_ground = move_result.on_ground
             result.crushed_by_platform = move_result.crushed_by_platform
             result.stuck_in_wall = move_result.stuck_in_wall
+
+            self.handle_slopes(move_result.on_tile_ids)
             self.handle_current_platforms(move_result.on_platforms)
         else:
             # Moving down.
             move_result = self.move_and_check(Direction.DOWN, inc_y)
             result.on_ground = move_result.on_ground
-            result.tiles_ids = set(move_result.on_tile_ids)
+            result.tile_ids = set(move_result.on_tile_ids)
             result.platforms = set(move_result.on_platforms)
             result.crushed_by_platform = move_result.crushed_by_platform
             result.stuck_in_wall = move_result.stuck_in_wall
 
             self.handle_spikes(move_result.on_tile_ids)
             self.handle_switch_tiles(move_result.on_tile_ids, sounds)
+            self.handle_slopes(move_result.on_tile_ids)
             self.handle_current_platforms(move_result.on_platforms)
 
         return result
+
+    def handle_slopes(self, tiles: set[int]) -> None:
+        self.current_slopes.clear()
+        for tile_id in tiles:
+            if self.map.tileset.get_bool_property(tile_id, 'slope', False):
+                self.current_slopes.add(tile_id)
 
     def handle_spikes(self, tiles: set[int]):
         for tile_id in tiles:
@@ -510,6 +545,8 @@ class Level:
                 attribs.append('idle')
             if self.current_platform is not None:
                 attribs.append(f'platform={self.current_platform.id}')
+            if len(self.current_slopes) > 0:
+                attribs.append(f'slopes={self.current_slopes}')
             transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
