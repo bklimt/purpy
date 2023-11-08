@@ -145,7 +145,6 @@ class OpenGLRenderer:
                      [l.radius for l in ls])
 
     def render(self, context: RenderContext):
-        # TODO: Render every surface.
         surface = context.player_surface
 
         glClearColor(0, 0, 1, 1)
@@ -167,6 +166,7 @@ class OpenGLRenderer:
         glDrawArrays(GL_QUADS, 0, 4)
         glDisableClientState(GL_TEXTURE_COORD_ARRAY)
 
+        hud_texture.free()
         player_texture.free()
 
         pygame.display.flip()
