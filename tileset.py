@@ -4,8 +4,9 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from slope import Slope
 from spritesheet import Animation
-from utils import assert_bool, assert_int, load_properties
+from utils import assert_bool, load_properties
 
 
 class TileSetImage:
@@ -17,23 +18,6 @@ class TileSetImage:
         self.source = node.attrib['source']
         self.width = int(node.attrib['width'])
         self.height = int(node.attrib['height'])
-
-
-class Slope:
-    left_y: int
-    right_y: int
-
-    def __init__(self, properties: dict[str, str | int | bool]):
-        self.left_y = assert_int(properties.get('left_y', 0))
-        self.right_y = assert_int(properties.get('right_y', 0))
-
-    @property
-    def left_y_sub(self):
-        return self.left_y * 16
-
-    @property
-    def right_y_sub(self):
-        return self.right_y * 16
 
 
 class TileSet:
