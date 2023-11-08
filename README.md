@@ -10,7 +10,6 @@ purpy
 * `python3 main.py`
 
 ## TODO
-* Implement grace if pressing button early.
 * Implement saving which stars you have.
 * Implement better menus.
 * Improve controls.

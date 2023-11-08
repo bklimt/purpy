@@ -24,6 +24,7 @@ SLIDE_SPEED_DECELERATION = 1
 
 # Horizontal speed.
 COYOTE_TIME = 6  # How long to hover in the air before officially falling.
+JUMP_GRACE_TIME = 12  # How long to remember jump was pressed while falling.
 JUMP_INITIAL_SPEED = 48
 JUMP_ACCELERATION = 2
 JUMP_MAX_GRAVITY = 32
@@ -55,6 +56,7 @@ class Level:
     wall_slide_counter: int = WALL_SLIDE_TIME
 
     coyote_counter: int = COYOTE_TIME
+    jump_grace_counter: int = 0
 
     previous_map_offset: None | tuple[int, int]
     toast_text: str
@@ -478,6 +480,9 @@ class Level:
             if self.coyote_counter > 0:
                 self.coyote_counter -= 1
 
+        if self.jump_grace_counter > 0:
+            self.jump_grace_counter -= 1
+
         if movement.crushed_by_platform:
             self.player.state = PlayerState.STOPPED
             self.player.is_dead = True
@@ -489,17 +494,20 @@ class Level:
                     self.player.dx = self.current_platform.dx
             elif movement.crouch_down:
                 self.player.state = PlayerState.CROUCHING
-            elif movement.jump_triggered:
+            elif movement.jump_triggered or self.jump_grace_counter > 0:
                 if self.current_door is not None:
                     if self.current_door.is_open:
                         self.player.state = PlayerState.STOPPED
                         self.current_door.close()
                 else:
+                    self.jump_grace_counter = 0
                     self.player.state = PlayerState.JUMPING
                     self.player.dy = -1 * JUMP_INITIAL_SPEED
                     if self.current_platform is not None:
                         self.player.dx += self.current_platform.dx
         elif self.player.state == PlayerState.FALLING:
+            if movement.jump_triggered:
+                self.jump_grace_timer = JUMP_GRACE_TIME
             if movement.on_ground:
                 self.player.state = PlayerState.STANDING
                 self.player.dy = 0
