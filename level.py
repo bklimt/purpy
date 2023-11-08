@@ -27,7 +27,7 @@ JUMP_INITIAL_SPEED = 48
 JUMP_ACCELERATION = 2
 JUMP_MAX_GRAVITY = 32
 FALL_ACCELERATION = 5
-FALL_MAX_GRAVITY = 48
+FALL_MAX_GRAVITY = 32
 
 # Wall sliding.
 WALL_SLIDE_SPEED = 4
@@ -258,7 +258,8 @@ class Level:
         if forward == Direction.UP:
             # If we're traveling up, then if we hit something below, it's not the ground,
             # unless we're standing on a platform.
-            if self.player.state != PlayerState.JUMPING and self.player.state != PlayerState.FALLING:
+            if (self.player.state != PlayerState.JUMPING and
+                    self.player.state != PlayerState.FALLING):
                 result.on_ground = move_result2.offset_sub != 0
             result.hit_ceiling = move_result1.offset_sub != 0
             result.on_tile_ids = set(move_result2.tile_ids)
@@ -506,6 +507,7 @@ class Level:
             else:
                 if not movement.jump_down:
                     self.player.state = PlayerState.FALLING
+                    self.player.dy = 0
         elif self.player.state == PlayerState.WALL_SLIDING:
             if movement.jump_triggered:
                 self.player.state = PlayerState.JUMPING
