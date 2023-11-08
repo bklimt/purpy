@@ -5,7 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from tileset import TileSet, load_tileset
-from utils import Bounds, Direction, assert_bool, intersect, try_move_to_bounds, try_move_to_slope_bounds, cmp_in_direction, load_properties
+from utils import *
 
 
 class ImageLayer:
@@ -368,20 +368,13 @@ class TileMap:
                             direction)
                         hard_offset_sub = soft_offset_sub
 
-                        if self.tileset.get_bool_property(index, 'slope', False):
-                            left_y = self.tileset.get_int_property(
-                                index, 'left_y')
-                            right_y = self.tileset.get_int_property(
-                                index, 'right_y')
-                            if left_y is None:
-                                left_y = 0
-                            if right_y is None:
-                                right_y = 0
+                        if self.tileset.is_slope(index):
+                            slope = self.tileset.get_slope(index)
                             hard_offset_sub = try_move_to_slope_bounds(
                                 bounds,
                                 tile_bounds,
-                                left_y,
-                                right_y,
+                                slope.left_y,
+                                slope.right_y,
                                 direction)
 
                         result.consider_tile(

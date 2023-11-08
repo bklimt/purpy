@@ -5,7 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from spritesheet import Animation
-from utils import load_properties
+from utils import assert_bool, assert_int, load_properties
 
 
 class TileSetImage:
@@ -19,6 +19,23 @@ class TileSetImage:
         self.height = int(node.attrib['height'])
 
 
+class Slope:
+    left_y: int
+    right_y: int
+
+    def __init__(self, properties: dict[str, str | int | bool]):
+        self.left_y = assert_int(properties.get('left_y', 0))
+        self.right_y = assert_int(properties.get('right_y', 0))
+
+    @property
+    def left_y_sub(self):
+        return self.left_y * 16
+
+    @property
+    def right_y_sub(self):
+        return self.right_y * 16
+
+
 class TileSet:
     name: str
     tilewidth: int
@@ -28,6 +45,7 @@ class TileSet:
     image: TileSetImage
     surface: pygame.Surface
     animations: dict[int, Animation]
+    slopes: dict[int, Slope]
     properties: dict[str, str | bool | int]
     tile_properties: dict[int, dict[str, str | bool | int]]
 
@@ -47,10 +65,14 @@ class TileSet:
 
         self.properties = load_properties(root)
 
+        self.slopes = {}
         self.tile_properties = {}
         for tile in [tile for tile in root if tile.tag == 'tile']:
             tile_id = int(tile.attrib['id'])
             self.tile_properties[tile_id] = load_properties(tile)
+            if assert_bool(self.tile_properties[tile_id].get('slope', False)):
+                self.slopes[tile_id] = Slope(self.tile_properties[tile_id])
+
         print(f'tileset properties: {self.properties}')
         print(f'tile properties: {self.tile_properties}')
 
@@ -77,6 +99,12 @@ class TileSet:
                 self.animations[tile_id] = animation
             else:
                 print(f'skipping file {filename}')
+
+    def is_slope(self, tile_id: int) -> bool:
+        return tile_id in self.slopes
+
+    def get_slope(self, tile_id: int) -> Slope:
+        return self.slopes[tile_id]
 
     def update_animations(self):
         for tile_id in self.animations.keys():

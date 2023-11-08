@@ -227,7 +227,20 @@ def load_properties(
 
     return properties
 
+
 def assert_bool(val: bool | int | str) -> bool:
     if not isinstance(val, bool):
         raise Exception(f'expected bool, got {val}')
+    return val
+
+
+def assert_int(val: bool | int | str) -> int:
+    if not isinstance(val, int):
+        raise Exception(f'expected int, got {val}')
+    return val
+
+
+def assert_str(val: bool | int | str) -> str:
+    if not isinstance(val, str):
+        raise Exception(f'expected str, got {val}')
     return val

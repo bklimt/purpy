@@ -336,11 +336,10 @@ class Level:
 
     def get_slope_dy(self):
         slope_fall = 0
-        for slope in self.current_slopes:
-            left_y = self.map.tileset.get_int_property(
-                slope, 'left_y') or 0
-            right_y = self.map.tileset.get_int_property(
-                slope, 'right_y') or 0
+        for slope_id in self.current_slopes:
+            slope = self.map.tileset.get_slope(slope_id)
+            left_y = slope.left_y
+            right_y = slope.right_y
             fall: int = 0
             if self.player.dx > 0 or (self.player.dx == 0 and self.player.facing_right):
                 # The player is facing right.
