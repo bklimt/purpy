@@ -61,7 +61,7 @@ class Platform:
             area = self.tileset.get_source_rect(self.tile_id)
             surface.blit(self.tileset.surface, (x, y), area)
 
-    def try_move_to(self, player_rect: Bounds, direction: Direction) -> int:
+    def try_move_to(self, player_rect: Bounds, direction: Direction, is_backwards: bool) -> int:
         if self.is_solid:
             area = Bounds(
                 self.x,
@@ -71,6 +71,8 @@ class Platform:
             return try_move_to_bounds(player_rect, area, direction)
         else:
             if direction != Direction.DOWN:
+                return 0
+            if is_backwards:
                 return 0
             area = Bounds(
                 self.x,

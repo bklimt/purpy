@@ -51,9 +51,9 @@
   <object id="18" gid="129" x="248" y="56" width="8" height="8"/>
   <object id="19" gid="129" x="256" y="56" width="8" height="8"/>
   <object id="20" gid="129" x="264" y="56" width="8" height="8"/>
-  <object id="21" gid="129" x="192" y="128" width="8" height="8"/>
-  <object id="22" gid="129" x="200" y="128" width="8" height="8"/>
-  <object id="23" gid="129" x="208" y="128" width="8" height="8"/>
-  <object id="24" gid="129" x="216" y="128" width="8" height="8"/>
+  <object id="21" gid="129" x="192" y="136" width="8" height="8"/>
+  <object id="22" gid="129" x="200" y="136" width="8" height="8"/>
+  <object id="23" gid="129" x="208" y="136" width="8" height="8"/>
+  <object id="24" gid="129" x="216" y="136" width="8" height="8"/>
  </objectgroup>
 </map>

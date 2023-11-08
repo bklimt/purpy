@@ -269,10 +269,12 @@ class TileMap:
             self.tilewidth,
             self.tileheight)
 
-    def is_solid_in_direction(self, tile_id: int, direction: Direction) -> bool:
+    def is_solid_in_direction(self, tile_id: int, direction: Direction, is_backwards: bool) -> bool:
         oneway = self.tileset.get_str_property(tile_id, 'oneway')
         if oneway is None:
             return True
+        if is_backwards:
+            return False
         match direction:
             case Direction.UP:
                 return oneway == 'S'
@@ -315,7 +317,8 @@ class TileMap:
     def try_move_to(self,
                     bounds: Bounds,
                     direction: Direction,
-                    switches: set[str]) -> MoveResult:
+                    switches: set[str],
+                    is_backwards: bool) -> MoveResult:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()
         player_rect = bounds.rect
@@ -356,7 +359,7 @@ class TileMap:
                             index = alt
                         if not self.tileset.get_bool_property(index, 'solid', True):
                             continue
-                        if not self.is_solid_in_direction(index, direction):
+                        if not self.is_solid_in_direction(index, direction, is_backwards):
                             continue
 
                         soft_offset_sub = try_move_to_bounds(

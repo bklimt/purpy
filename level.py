@@ -19,19 +19,20 @@ from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
 # Vertical speed.
 TARGET_WALK_SPEED = 24
 WALK_SPEED_ACCELERATION = 1
-WALK_SPEED_DECELERATION = 2
+WALK_SPEED_DECELERATION = 3
 SLIDE_SPEED_DECELERATION = 1
 
 # Horizontal speed.
-JUMP_INITIAL_SPEED = 38
-JUMP_ACCELERATION = 1
+JUMP_INITIAL_SPEED = 48
+JUMP_ACCELERATION = 2
 JUMP_MAX_GRAVITY = 32
 FALL_ACCELERATION = 5
 FALL_MAX_GRAVITY = 48
 
+# Wall sliding.
 WALL_SLIDE_SPEED = 4
-WALL_JUMP_HORIZONTAL_SPEED = 24
-WALL_JUMP_VERTICAL_SPEED = 24
+WALL_JUMP_HORIZONTAL_SPEED = 48
+WALL_JUMP_VERTICAL_SPEED = 48
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 
@@ -124,26 +125,26 @@ class Level:
             # We're facing right.
             if target_dx > self.player.dx:
                 self.player.dx += WALK_SPEED_ACCELERATION
-                self.player.dx = max(target_dx, self.player.dx)
+                self.player.dx = min(target_dx, self.player.dx)
             if target_dx < self.player.dx:
                 self.player.dx -= WALK_SPEED_DECELERATION
-                self.player.dx = min(target_dx, self.player.dx)
+                self.player.dx = max(target_dx, self.player.dx)
         elif self.player.dx < 0:
             # We're facing left.
             if target_dx > self.player.dx:
                 self.player.dx += WALK_SPEED_DECELERATION
-                self.player.dx = max(target_dx, self.player.dx)
+                self.player.dx = min(target_dx, self.player.dx)
             if target_dx < self.player.dx:
                 self.player.dx -= WALK_SPEED_ACCELERATION
-                self.player.dx = min(target_dx, self.player.dx)
+                self.player.dx = max(target_dx, self.player.dx)
         else:
             # We're stopped.
             if target_dx > self.player.dx:
                 self.player.dx += WALK_SPEED_ACCELERATION
-                self.player.dx = max(target_dx, self.player.dx)
+                self.player.dx = min(target_dx, self.player.dx)
             if target_dx < self.player.dx:
                 self.player.dx -= WALK_SPEED_ACCELERATION
-                self.player.dx = min(target_dx, self.player.dx)
+                self.player.dx = max(target_dx, self.player.dx)
 
     def update_player_trajectory_y(self, inputs: InputManager):
         if (self.player.state == PlayerState.STANDING or
@@ -176,10 +177,15 @@ class Level:
             self.offset_sub = 0
             self.platforms = set()
 
-    def find_platform_intersections(self, player_rect: Bounds, direction: Direction) -> PlatformIntersectionResult:
+    def find_platform_intersections(self,
+                                    player_rect: Bounds,
+                                    direction: Direction,
+                                    is_backwards: bool = False
+                                    ) -> PlatformIntersectionResult:
         result = Level.PlatformIntersectionResult()
         for platform in self.platforms:
-            distance = platform.try_move_to(player_rect, direction)
+            distance = platform.try_move_to(
+                player_rect, direction, is_backwards)
             if distance == 0:
                 continue
 
@@ -202,14 +208,14 @@ class Level:
             self.tile_ids = set()
             self.platforms = set()
 
-    def try_move_player(self, direction: Direction) -> TryMovePlayerResult:
+    def try_move_player(self, direction: Direction, is_backwards: bool = False) -> TryMovePlayerResult:
         """ Returns how far this player needs to move in direction to not intersect, in sub-pixels. """
         player_rect = self.player.get_target_bounds_rect(direction)
 
         map_result = self.map.try_move_to(
-            player_rect, direction, self.switches)
+            player_rect, direction, self.switches, is_backwards)
         platform_result = self.find_platform_intersections(
-            player_rect, direction)
+            player_rect, direction, is_backwards)
 
         result = Level.TryMovePlayerResult()
         if cmp_in_direction(platform_result.offset_sub, map_result.hard_offset_sub, direction) <= 0:
@@ -239,7 +245,8 @@ class Level:
         apply_offset(move_result1.offset_sub)
 
         # Try the opposite direction.
-        move_result2 = self.try_move_player(opposite_direction(forward))
+        move_result2 = self.try_move_player(
+            opposite_direction(forward), is_backwards=True)
         offset_sub = move_result2.offset_sub
         apply_offset(offset_sub)
 
