@@ -23,6 +23,7 @@ WALK_SPEED_DECELERATION = 3
 SLIDE_SPEED_DECELERATION = 1
 
 # Horizontal speed.
+COYOTE_TIME = 6  # How long to hover in the air before officially falling.
 JUMP_INITIAL_SPEED = 48
 JUMP_ACCELERATION = 2
 JUMP_MAX_GRAVITY = 32
@@ -52,6 +53,8 @@ class Level:
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
     wall_slide_counter: int = WALL_SLIDE_TIME
+
+    coyote_counter: int = COYOTE_TIME
 
     previous_map_offset: None | tuple[int, int]
     toast_text: str
@@ -469,11 +472,17 @@ class Level:
         return result
 
     def update_player_state(self, movement: PlayerMovementResult):
+        if movement.on_ground:
+            self.coyote_counter = COYOTE_TIME
+        else:
+            if self.coyote_counter > 0:
+                self.coyote_counter -= 1
+
         if movement.crushed_by_platform:
             self.player.state = PlayerState.STOPPED
             self.player.is_dead = True
         elif self.player.state == PlayerState.STANDING:
-            if not movement.on_ground:
+            if self.coyote_counter == 0:
                 self.player.state = PlayerState.FALLING
                 self.player.dy = 0
                 if self.current_platform is not None:

@@ -10,6 +10,7 @@ purpy
 * `python3 main.py`
 
 ## TODO
+* Implement grace if pressing button early.
 * Implement saving which stars you have.
 * Implement better menus.
 * Improve controls.
@@ -19,6 +20,9 @@ purpy
 Maps are edited using [Tiled](https://www.mapeditor.org/). In general, maps can be any size. The expected size of the screen is **`80x44` tiles**. Each tile should be **`8x8` pixels**.
 
 Several different layer types are supported. `Background` and `Tile` layers are rendered bottom-to-top. `Object` layers are handled using separate logic.
+
+*Properties*
+* `bool dark` - If this is set to `true`, then the level will be dark, except where the player and stars are.
 
 ## Tile Layers
 
