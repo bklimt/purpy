@@ -1,4 +1,5 @@
 
+import math
 import pygame
 
 from player import Player
@@ -184,6 +185,7 @@ class Conveyor(Platform):
 
 
 class Wire(Platform):
+    t: int = 0
     width: int
     height: int
     wire_y_sub: list[int]
@@ -201,11 +203,13 @@ class Wire(Platform):
             self.wire_dy_sub.append(0)
 
     def update(self):
-        for _ in range(3):
-            new_wire_y_sub = []
+        self.t += 1
+        new_wire_y_sub = []
+        for _ in range(5):
             for i in range(self.width):
+                # int((math.sin(self.t / 20.0) * (self.height*800)) + (self.height*800))
                 left = 0
-                right = 0
+                right = 0  # self.height*800
                 center = self.wire_y_sub[i]  # + self.wire_dy_sub[i]
                 if i > 0:
                     left = self.wire_y_sub[i - 1]
@@ -215,7 +219,8 @@ class Wire(Platform):
                 # num = 3 * left * center * right
                 # den = left * center + center * right + left * right
                 # avg = 0 if den == 0 else num // den
-                avg = (2 * left + center + 2 * right) // 5
+                n = 1
+                avg = (n*left + center + n*right) // (2*n + 1)
                 if avg < 0:
                     avg = 0
                 if avg >= self.height * 16:
@@ -296,6 +301,6 @@ class Wire(Platform):
             return
         # self.wire_y_sub[i] = randint(0, area.h_sub - 1)
         self.wire_y_sub[i] = area.h_sub - 1
-        self.wire_dy_sub[i] = 0
+        # self.wire_dy_sub[i] = 0
 
         self.update()
