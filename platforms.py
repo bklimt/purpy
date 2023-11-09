@@ -181,3 +181,121 @@ class Conveyor(Platform):
 
     def update(self):
         pass
+
+
+class Wire(Platform):
+    width: int
+    height: int
+    wire_y_sub: list[int]
+    wire_dy_sub: list[int]
+
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        obj.gid = 1
+        super().__init__(obj, tileset)
+        self.wire_y_sub = []
+        self.wire_dy_sub = []
+        self.width = obj.width
+        self.height = obj.height
+        for i in range(self.width):
+            self.wire_y_sub.append(randint(0, (self.height * 16) - 1))
+            self.wire_dy_sub.append(0)
+
+    def update(self):
+        for _ in range(3):
+            new_wire_y_sub = []
+            for i in range(self.width):
+                left = 0
+                right = 0
+                center = self.wire_y_sub[i]  # + self.wire_dy_sub[i]
+                if i > 0:
+                    left = self.wire_y_sub[i - 1]
+                if i < len(self.wire_y_sub) - 1:
+                    right = self.wire_y_sub[i + 1]
+                # Compute the harmonic mean.
+                # num = 3 * left * center * right
+                # den = left * center + center * right + left * right
+                # avg = 0 if den == 0 else num // den
+                avg = (2 * left + center + 2 * right) // 5
+                if avg < 0:
+                    avg = 0
+                if avg >= self.height * 16:
+                    avg = self.height * 16 - 1
+                new_wire_y_sub.append(avg)
+                self.wire_dy_sub[i] = avg - self.wire_y_sub[i]
+            self.wire_y_sub = new_wire_y_sub
+
+    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
+        x = self.x//16 + offset[0]
+        y = self.y//16 + offset[1]
+
+        for i in range(self.width):
+            yy = y + (self.wire_y_sub[i] // 16)
+            surface.set_at((x + i, yy), pygame.Color(255, 255, 255))
+
+    def try_move_to(self, player_rect: Bounds, direction: Direction, is_backwards: bool) -> int:
+        if direction != Direction.DOWN:
+            return 0
+        if is_backwards:
+            return 0
+
+        area = Bounds(
+            self.x,
+            self.y,
+            self.width * 16,
+            self.height * 16)
+
+        if player_rect.bottom_sub <= area.top_sub:
+            return 0
+        if player_rect.top_sub >= area.bottom_sub:
+            return 0
+        if player_rect.right_sub <= area.left_sub:
+            return 0
+        if player_rect.left_sub >= area.right_sub:
+            return 0
+
+        if direction != Direction.DOWN:
+            return 0
+
+        actor_center_x_sub = (player_rect.left_sub +
+                              player_rect.right_sub) // 2
+        i = (actor_center_x_sub - area.x_sub) // 16
+        i = (actor_center_x_sub - area.x_sub) // 16
+        if i < 0:
+            return 0
+        if i >= len(self.wire_y_sub):
+            return 0
+        target_y_sub: int = area.y_sub + self.wire_y_sub[i]
+
+        if target_y_sub < player_rect.bottom_sub:
+            return target_y_sub - player_rect.bottom_sub
+        else:
+            return 0
+
+    def pluck(self, player_rect: Bounds):
+        area = Bounds(
+            self.x,
+            self.y,
+            self.width * 16,
+            self.height * 16)
+
+        if player_rect.bottom_sub < area.top_sub:
+            return
+        if player_rect.top_sub >= area.bottom_sub:
+            return
+        if player_rect.right_sub <= area.left_sub:
+            return
+        if player_rect.left_sub >= area.right_sub:
+            return
+
+        actor_center_x_sub = (player_rect.left_sub +
+                              player_rect.right_sub) // 2
+        i = (actor_center_x_sub - area.x_sub) // 16
+        if i < 0:
+            return
+        if i >= len(self.wire_y_sub):
+            return
+        # self.wire_y_sub[i] = randint(0, area.h_sub - 1)
+        self.wire_y_sub[i] = area.h_sub - 1
+        self.wire_dy_sub[i] = 0
+
+        self.update()

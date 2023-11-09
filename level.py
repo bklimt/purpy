@@ -8,7 +8,7 @@ from imagemanager import ImageManager
 from inputmanager import InputManager
 from kill import KillScreen
 from player import Player, PlayerState
-from platforms import Bagel, Conveyor, MovingPlatform, Platform
+from platforms import Bagel, Conveyor, MovingPlatform, Platform, Wire
 from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import Sound, SoundManager
@@ -99,6 +99,8 @@ class Level:
                 self.platforms.append(Bagel(obj, self.map.tileset))
             if obj.properties.get('convey', '') != '':
                 self.platforms.append(Conveyor(obj, self.map.tileset))
+            if obj.properties.get('wire', False):
+                self.platforms.append(Wire(obj, self.map.tileset))
             if obj.properties.get('door', False):
                 self.doors.append(Door(obj))
             if obj.properties.get('star', False):
@@ -561,6 +563,10 @@ class Level:
 
         for platform in self.platforms:
             platform.update()
+
+        if isinstance(self.current_platform, Wire):
+            player_rect = self.player.get_target_bounds_rect(Direction.DOWN)
+            self.current_platform.pluck(player_rect)
 
         movement = Level.PlayerMovementResult()
         if self.player.state != PlayerState.STOPPED:

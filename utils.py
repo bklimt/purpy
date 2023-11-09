@@ -137,58 +137,6 @@ def try_move_to_bounds(actor: Bounds, target: Bounds, direction: Direction) -> i
     raise Exception('unimplemented')
 
 
-def try_move_to_slope_bounds(
-        actor: Bounds,
-        target: Bounds,
-        left_y: int,
-        right_y: int,
-        direction: Direction) -> int:
-    """Try to move the actor rect in direction by delta and see if it intersects target.
-
-    Returns the maximum distance the actor can move.
-    """
-
-    if actor.bottom_sub <= target.top_sub:
-        return 0
-    if actor.top_sub >= target.bottom_sub:
-        return 0
-    if actor.right_sub <= target.left_sub:
-        return 0
-    if actor.left_sub >= target.right_sub:
-        return 0
-
-    if direction != Direction.DOWN:
-        return 0
-
-    left_y_sub = left_y * 16
-    right_y_sub = right_y * 16
-
-    target_y_sub: int = actor.bottom_sub
-    actor_center_x_sub = (actor.left_sub + actor.right_sub) // 2
-
-    if actor_center_x_sub < target.left_sub:
-        target_y_sub = target.top_sub + left_y_sub
-    elif actor_center_x_sub > target.right_sub:
-        target_y_sub = target.top_sub + right_y_sub
-    else:
-        x_sub_offset = actor_center_x_sub - target.x_sub
-        slope_sub = (right_y_sub - left_y_sub) / target.w_sub
-        target_y_sub = int(target.y_sub + slope_sub *
-                           x_sub_offset + left_y_sub)
-
-        if False:
-            print(f'center_x = {actor_center_x_sub}')
-            print(f'x_offset = {x_sub_offset}')
-            print(f'slope = {slope_sub}')
-            print(f'target_y_sub = {target_y_sub}')
-            print(f'actor_bottom = {actor.bottom_sub}')
-
-    if target_y_sub < actor.bottom_sub:
-        return target_y_sub - actor.bottom_sub
-    else:
-        return 0
-
-
 def intersect(rect1: pygame.Rect, rect2: pygame.Rect) -> bool:
     if rect1.right < rect2.left:
         return False
