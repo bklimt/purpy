@@ -295,6 +295,30 @@
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="204">
+  <properties>
+   <property name="alternate" type="int" value="206"/>
+   <property name="condition" value="orange"/>
+  </properties>
+ </tile>
+ <tile id="205">
+  <properties>
+   <property name="alternate" type="int" value="207"/>
+   <property name="condition" value="purple"/>
+  </properties>
+ </tile>
+ <tile id="206">
+  <properties>
+   <property name="alternate" type="int" value="204"/>
+   <property name="condition" value="!orange"/>
+  </properties>
+ </tile>
+ <tile id="207">
+  <properties>
+   <property name="alternate" type="int" value="205"/>
+   <property name="condition" value="!purple"/>
+  </properties>
+ </tile>
  <tile id="216">
   <properties>
    <property name="button" type="bool" value="true"/>
@@ -314,6 +338,30 @@
    <property name="button" type="bool" value="true"/>
    <property name="color" value="red"/>
    <property name="solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="220">
+  <properties>
+   <property name="alternate" type="int" value="222"/>
+   <property name="condition" value="pink"/>
+  </properties>
+ </tile>
+ <tile id="221">
+  <properties>
+   <property name="alternate" type="int" value="0"/>
+   <property name="condition" value=""/>
+  </properties>
+ </tile>
+ <tile id="222">
+  <properties>
+   <property name="alternate" type="int" value="220"/>
+   <property name="condition" value="!pink"/>
+  </properties>
+ </tile>
+ <tile id="223">
+  <properties>
+   <property name="alternate" type="int" value="0"/>
+   <property name="condition" value=""/>
   </properties>
  </tile>
  <wangsets>
