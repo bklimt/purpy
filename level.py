@@ -3,6 +3,7 @@ import os.path
 import pygame
 import typing
 
+from button import Button
 from door import Door
 from imagemanager import ImageManager
 from inputmanager import InputManager
@@ -13,6 +14,7 @@ from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import Sound, SoundManager
 from star import Star
+from switchstate import SwitchState
 from tilemap import TileMap, load_map
 from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
 
@@ -70,7 +72,7 @@ class Level:
 
     current_platform: Platform | None = None
     current_slopes: set[int]
-    switches: set[str]
+    switches: SwitchState
     current_switch_tiles: set[int]
     current_door: Door | None
 
@@ -88,7 +90,7 @@ class Level:
         self.platforms = []
         self.stars = []
         self.doors = []
-        self.switches = set()
+        self.switches = SwitchState()
         self.current_switch_tiles = set()
         self.star_count = 0
         self.current_slopes = set()
@@ -99,6 +101,8 @@ class Level:
                 self.platforms.append(Bagel(obj, self.map.tileset))
             if obj.properties.get('convey', '') != '':
                 self.platforms.append(Conveyor(obj, self.map.tileset))
+            if obj.properties.get('button', False):
+                self.platforms.append(Button(obj, self.map.tileset))
             if obj.properties.get('door', False):
                 self.doors.append(Door(obj))
             if obj.properties.get('star', False):
@@ -428,22 +432,8 @@ class Level:
             self.current_switch_tiles.add(t)
             if t in previous:
                 continue
-            if switch.startswith('!'):
-                if switch[1:] in self.switches:
-                    sounds.play(Sound.CLICK)
-                    print(f'switched off {switch[1:]}')
-                    self.switches.remove(switch[1:])
-            elif switch.startswith('~'):
-                sounds.play(Sound.CLICK)
-                print(f'toggled {switch[1:]}')
-                if switch[1:] in self.switches:
-                    self.switches.remove(switch[1:])
-                else:
-                    self.switches.add(switch[1:])
-            else:
-                sounds.play(Sound.CLICK)
-                print(f'switched on {switch}')
-                self.switches.add(switch)
+            sounds.play(Sound.CLICK)
+            self.switches.apply_command(switch)
 
     class PlayerMovementResult:
         on_ground: bool = False
@@ -560,7 +550,7 @@ class Level:
         self.map.update_animations()
 
         for platform in self.platforms:
-            platform.update()
+            platform.update(self.switches, sounds)
 
         movement = Level.PlayerMovementResult()
         if self.player.state != PlayerState.STOPPED:

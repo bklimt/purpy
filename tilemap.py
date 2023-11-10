@@ -4,6 +4,7 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from switchstate import SwitchState
 from tileset import TileSet, load_tileset
 from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Bounds, Direction
 
@@ -160,23 +161,20 @@ class TileMap:
     def is_dark(self) -> bool:
         return assert_bool(self.properties.get('dark', False))
 
-    def is_condition_met(self, tile: int, switches: set[str]):
+    def is_condition_met(self, tile: int, switches: SwitchState):
         condition = self.tileset.get_str_property(tile, 'condition')
         if condition is None:
             return True
-        if condition.startswith('!'):
-            return condition[1:] not in switches
-        else:
-            return condition in switches
+        return switches.is_condition_true(condition)
 
-    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
+    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         surface.fill(self.backgroundcolor, dest)
         for layer in self.layers:
             self.draw_layer(surface, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 return
 
-    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
+    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         if self.player_layer is None:
             return
         drawing = False
@@ -186,7 +184,7 @@ class TileMap:
             if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, surface: pygame.Surface, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
+    def draw_layer(self, surface: pygame.Surface, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         # pygame.draw.rect(surface, self.backgroundcolor, dest)
 
         if isinstance(layer, ImageLayer):
@@ -317,7 +315,7 @@ class TileMap:
     def try_move_to(self,
                     bounds: Bounds,
                     direction: Direction,
-                    switches: set[str],
+                    switches: SwitchState,
                     is_backwards: bool) -> MoveResult:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()

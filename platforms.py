@@ -1,10 +1,13 @@
 
 import pygame
+import typing
 
 from player import Player
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
+from soundmanager import SoundManager
+from switchstate import SwitchState
 from utils import try_move_to_bounds, Bounds, Direction
 
 BAGEL_WAIT_TIME = 30
@@ -23,7 +26,24 @@ def sign(n: int) -> int:
     raise Exception('impossible')
 
 
-class Platform:
+class Platform(typing.Protocol):
+    id: int
+    dx: int
+    dy: int
+    is_solid: bool
+    occupied: bool
+
+    def update(self, switches: SwitchState, sounds: SoundManager) -> None:
+        raise Exception('abstract protocol')
+
+    def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
+        raise Exception('abstract protocol')
+
+    def try_move_to(self, player_rect: Bounds, direction: Direction, is_backwards: bool) -> int:
+        raise Exception('abstract protocol')
+
+
+class PlatformBase:
     id: int
     tileset: TileSet
     tile_id: int
@@ -48,7 +68,6 @@ class Platform:
         self.occupied = False
         self.is_solid = bool(obj.properties.get('solid', False))
 
-    def update(self):
         pass
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
@@ -82,7 +101,7 @@ class Platform:
             return try_move_to_bounds(player_rect, area, direction)
 
 
-class MovingPlatform(Platform):
+class MovingPlatform(PlatformBase):
     distance: int
     start_x: int
     start_y: int
@@ -118,7 +137,7 @@ class MovingPlatform(Platform):
         self.dx = sign(self.end_x - self.start_x) * self.speed
         self.dy = sign(self.end_y - self.start_y) * self.speed
 
-    def update(self):
+    def update(self, switches: SwitchState, sounds: SoundManager):
         if self.x == self.end_x:
             self.dx *= -1
             self.start_x, self.end_x = self.end_x, self.start_x
@@ -129,7 +148,7 @@ class MovingPlatform(Platform):
         self.y += self.dy
 
 
-class Bagel(Platform):
+class Bagel(PlatformBase):
     original_y: int
     falling: bool = False
     remaining: int = BAGEL_WAIT_TIME
@@ -147,7 +166,7 @@ class Bagel(Platform):
             y += randint(-1, 1)
         surface.blit(self.tileset.surface, (x, y), area)
 
-    def update(self):
+    def update(self, switches: SwitchState, sounds: SoundManager):
         if self.falling:
             self.remaining -= 1
             if self.remaining == 0:
@@ -170,7 +189,7 @@ class Bagel(Platform):
                 self.remaining = BAGEL_WAIT_TIME
 
 
-class Conveyor(Platform):
+class Conveyor(PlatformBase):
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
         speed = int(obj.properties.get('speed', 24))
@@ -179,5 +198,5 @@ class Conveyor(Platform):
         else:
             self.dx = -1 * speed
 
-    def update(self):
+    def update(self, switches: SwitchState, sounds: SoundManager):
         pass
