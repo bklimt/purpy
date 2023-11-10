@@ -123,9 +123,9 @@ class Player:
             case Direction.DOWN:
                 return Bounds(x+8*16, y+19*16, 8*16, 4*16)
             case Direction.RIGHT:
-                return Bounds(x+12*16, y+4*16, 4*16, 15*16)
+                return Bounds(x+12*16, y+4*16, 4*16, 14*16)
             case Direction.LEFT:
-                return Bounds(x+8*16, y+4*16, 4*16, 15*16)
+                return Bounds(x+8*16, y+4*16, 4*16, 14*16)
 
     def get_target_bounds_rect(self, direction: Direction) -> Bounds:
         """ Returns the bounds rect in pixels to check when moving in direction. """
