@@ -110,6 +110,19 @@ A platform that doesn't move itself, but does move the player when the player is
 * `int speed` - The speed that the belt will move the player. Defaults to `24`.
 * `bool solid` - Works the same as solid on other platforms.
 
+### Buttons
+
+Like a switch, but more flexible, and more aesthetic.
+
+*Properties*
+* `bool button` - If set, makes this object a button.
+* `string color` - The color to toggle when the button is on.
+* `string button_type` - The behavior of the button. Can be one of:
+  * `"toggle"` - Switches between on and off when pressed.
+  * `"momentary"` - Is on only while being pressed.
+  * `"oneshot"` - Can only be turned on once.
+* `bool solid` - Works the same as solid on other platforms.
+
 ### Stars
 
 Stars are little doodads you can collect. They vibrate a little and light up.
