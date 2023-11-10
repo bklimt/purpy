@@ -4,8 +4,9 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from switchstate import SwitchState
 from tileset import TileSet, load_tileset
-from utils import Bounds, Direction, intersect, try_move_to_bounds, cmp_in_direction
+from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Bounds, Direction
 
 
 class ImageLayer:
@@ -116,6 +117,7 @@ class TileMap:
     layers: list[ImageLayer | TileLayer]
     player_layer: int | None
     objects: list[MapObject]
+    properties: dict[str, str | int | bool]
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str):
         self.width = int(root.attrib['width'])
@@ -127,6 +129,9 @@ class TileMap:
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
         self.tileset = load_tileset(os.path.join(
             os.path.dirname(path), self.tilesetsource))
+
+        self.properties = load_properties(root)
+        print(f'map properties: {self.properties}')
 
         self.layers = []
         for layer in root:
@@ -152,23 +157,24 @@ class TileMap:
         for obj in self.objects:
             print(f'loaded object {obj}')
 
-    def is_condition_met(self, tile: int, switches: set[str]):
+    @property
+    def is_dark(self) -> bool:
+        return assert_bool(self.properties.get('dark', False))
+
+    def is_condition_met(self, tile: int, switches: SwitchState):
         condition = self.tileset.get_str_property(tile, 'condition')
         if condition is None:
             return True
-        if condition.startswith('!'):
-            return condition[1:] not in switches
-        else:
-            return condition in switches
+        return switches.is_condition_true(condition)
 
-    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
+    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         surface.fill(self.backgroundcolor, dest)
         for layer in self.layers:
             self.draw_layer(surface, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 return
 
-    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
+    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         if self.player_layer is None:
             return
         drawing = False
@@ -178,7 +184,7 @@ class TileMap:
             if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, surface: pygame.Surface, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: set[str]):
+    def draw_layer(self, surface: pygame.Surface, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         # pygame.draw.rect(surface, self.backgroundcolor, dest)
 
         if isinstance(layer, ImageLayer):
@@ -261,10 +267,12 @@ class TileMap:
             self.tilewidth,
             self.tileheight)
 
-    def is_solid_in_direction(self, tile_id: int, direction: Direction) -> bool:
+    def is_solid_in_direction(self, tile_id: int, direction: Direction, is_backwards: bool) -> bool:
         oneway = self.tileset.get_str_property(tile_id, 'oneway')
         if oneway is None:
             return True
+        if is_backwards:
+            return False
         match direction:
             case Direction.UP:
                 return oneway == 'S'
@@ -277,16 +285,38 @@ class TileMap:
         raise Exception('unexpection direction')
 
     class MoveResult:
-        offset_sub: int = 0
+        # This is the offset that stops the player.
+        hard_offset_sub: int = 0
+        # This is the offset for being on a slope.
+        soft_offset_sub: int = 0
         tile_ids: set[int]
 
         def __init__(self):
             self.tile_ids = set()
 
+        def consider_tile(self,
+                          index: int,
+                          hard_offset_sub: int,
+                          soft_offset_sub: int,
+                          direction: Direction):
+            cmp = cmp_in_direction(
+                hard_offset_sub, self.hard_offset_sub, direction)
+            if cmp < 0:
+                self.hard_offset_sub = hard_offset_sub
+
+            cmp = cmp_in_direction(
+                soft_offset_sub, self.soft_offset_sub, direction)
+            if cmp < 0:
+                self.soft_offset_sub = soft_offset_sub
+                self.tile_ids = set([index])
+            elif cmp == 0:
+                self.tile_ids.add(index)
+
     def try_move_to(self,
                     bounds: Bounds,
                     direction: Direction,
-                    switches: set[str]) -> MoveResult:
+                    switches: SwitchState,
+                    is_backwards: bool) -> MoveResult:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()
         player_rect = bounds.rect
@@ -327,17 +357,24 @@ class TileMap:
                             index = alt
                         if not self.tileset.get_bool_property(index, 'solid', True):
                             continue
-                        if not self.is_solid_in_direction(index, direction):
+                        if not self.is_solid_in_direction(index, direction, is_backwards):
                             continue
-                        offset = try_move_to_bounds(
-                            bounds, tile_bounds, direction)
-                        cmp = cmp_in_direction(
-                            offset, result.offset_sub, direction)
-                        if cmp < 0:
-                            result.offset_sub = offset
-                            result.tile_ids = set([index])
-                        elif cmp == 0:
-                            result.tile_ids.add(index)
+
+                        soft_offset_sub = try_move_to_bounds(
+                            bounds,
+                            tile_bounds,
+                            direction)
+                        hard_offset_sub = soft_offset_sub
+
+                        if self.tileset.is_slope(index):
+                            slope = self.tileset.get_slope(index)
+                            hard_offset_sub = slope.try_move_to_bounds(
+                                bounds,
+                                tile_bounds,
+                                direction)
+
+                        result.consider_tile(
+                            index, hard_offset_sub, soft_offset_sub, direction)
         return result
 
     def intersect(self, bounds: Bounds, switches: set[str]) -> list[int]:

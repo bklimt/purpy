@@ -20,6 +20,9 @@ Maps are edited using [Tiled](https://www.mapeditor.org/). In general, maps can 
 
 Several different layer types are supported. `Background` and `Tile` layers are rendered bottom-to-top. `Object` layers are handled using separate logic.
 
+*Properties*
+* `bool dark` - If this is set to `true`, then the level will be dark, except where the player and stars are.
+
 ## Tile Layers
 
 `Tile` layers are for grids of blocks. If there's more than one tile layer, one of them must be marked as the `player` layer. That is the layer where the player is rendered, and is the only layer the player can interact with directly.
@@ -105,6 +108,19 @@ A platform that doesn't move itself, but does move the player when the player is
 *Properties*
 * `string convey` - If set, makes this object into a conveyor belt. Can be `'E'` or `'W'`, which sets the direction the belt moves.
 * `int speed` - The speed that the belt will move the player. Defaults to `24`.
+* `bool solid` - Works the same as solid on other platforms.
+
+### Buttons
+
+Like a switch, but more flexible, and more aesthetic.
+
+*Properties*
+* `bool button` - If set, makes this object a button.
+* `string color` - The color to toggle when the button is on.
+* `string button_type` - The behavior of the button. Can be one of:
+  * `"toggle"` - Switches between on and off when pressed.
+  * `"momentary"` - Is on only while being pressed.
+  * `"oneshot"` - Can only be turned on once.
 * `bool solid` - Works the same as solid on other platforms.
 
 ### Stars

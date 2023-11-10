@@ -4,12 +4,13 @@ import typing
 
 from imagemanager import ImageManager
 from inputmanager import InputManager
+from rendercontext import RenderContext
 from soundmanager import SoundManager
 
 
 class Scene(typing.Protocol):
-    def update(self, input: InputManager, sounds: SoundManager) -> 'Scene | None':
+    def update(self, inputs: InputManager, sounds: SoundManager) -> 'Scene | None':
         raise Exception('abstract base class')
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager) -> None:
+    def draw(self, context: RenderContext, images: ImageManager) -> None:
         raise Exception('abstract base class')

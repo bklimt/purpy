@@ -12,11 +12,12 @@ IDLE_TIME = 240
 
 
 class PlayerState(Enum):
-    AIRBORNE = 1
+    FALLING = 1
     STANDING = 2
     CROUCHING = 3
     WALL_SLIDING = 4
     STOPPED = 5
+    JUMPING = 6
 
 
 class Player:
@@ -47,8 +48,10 @@ class Player:
             self.facing_right = True
         # IDLE, IDLE, IDLE, CROUCH, WAVE, JUMP, RUN, RUN, RUN, RUN
         index = 0
-        if self.state == PlayerState.AIRBORNE:
+        if self.state == PlayerState.FALLING:
             index = 5
+        elif self.state == PlayerState.JUMPING:
+            index = 6
         elif self.state == PlayerState.WALL_SLIDING:
             index = 10
         elif self.dx != 0 and self.state == PlayerState.STANDING:
@@ -95,18 +98,35 @@ class Player:
                          index=index,
                          reverse=not self.facing_right)
 
-    def get_target_bounds_rect(self, direction: Direction) -> Bounds:
-        """ Returns the bounds rect in pixels to check when moving in direction. """
+        pos_sub = (pos[0]*16, pos[1]*16)
+
+        if False:
+            left = self.get_target_bounds_at(pos_sub, Direction.LEFT)
+            surface.fill(pygame.Color(255, 0, 255, 63), left.rect)
+            right = self.get_target_bounds_at(pos_sub, Direction.RIGHT)
+            surface.fill(pygame.Color(127, 127, 63, 63), right.rect)
+            up = self.get_target_bounds_at(pos_sub, Direction.UP)
+            surface.fill(pygame.Color(255, 127, 0, 63), up.rect)
+            down = self.get_target_bounds_at(pos_sub, Direction.DOWN)
+            surface.fill(pygame.Color(0, 255, 127, 63), down.rect)
+
+    def get_target_bounds_at(self, pos: tuple[int, int], direction: Direction) -> Bounds:
+        x = pos[0]
+        y = pos[1]
         if self.state == PlayerState.CROUCHING:
-            return Bounds(self.x+8*16, self.y+14*16, 8*16, 9*16)
+            return Bounds(x+8*16, y+14*16, 8*16, 9*16)
         match direction:
             case Direction.NONE:
-                return Bounds(self.x+8*16, self.y+4*16, 8*16, 19*16)
+                return Bounds(x+8*16, y+4*16, 8*16, 19*16)
             case Direction.UP:
-                return Bounds(self.x+8*16, self.y+4*16, 8*16, 4*16)
+                return Bounds(x+8*16, y+4*16, 8*16, 4*16)
             case Direction.DOWN:
-                return Bounds(self.x+8*16, self.y+21*16, 8*16, 2*16)
+                return Bounds(x+8*16, y+19*16, 8*16, 4*16)
             case Direction.RIGHT:
-                return Bounds(self.x+12*16, self.y+4*16, 4*16, 15*16)
+                return Bounds(x+12*16, y+4*16, 4*16, 14*16)
             case Direction.LEFT:
-                return Bounds(self.x+8*16, self.y+4*16, 4*16, 15*16)
+                return Bounds(x+8*16, y+4*16, 4*16, 14*16)
+
+    def get_target_bounds_rect(self, direction: Direction) -> Bounds:
+        """ Returns the bounds rect in pixels to check when moving in direction. """
+        return self.get_target_bounds_at((self.x, self.y), direction)

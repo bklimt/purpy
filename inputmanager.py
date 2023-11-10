@@ -163,10 +163,11 @@ class BinaryInput(Enum):
     PLAYER_LEFT = 3
     PLAYER_RIGHT = 4
     PLAYER_CROUCH = 5
-    PLAYER_JUMP = 6
-    MENU_DOWN = 7
-    MENU_UP = 8
-    RESTART = 9
+    PLAYER_JUMP_TRIGGER = 6
+    PLAYER_JUMP_DOWN = 7
+    MENU_DOWN = 8
+    MENU_UP = 9
+    RESTART = 10
 
 
 class InputManager:
@@ -203,10 +204,15 @@ class InputManager:
                 KeyInput(pygame.K_s),
                 JoystickThresholdInput(1, None, 0.5),
             ]),
-            BinaryInput.PLAYER_JUMP: AnyOfInput([
+            BinaryInput.PLAYER_JUMP_TRIGGER: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_SPACE)),
                 TriggerInput(KeyInput(pygame.K_w)),
                 TriggerInput(ButtonInput(0)),
+            ]),
+            BinaryInput.PLAYER_JUMP_DOWN: AnyOfInput([
+                KeyInput(pygame.K_SPACE),
+                KeyInput(pygame.K_w),
+                ButtonInput(0),
             ]),
             BinaryInput.MENU_DOWN: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_DOWN)),
@@ -259,8 +265,11 @@ class InputManager:
     def is_right_down(self) -> bool:
         return self.binary_hooks[BinaryInput.PLAYER_RIGHT].is_on()
 
+    def is_jump_triggered(self) -> bool:
+        return self.binary_hooks[BinaryInput.PLAYER_JUMP_TRIGGER].is_on()
+
     def is_jump_down(self) -> bool:
-        return self.binary_hooks[BinaryInput.PLAYER_JUMP].is_on()
+        return self.binary_hooks[BinaryInput.PLAYER_JUMP_DOWN].is_on()
 
     def is_crouch_down(self) -> bool:
         return self.binary_hooks[BinaryInput.PLAYER_CROUCH].is_on()

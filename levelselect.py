@@ -1,16 +1,15 @@
 
 import os
-import pygame
 
-from font import Font
 from imagemanager import ImageManager
 from inputmanager import InputManager
 from level import Level
+from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import SoundManager
 
 
-class LevelSelect(Scene):
+class LevelSelect:
     parent: Scene | None
     directory: str
     files: list[str]
@@ -23,14 +22,14 @@ class LevelSelect(Scene):
         self.current = 0
         self.files = sorted(os.listdir(directory))
 
-    def update(self, input: InputManager, sounds: SoundManager) -> Scene | None:
-        if input.is_cancel_triggered():
+    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
+        if inputs.is_cancel_triggered():
             return self.parent
-        if input.is_up_triggered():
+        if inputs.is_up_triggered():
             self.current = (self.current - 1) % len(self.files)
-        if input.is_down_triggered():
+        if inputs.is_down_triggered():
             self.current = (self.current + 1) % len(self.files)
-        if input.is_ok_triggered():
+        if inputs.is_ok_triggered():
             new_path = os.path.join(self.directory, self.files[self.current])
             if os.path.isdir(new_path):
                 return LevelSelect(self, new_path)
@@ -38,7 +37,9 @@ class LevelSelect(Scene):
                 return Level(self, new_path)
         return self
 
-    def draw(self, surface: pygame.Surface, dest: pygame.Rect, images: ImageManager):
+    def draw(self, context: RenderContext, images: ImageManager) -> None:
+        surface = context.hud_surface
+
         x = 4
         y = 4
         dir_str = os.path.join(self.directory, "")

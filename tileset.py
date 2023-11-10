@@ -4,7 +4,9 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from slope import Slope
 from spritesheet import Animation
+from utils import assert_bool, load_properties
 
 
 class TileSetImage:
@@ -27,6 +29,7 @@ class TileSet:
     image: TileSetImage
     surface: pygame.Surface
     animations: dict[int, Animation]
+    slopes: dict[int, Slope]
     properties: dict[str, str | bool | int]
     tile_properties: dict[int, dict[str, str | bool | int]]
 
@@ -44,39 +47,17 @@ class TileSet:
         img = pygame.image.load(img_path)
         self.surface = pygame.Surface.convert_alpha(img)
 
-        self.properties = {}
-        for node in [node for node in root if node.tag == 'properties']:
-            for pnode in [pnode for pnode in node if pnode.tag == 'property']:
-                name = pnode.attrib['name']
-                typ = pnode.attrib.get('type', 'str')
-                val = pnode.attrib['value']
-                if typ == "str":
-                    self.properties[name] = val
-                elif typ == "int":
-                    self.properties[name] = int(val)
-                elif typ == "bool":
-                    self.properties[name] = (val == 'true')
-                else:
-                    raise Exception(f'unsupported property type {typ}')
+        self.properties = load_properties(root)
 
+        self.slopes = {}
         self.tile_properties = {}
         for tile in [tile for tile in root if tile.tag == 'tile']:
             tile_id = int(tile.attrib['id'])
-            self.tile_properties[tile_id] = {}
-            for node in [node for node in tile if node.tag == 'properties']:
-                for pnode in [pnode for pnode in node if pnode.tag == 'property']:
-                    name = pnode.attrib['name']
-                    typ = pnode.attrib.get('type', 'str')
-                    val = pnode.attrib['value']
-                    if typ == "str":
-                        self.tile_properties[tile_id][name] = val
-                    elif typ == "int":
-                        self.tile_properties[tile_id][name] = int(val)
-                    elif typ == "bool":
-                        self.tile_properties[tile_id][name] = (val == 'true')
-                    else:
-                        raise Exception(f'unsupported property type {typ}')
-        print(f'properties: {self.properties}')
+            self.tile_properties[tile_id] = load_properties(tile)
+            if assert_bool(self.tile_properties[tile_id].get('slope', False)):
+                self.slopes[tile_id] = Slope(self.tile_properties[tile_id])
+
+        print(f'tileset properties: {self.properties}')
         print(f'tile properties: {self.tile_properties}')
 
         self.animations = {}
@@ -102,6 +83,12 @@ class TileSet:
                 self.animations[tile_id] = animation
             else:
                 print(f'skipping file {filename}')
+
+    def is_slope(self, tile_id: int) -> bool:
+        return tile_id in self.slopes
+
+    def get_slope(self, tile_id: int) -> Slope:
+        return self.slopes[tile_id]
 
     def update_animations(self):
         for tile_id in self.animations.keys():
