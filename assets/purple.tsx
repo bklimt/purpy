@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.0" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
+<tileset version="1.10" tiledversion="1.10.2" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
  <transformations hflip="0" vflip="0" rotate="0" preferuntransformed="1"/>
  <properties>
   <property name="animations" value="tiles"/>
@@ -277,6 +277,7 @@
  <tile id="200">
   <properties>
    <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
    <property name="color" value="blue"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -284,6 +285,7 @@
  <tile id="201">
   <properties>
    <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
    <property name="color" value="green"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -291,6 +293,7 @@
  <tile id="202">
   <properties>
    <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
    <property name="color" value="purple"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -322,6 +325,7 @@
  <tile id="216">
   <properties>
    <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
    <property name="color" value="orange"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -329,6 +333,7 @@
  <tile id="217">
   <properties>
    <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
    <property name="color" value="pink"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -336,6 +341,7 @@
  <tile id="218">
   <properties>
    <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
    <property name="color" value="red"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
