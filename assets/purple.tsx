@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.8" tiledversion="1.8.0" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
+<tileset version="1.10" tiledversion="1.10.2" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
  <transformations hflip="0" vflip="0" rotate="0" preferuntransformed="1"/>
  <properties>
   <property name="animations" value="tiles"/>
@@ -129,7 +129,7 @@
  <tile id="143">
   <properties>
    <property name="alternate" type="int" value="159"/>
-   <property name="condition" value="green"/>
+   <property name="condition" value="!green"/>
    <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
@@ -196,7 +196,7 @@
  <tile id="159">
   <properties>
    <property name="alternate" type="int" value="143"/>
-   <property name="condition" value="!green"/>
+   <property name="condition" value="green"/>
   </properties>
  </tile>
  <tile id="160">
@@ -302,6 +302,14 @@
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="203">
+  <properties>
+   <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
+   <property name="color" value="white"/>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="204">
   <properties>
    <property name="alternate" type="int" value="206"/>
@@ -347,6 +355,14 @@
    <property name="button" type="bool" value="true"/>
    <property name="button_type" value="toggle"/>
    <property name="color" value="red"/>
+   <property name="solid" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="219">
+  <properties>
+   <property name="button" type="bool" value="true"/>
+   <property name="button_type" value="toggle"/>
+   <property name="color" value="!white"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>

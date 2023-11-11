@@ -32,7 +32,10 @@ class Button(PlatformBase):
             obj.properties.get('button_type', 'toggle'))
 
     def get_image_path(self, obj: MapObject):
-        return f'assets/sprites/buttons/{self.color}.png'
+        color = self.color
+        if color == '!white':
+            color = 'black'
+        return f'assets/sprites/buttons/{color}.png'
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
         x = self.x//16 + offset[0]
