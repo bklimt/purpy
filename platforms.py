@@ -107,6 +107,7 @@ class MovingPlatform(PlatformBase):
     start_y: int
     end_x: int
     end_y: int
+    moving_forward: bool
 
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
@@ -114,6 +115,7 @@ class MovingPlatform(PlatformBase):
         self.speed = int(obj.properties.get('speed', '1'))
         self.start_x = self.x
         self.start_y = self.y
+        self.moving_forward = True
         d = str(obj.properties.get('direction', 'N')).upper()
         if d == 'N':
             self.distance *= self.tileset.tileheight
@@ -134,16 +136,23 @@ class MovingPlatform(PlatformBase):
         else:
             raise Exception(f'unknown direction {d}')
 
-        self.dx = sign(self.end_x - self.start_x) * self.speed
-        self.dy = sign(self.end_y - self.start_y) * self.speed
+        self.dx = 0
+        self.dy = 0
 
     def update(self, switches: SwitchState, sounds: SoundManager):
-        if self.x == self.end_x:
-            self.dx *= -1
-            self.start_x, self.end_x = self.end_x, self.start_x
-        if self.y == self.end_y:
-            self.dy *= -1
-            self.start_y, self.end_y = self.end_y, self.start_y
+        self.dx = sign(self.end_x - self.start_x) * self.speed
+        self.dy = sign(self.end_y - self.start_y) * self.speed
+        if self.moving_forward:
+            if self.x == self.end_x and self.y == self.end_y:
+                self.dx *= -1
+                self.dy *= -1
+                self.moving_forward = False
+        else:
+            if self.x == self.start_x and self.y == self.start_y:
+                self.moving_forward = True
+            else:
+                self.dx *= -1
+                self.dy *= -1
         self.x += self.dx
         self.y += self.dy
 
