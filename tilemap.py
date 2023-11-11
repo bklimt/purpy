@@ -377,7 +377,7 @@ class TileMap:
                             index, hard_offset_sub, soft_offset_sub, direction)
         return result
 
-    def intersect(self, bounds: Bounds, switches: set[str]) -> list[int]:
+    def intersect(self, bounds: Bounds, switches: SwitchState) -> list[int]:
         ans = []
         rect = bounds.rect
         row1 = rect.top // self.tileheight
