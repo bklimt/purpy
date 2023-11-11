@@ -93,6 +93,11 @@ If the platform is _not_ `solid`, then the player can pass through it from the b
 * `int distance` - The distance in blocks to move, before turning around and going back to the start.
 * `int speed` - The speed of the movement, in 1/16 subpixels per frame. Defaults to `4`. Values above `16` may have odd behavior.
 * `bool solid` - Whether the platform is `solid`, as described above. Defaults to `false`.
+* `string condition` - Similar to the conditions for switched blocks. If the condition is set and turned off, then the platform will return to where it started and stop.
+* `string overflow` - What to do when the platform reaches the end. Options are:
+  * `"oscillate"` - Go back and forth.
+  * `"clamp"` - Go to the end and stop.
+  * `"wrap"` - Go to the end and then snap back to the beginning.
 
 ### Bagels
 

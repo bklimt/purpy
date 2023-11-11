@@ -8,7 +8,7 @@ from tileset import TileSet
 from random import randint
 from soundmanager import SoundManager
 from switchstate import SwitchState
-from utils import try_move_to_bounds, Bounds, Direction
+from utils import assert_int, assert_str, try_move_to_bounds, Bounds, Direction
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
@@ -108,14 +108,19 @@ class MovingPlatform(PlatformBase):
     end_x: int
     end_y: int
     moving_forward: bool
+    condition: str | None
+    overflow: str
 
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
-        self.distance = int(obj.properties.get('distance', '0')) * 16
-        self.speed = int(obj.properties.get('speed', '1'))
+        self.distance = assert_int(obj.properties.get('distance', '0')) * 16
+        self.speed = assert_int(obj.properties.get('speed', '1'))
         self.start_x = self.x
         self.start_y = self.y
         self.moving_forward = True
+        cond = obj.properties.get('condition')
+        self.condition = assert_str(cond) if cond is not None else None
+        self.overflow = assert_str(obj.properties.get('overflow', 'oscillate'))
         d = str(obj.properties.get('direction', 'N')).upper()
         if d == 'N':
             self.distance *= self.tileset.tileheight
@@ -140,13 +145,28 @@ class MovingPlatform(PlatformBase):
         self.dy = 0
 
     def update(self, switches: SwitchState, sounds: SoundManager):
+        if self.condition != None:
+            if not switches.is_condition_true(self.condition):
+                self.moving_forward = False
+                if self.x == self.start_x and self.y == self.start_y:
+                    self.dx = 0
+                    self.dy = 0
+                    return
+
         self.dx = sign(self.end_x - self.start_x) * self.speed
         self.dy = sign(self.end_y - self.start_y) * self.speed
         if self.moving_forward:
             if self.x == self.end_x and self.y == self.end_y:
-                self.dx *= -1
-                self.dy *= -1
-                self.moving_forward = False
+                if self.overflow == 'wrap':
+                    self.x = self.start_x
+                    self.y = self.start_y
+                elif self.overflow == 'clamp':
+                    self.dx = 0
+                    self.dy = 0
+                else:
+                    self.dx *= -1
+                    self.dy *= -1
+                    self.moving_forward = False
         else:
             if self.x == self.start_x and self.y == self.start_y:
                 self.moving_forward = True

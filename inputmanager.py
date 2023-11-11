@@ -207,11 +207,13 @@ class InputManager:
             BinaryInput.PLAYER_JUMP_TRIGGER: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_SPACE)),
                 TriggerInput(KeyInput(pygame.K_w)),
+                TriggerInput(KeyInput(pygame.K_UP)),
                 TriggerInput(ButtonInput(0)),
             ]),
             BinaryInput.PLAYER_JUMP_DOWN: AnyOfInput([
                 KeyInput(pygame.K_SPACE),
                 KeyInput(pygame.K_w),
+                KeyInput(pygame.K_UP),
                 ButtonInput(0),
             ]),
             BinaryInput.MENU_DOWN: AnyOfInput([
