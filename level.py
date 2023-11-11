@@ -35,8 +35,8 @@ FALL_MAX_GRAVITY = 32
 
 # Wall sliding.
 WALL_SLIDE_SPEED = 4
-WALL_JUMP_HORIZONTAL_SPEED = 48
-WALL_JUMP_VERTICAL_SPEED = 48
+WALL_JUMP_HORIZONTAL_SPEED = 40
+WALL_JUMP_VERTICAL_SPEED = 40
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 
@@ -331,13 +331,6 @@ class Level:
 
         return result
 
-    class MovePlayerYResult:
-        on_ground: bool = False
-        platforms: set[Platform] = set()
-        tile_ids: set[int] = set()
-        stuck_in_wall: bool = False
-        crushed_by_platform: bool = False
-
     def get_slope_dy(self):
         slope_fall = 0
         for slope_id in self.current_slopes:
@@ -355,6 +348,13 @@ class Level:
                     fall = (left_y - right_y) * 16
             slope_fall = max(fall, slope_fall)
         return slope_fall
+
+    class MovePlayerYResult:
+        on_ground: bool = False
+        platforms: set[Platform] = set()
+        tile_ids: set[int] = set()
+        stuck_in_wall: bool = False
+        crushed_by_platform: bool = False
 
     def move_player_y(self, sounds: SoundManager) -> MovePlayerYResult:
         result = Level.MovePlayerYResult()
@@ -435,8 +435,34 @@ class Level:
             sounds.play(Sound.CLICK)
             self.switches.apply_command(switch)
 
+    class CheckWallResult:
+        against_left_wall: bool = False
+        against_right_wall: bool = False
+
+        def __init__(self):
+            pass
+
+    def check_walls(self) -> CheckWallResult:
+        left_rect = self.player.get_target_bounds_rect(Direction.LEFT)
+        left_rect.x_sub -= 16
+        left_result = self.map.try_move_to(
+            left_rect, Direction.LEFT, self.switches, is_backwards=False)
+
+        right_rect = self.player.get_target_bounds_rect(Direction.RIGHT)
+        right_rect.x_sub += 16
+        right_result = self.map.try_move_to(
+            right_rect, Direction.RIGHT, self.switches, is_backwards=False)
+
+        result = Level.CheckWallResult()
+        result.against_left_wall = left_result.hard_offset_sub != 0
+        result.against_right_wall = right_result.hard_offset_sub != 0
+
+        return result
+
     class PlayerMovementResult:
         on_ground: bool = False
+        against_left_wall: bool = False
+        against_right_wall: bool = False
         pushing_against_wall: bool = False
         jump_down: bool = False
         jump_triggered: bool = False
@@ -451,8 +477,11 @@ class Level:
         result = Level.PlayerMovementResult()
         x_result = self.move_player_x(inputs)
         y_result = self.move_player_y(sounds)
+        wall_result = self.check_walls()
 
         result.on_ground = y_result.on_ground
+        result.against_left_wall = wall_result.against_left_wall
+        result.against_right_wall = wall_result.against_right_wall
         result.pushing_against_wall = x_result.pushing_against_wall
         result.jump_down = inputs.is_jump_down()
         result.jump_triggered = inputs.is_jump_triggered()
@@ -496,14 +525,25 @@ class Level:
                         self.player.dx += self.current_platform.dx
         elif self.player.state == PlayerState.FALLING:
             if movement.jump_triggered:
-                self.jump_grace_timer = JUMP_GRACE_TIME
+                self.jump_grace_counter = JUMP_GRACE_TIME
+            if self.jump_grace_counter > 0:
+                if movement.against_left_wall:
+                    self.jump_grace_counter = 0
+                    self.player.state = PlayerState.JUMPING
+                    self.player.dy = -1 * WALL_JUMP_VERTICAL_SPEED
+                    self.player.dx = WALL_JUMP_HORIZONTAL_SPEED
+                elif movement.against_right_wall:
+                    self.jump_grace_counter = 0
+                    self.player.state = PlayerState.JUMPING
+                    self.player.dy = -1 * WALL_JUMP_VERTICAL_SPEED
+                    self.player.dx = -1 * WALL_JUMP_HORIZONTAL_SPEED
             if movement.on_ground:
                 self.player.state = PlayerState.STANDING
                 self.player.dy = 0
-            else:
-                if movement.pushing_against_wall and self.player.dy >= 0:
-                    self.player.state = PlayerState.WALL_SLIDING
-                    self.wall_slide_counter = WALL_SLIDE_TIME
+            # else:
+            #     if movement.pushing_against_wall and self.player.dy >= 0:
+            #         self.player.state = PlayerState.WALL_SLIDING
+            #         self.wall_slide_counter = WALL_SLIDE_TIME
         elif self.player.state == PlayerState.JUMPING:
             if movement.on_ground:
                 self.player.state = PlayerState.STANDING
@@ -586,6 +626,10 @@ class Level:
             attribs = []
             if movement.on_ground:
                 attribs.append('on_ground')
+            if movement.against_right_wall:
+                attribs.append('against_right_wall')
+            if movement.against_left_wall:
+                attribs.append('against_left_wall')
             if movement.pushing_against_wall:
                 attribs.append('pushing_against_wall')
             if movement.crouch_down:

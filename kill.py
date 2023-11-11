@@ -18,7 +18,7 @@ class KillScreen:
         self.next = next
 
     def update(self, inputs: InputManager, sounds: SoundManager) -> Scene:
-        if inputs.is_ok_triggered():
+        if inputs.is_ok_triggered() or inputs.is_cancel_triggered():
             return self.next()
         return self
 
