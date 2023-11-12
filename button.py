@@ -45,11 +45,17 @@ class Button(PlatformBase):
     def update(self, switches: SwitchState, sounds: SoundManager):
         was_clicked = self.clicked
 
+        if self.button_type == 'smart':
+            self.clicked = switches.is_condition_true(self.color)
+
         if self.occupied and not self.was_occupied:
             if self.button_type == 'oneshot':
                 self.clicked = True
             elif self.button_type == 'toggle':
                 self.clicked = not self.clicked
+            elif self.button_type == 'smart':
+                self.clicked = True
+
         self.was_occupied = self.occupied
 
         if self.button_type == 'momentary':
@@ -66,5 +72,8 @@ class Button(PlatformBase):
 
         if self.clicked != was_clicked:
             sounds.play(Sound.CLICK)
-            if self.clicked or self.button_type != 'oneshot':
+            if self.button_type == 'smart':
+                if self.clicked and self.occupied:
+                    switches.apply_command(self.color)
+            elif self.clicked or self.button_type != 'oneshot':
                 switches.toggle(self.color)

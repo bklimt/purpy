@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
+<tileset version="1.8" tiledversion="1.8.0" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
  <transformations hflip="0" vflip="0" rotate="0" preferuntransformed="1"/>
  <properties>
   <property name="animations" value="tiles"/>
@@ -129,7 +129,7 @@
  <tile id="143">
   <properties>
    <property name="alternate" type="int" value="159"/>
-   <property name="condition" value="!green"/>
+   <property name="condition" value="green"/>
    <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
@@ -196,7 +196,7 @@
  <tile id="159">
   <properties>
    <property name="alternate" type="int" value="143"/>
-   <property name="condition" value="green"/>
+   <property name="condition" value="!green"/>
   </properties>
  </tile>
  <tile id="160">
@@ -305,7 +305,7 @@
  <tile id="203">
   <properties>
    <property name="button" type="bool" value="true"/>
-   <property name="button_type" value="toggle"/>
+   <property name="button_type" value="smart"/>
    <property name="color" value="white"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -326,12 +326,14 @@
   <properties>
    <property name="alternate" type="int" value="204"/>
    <property name="condition" value="!orange"/>
+   <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
  <tile id="207">
   <properties>
    <property name="alternate" type="int" value="205"/>
    <property name="condition" value="!purple"/>
+   <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
  <tile id="216">
@@ -361,7 +363,7 @@
  <tile id="219">
   <properties>
    <property name="button" type="bool" value="true"/>
-   <property name="button_type" value="toggle"/>
+   <property name="button_type" value="smart"/>
    <property name="color" value="!white"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -374,20 +376,74 @@
  </tile>
  <tile id="221">
   <properties>
-   <property name="alternate" type="int" value="0"/>
-   <property name="condition" value=""/>
+   <property name="alternate" type="int" value="223"/>
+   <property name="condition" value="green"/>
   </properties>
  </tile>
  <tile id="222">
   <properties>
    <property name="alternate" type="int" value="220"/>
    <property name="condition" value="!pink"/>
+   <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
  <tile id="223">
   <properties>
-   <property name="alternate" type="int" value="0"/>
-   <property name="condition" value=""/>
+   <property name="alternate" type="int" value="221"/>
+   <property name="condition" value="!green"/>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="236">
+  <properties>
+   <property name="alternate" type="int" value="238"/>
+   <property name="condition" value="red"/>
+  </properties>
+ </tile>
+ <tile id="237">
+  <properties>
+   <property name="alternate" type="int" value="239"/>
+   <property name="condition" value="blue"/>
+  </properties>
+ </tile>
+ <tile id="238">
+  <properties>
+   <property name="alternate" type="int" value="236"/>
+   <property name="condition" value="!red"/>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="239">
+  <properties>
+   <property name="alternate" type="int" value="237"/>
+   <property name="condition" value="!blue"/>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="252">
+  <properties>
+   <property name="alternate" type="int" value="254"/>
+   <property name="condition" value="white"/>
+  </properties>
+ </tile>
+ <tile id="253">
+  <properties>
+   <property name="alternate" type="int" value="255"/>
+   <property name="condition" value="!white"/>
+  </properties>
+ </tile>
+ <tile id="254">
+  <properties>
+   <property name="alternate" type="int" value="252"/>
+   <property name="condition" value="!white"/>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
+ <tile id="255">
+  <properties>
+   <property name="alternate" type="int" value="253"/>
+   <property name="condition" value="white"/>
+   <property name="solid" type="bool" value="false"/>
   </properties>
  </tile>
  <wangsets>
