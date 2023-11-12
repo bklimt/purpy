@@ -7,6 +7,7 @@ from tilemap import MapObject
 from tileset import TileSet
 from random import randint
 from soundmanager import SoundManager
+from spritesheet import SpriteSheet
 from switchstate import SwitchState
 from utils import assert_int, assert_str, try_move_to_bounds, Bounds, Direction
 
@@ -229,3 +230,57 @@ class Conveyor(PlatformBase):
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         pass
+
+
+SPRING_FRAMES = 4
+STALL_FRAMES = 10
+
+
+class Spring(PlatformBase):
+    sprite: SpriteSheet
+    up: bool = False
+    position: int = 0
+    stall_counter = STALL_FRAMES
+
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
+        surface = pygame.image.load('assets/sprites/spring.png')
+        self.sprite = SpriteSheet(surface, 8, 8)
+
+    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
+        x = self.x//16 + offset[0]
+        y = self.y//16 + offset[1]
+        self.sprite.blit(surface, (x, y), self.position)
+
+    def should_boost(self):
+        return self.up or (self.position == SPRING_FRAMES - 1)
+
+    def update(self, switches: SwitchState, sounds: SoundManager):
+        self.dx = 0
+        self.dy = 0
+        self.launch = False
+        if not self.occupied:
+            self.stall_counter = STALL_FRAMES
+            self.up = False
+            if self.position > 0:
+                self.position -= 1
+                self.dy = -1
+        else:
+            if self.up:
+                self.stall_counter = STALL_FRAMES
+                if self.position > 0:
+                    self.position -= 1
+                    self.dy = -1
+                else:
+                    self.launch = True
+            else:
+                if self.position < SPRING_FRAMES - 1:
+                    self.stall_counter = STALL_FRAMES
+                    self.position += 1
+                    self.dy = 1
+                else:
+                    if self.stall_counter > 0:
+                        self.stall_counter -= 1
+                    else:
+                        self.stall_counter = STALL_FRAMES
+                        self.up = True

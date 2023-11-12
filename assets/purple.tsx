@@ -238,6 +238,12 @@
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="174">
+  <properties>
+   <property name="solid" type="bool" value="true"/>
+   <property name="spring" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="184">
   <properties>
    <property name="oneway" value="S"/>
