@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="80" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#125d55" nextlayerid="4" nextobjectid="130">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="80" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#125d55" nextlayerid="4" nextobjectid="133">
  <tileset firstgid="1" source="../../../purple.tsx"/>
  <layer id="1" name="Player" width="80" height="22">
   <properties>
@@ -184,30 +184,20 @@
    </properties>
   </object>
   <object id="33" gid="218" x="568" y="80" width="8" height="8"/>
-  <object id="46" gid="219" x="384" y="168" width="8" height="8">
-   <properties>
-    <property name="button_type" value="toggle"/>
-   </properties>
-  </object>
   <object id="89" gid="193" x="24" y="144" width="8" height="8">
    <properties>
     <property name="stars_needed" type="int" value="2"/>
    </properties>
   </object>
-  <object id="94" gid="219" x="328" y="128" width="8" height="8"/>
   <object id="96" gid="129" x="328" y="136" width="8" height="8"/>
   <object id="98" gid="145" x="80" y="136" width="8" height="8"/>
   <object id="100" gid="145" x="80" y="48" width="8" height="8"/>
-  <object id="105" gid="219" x="136" y="168" width="8" height="8"/>
   <object id="107" gid="219" x="352" y="80" width="8" height="8">
    <properties>
     <property name="button_type" value="toggle"/>
    </properties>
   </object>
   <object id="111" gid="204" x="48" y="80" width="8" height="8"/>
-  <object id="113" gid="219" x="136" y="168" width="8" height="8"/>
-  <object id="114" gid="219" x="328" y="128" width="8" height="8"/>
-  <object id="115" gid="219" x="384" y="168" width="8" height="8"/>
   <object id="116" gid="219" x="352" y="80" width="8" height="8"/>
   <object id="117" gid="219" x="128" y="80" width="8" height="8"/>
   <object id="118" gid="220" x="112" y="168" width="8" height="8"/>
@@ -222,5 +212,8 @@
   </object>
   <object id="126" gid="204" x="440" y="168" width="8" height="8"/>
   <object id="129" gid="219" x="256" y="168" width="8" height="8"/>
+  <object id="130" gid="219" x="328" y="128" width="8" height="8"/>
+  <object id="131" gid="219" x="376" y="168" width="8" height="8"/>
+  <object id="132" gid="219" x="136" y="168" width="8" height="8"/>
  </objectgroup>
 </map>
