@@ -103,6 +103,7 @@ class PlatformBase:
 
 
 class MovingPlatform(PlatformBase):
+    direction: Direction
     distance: int
     start_x: int
     start_y: int
@@ -124,18 +125,22 @@ class MovingPlatform(PlatformBase):
         self.overflow = assert_str(obj.properties.get('overflow', 'oscillate'))
         d = str(obj.properties.get('direction', 'N')).upper()
         if d == 'N':
+            self.direction = Direction.UP
             self.distance *= self.tileset.tileheight
             self.end_x = self.start_x
             self.end_y = self.start_y - self.distance
         elif d == 'S':
+            self.direction = Direction.DOWN
             self.distance *= self.tileset.tileheight
             self.end_x = self.start_x
             self.end_y = self.start_y + self.distance
         elif d == 'E':
+            self.direction = Direction.RIGHT
             self.distance *= self.tileset.tilewidth
             self.end_x = self.start_x + self.distance
             self.end_y = self.start_y
         elif d == 'W':
+            self.direction = Direction.LEFT
             self.distance *= self.tileset.tilewidth
             self.end_x = self.start_x - self.distance
             self.end_y = self.start_y
@@ -157,23 +162,60 @@ class MovingPlatform(PlatformBase):
         self.dx = sign(self.end_x - self.start_x) * self.speed
         self.dy = sign(self.end_y - self.start_y) * self.speed
         if self.moving_forward:
-            if self.x == self.end_x and self.y == self.end_y:
-                if self.overflow == 'wrap':
-                    self.x = self.start_x
-                    self.y = self.start_y
-                elif self.overflow == 'clamp':
-                    self.dx = 0
-                    self.dy = 0
-                else:
-                    self.dx *= -1
-                    self.dy *= -1
-                    self.moving_forward = False
+            if self.direction == Direction.UP:
+                if self.y <= self.end_y:
+                    if self.overflow == 'wrap':
+                        self.y += self.distance
+                    elif self.overflow == 'clamp':
+                        self.dy = 0
+                        self.y = self.end_y + 1
+                    else:
+                        self.dy *= -1
+                        self.moving_forward = False
+            elif self.direction == Direction.DOWN:
+                if self.y >= self.end_y:
+                    if self.overflow == 'wrap':
+                        self.y = self.start_y + (self.end_y - self.y)
+                    elif self.overflow == 'clamp':
+                        self.dy = 0
+                        self.y = self.end_y - 1
+                    else:
+                        self.dy *= -1
+                        self.moving_forward = False
+            if self.direction == Direction.LEFT:
+                if self.x <= self.end_x:
+                    if self.overflow == 'wrap':
+                        self.x += self.distance
+                    elif self.overflow == 'clamp':
+                        self.dx = 0
+                        self.x = self.end_x + 1
+                    else:
+                        self.dx *= -1
+                        self.moving_forward = False
+            elif self.direction == Direction.RIGHT:
+                if self.x >= self.end_x:
+                    if self.overflow == 'wrap':
+                        self.x = self.start_x + (self.end_x - self.x)
+                    elif self.overflow == 'clamp':
+                        self.dx = 0
+                        self.x = self.end_x - 1
+                    else:
+                        self.dx *= -1
+                        self.moving_forward = False
         else:
-            if self.x == self.start_x and self.y == self.start_y:
+            # If must be oscillating.
+            if self.direction == Direction.UP and self.y >= self.start_y:
+                self.moving_forward = True
+            elif self.direction == Direction.DOWN and self.y <= self.start_y:
+                self.moving_forward = True
+            elif self.direction == Direction.LEFT and self.x >= self.start_x:
+                self.moving_forward = True
+            elif self.direction == Direction.RIGHT and self.x <= self.start_x:
                 self.moving_forward = True
             else:
                 self.dx *= -1
                 self.dy *= -1
+
         self.x += self.dx
         self.y += self.dy
 

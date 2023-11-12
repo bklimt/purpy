@@ -320,18 +320,32 @@ class TileMap:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()
         player_rect = bounds.rect
+
+        right_edge_sub = self.width * self.tilewidth * 16
+        bottom_edge_sub = self.height * self.tileheight * 16
+
+        if direction == Direction.LEFT and bounds.x_sub < 0:
+            result.hard_offset_sub = -bounds.x_sub
+            result.soft_offset_sub = result.hard_offset_sub
+            return result
+        if direction == Direction.UP and bounds.y_sub < 0:
+            result.hard_offset_sub = -bounds.y_sub
+            result.soft_offset_sub = result.hard_offset_sub
+            return result
+        if direction == Direction.RIGHT and bounds.right_sub >= right_edge_sub:
+            result.hard_offset_sub = (right_edge_sub - bounds.right_sub) - 1
+            result.soft_offset_sub = result.hard_offset_sub
+            return result
+        if direction == Direction.DOWN and bounds.bottom_sub >= bottom_edge_sub:
+            result.hard_offset_sub = (bottom_edge_sub - bounds.bottom_sub) - 1
+            result.soft_offset_sub = result.hard_offset_sub
+            return result
+
         row1 = player_rect.top // self.tileheight
         col1 = player_rect.left // self.tilewidth
         row2 = player_rect.bottom // self.tileheight
         col2 = player_rect.right // self.tilewidth
-        if row1 < 0:
-            row1 = 0
-        if col1 < 0:
-            col1 = 0
-        if row2 < 0:
-            row2 = 0
-        if col2 < 0:
-            col2 = 0
+
         for row in range(row1, row2+1):
             for col in range(col1, col2+1):
                 tile_rect = self.get_rect(row, col)
