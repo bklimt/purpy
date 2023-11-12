@@ -126,6 +126,7 @@ Like a switch, but more flexible, and more aesthetic.
   * `"toggle"` - Switches between on and off when pressed.
   * `"momentary"` - Is on only while being pressed.
   * `"oneshot"` - Can only be turned on once.
+  * `"smart"` - The `color` is treated as a condition and a command. The button is considered "on" if the condition is true. When the button is toggled on, the command is run. This is good for setting `color` values like`"red"` and `"!red"` as separate buttons.
 * `bool solid` - Works the same as solid on other platforms.
 
 ### Stars
