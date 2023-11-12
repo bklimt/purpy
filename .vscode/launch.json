@@ -9,9 +9,7 @@
             "type": "python",
             "request": "launch",
             "program": "main.py",
-            "args": [
-                "assets/levels/EXPRMNTL/SWITCH2.TMX"
-            ],
+            "args": [],
             "console": "integratedTerminal",
             "justMyCode": true
         },

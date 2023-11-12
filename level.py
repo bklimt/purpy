@@ -9,7 +9,7 @@ from imagemanager import ImageManager
 from inputmanager import InputManager
 from kill import KillScreen
 from player import Player, PlayerState
-from platforms import Bagel, Conveyor, MovingPlatform, Platform
+from platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
 from rendercontext import RenderContext
 from scene import Scene
 from soundmanager import Sound, SoundManager
@@ -18,13 +18,13 @@ from switchstate import SwitchState
 from tilemap import TileMap, load_map
 from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
 
-# Vertical speed.
+# Horizontal speed.
 TARGET_WALK_SPEED = 24
 WALK_SPEED_ACCELERATION = 1
 WALK_SPEED_DECELERATION = 3
 SLIDE_SPEED_DECELERATION = 1
 
-# Horizontal speed.
+# Vertical speed.
 COYOTE_TIME = 6  # How long to hover in the air before officially falling.
 JUMP_GRACE_TIME = 12  # How long to remember jump was pressed while falling.
 JUMP_INITIAL_SPEED = 48
@@ -32,6 +32,11 @@ JUMP_ACCELERATION = 2
 JUMP_MAX_GRAVITY = 32
 FALL_ACCELERATION = 5
 FALL_MAX_GRAVITY = 32
+
+SPRING_BOUNCE_DURATION = 30
+SPRING_BOUNCE_VELOCITY = JUMP_INITIAL_SPEED
+SPRING_JUMP_DURATION = 10
+SPRING_JUMP_VELOCITY = 78
 
 # Wall sliding.
 WALL_SLIDE_SPEED = 4
@@ -59,6 +64,7 @@ class Level:
 
     coyote_counter: int = COYOTE_TIME
     jump_grace_counter: int = 0
+    spring_counter: int = 0
 
     previous_map_offset: None | tuple[int, int]
     toast_text: str
@@ -101,6 +107,8 @@ class Level:
                 self.platforms.append(Bagel(obj, self.map.tileset))
             if obj.properties.get('convey', '') != '':
                 self.platforms.append(Conveyor(obj, self.map.tileset))
+            if obj.properties.get('spring', '') != '':
+                self.platforms.append(Spring(obj, self.map.tileset))
             if obj.properties.get('button', False):
                 self.platforms.append(Button(obj, self.map.tileset))
             if obj.properties.get('door', False):
@@ -505,7 +513,17 @@ class Level:
             self.player.state = PlayerState.STOPPED
             self.player.is_dead = True
         elif self.player.state == PlayerState.STANDING:
-            if self.coyote_counter == 0:
+            if (isinstance(self.current_platform, Spring) and
+                    self.current_platform.launch):
+                self.jump_grace_counter = 0
+                self.player.state = PlayerState.JUMPING
+                if movement.jump_triggered or self.jump_grace_counter > 0:
+                    self.spring_counter = SPRING_JUMP_DURATION
+                    self.player.dy = -1 * SPRING_JUMP_VELOCITY
+                else:
+                    self.spring_counter = SPRING_BOUNCE_DURATION
+                    self.player.dy = -1 * SPRING_BOUNCE_VELOCITY
+            elif self.coyote_counter == 0:
                 self.player.state = PlayerState.FALLING
                 self.player.dy = 0
                 if self.current_platform is not None:
@@ -520,7 +538,13 @@ class Level:
                 else:
                     self.jump_grace_counter = 0
                     self.player.state = PlayerState.JUMPING
-                    self.player.dy = -1 * JUMP_INITIAL_SPEED
+                    if (isinstance(self.current_platform, Spring) and
+                            self.current_platform.should_boost()):
+                        self.spring_counter = SPRING_JUMP_DURATION
+                        self.player.dy = -1 * SPRING_JUMP_VELOCITY
+                    else:
+                        self.spring_counter = SPRING_BOUNCE_DURATION
+                        self.player.dy = -1 * SPRING_BOUNCE_VELOCITY
                     if self.current_platform is not None:
                         self.player.dx += self.current_platform.dx
         elif self.player.state == PlayerState.FALLING:
@@ -552,8 +576,11 @@ class Level:
                 self.player.state = PlayerState.FALLING
             else:
                 if not movement.jump_down:
-                    self.player.state = PlayerState.FALLING
-                    self.player.dy = 0
+                    if self.spring_counter == 0:
+                        self.player.state = PlayerState.FALLING
+                        self.player.dy = 0
+                    else:
+                        self.spring_counter -= 1
         elif self.player.state == PlayerState.WALL_SLIDING:
             if movement.jump_triggered:
                 self.player.state = PlayerState.JUMPING
