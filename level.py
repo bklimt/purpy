@@ -42,7 +42,7 @@ SPRING_JUMP_VELOCITY = 78
 WALL_SLIDE_SPEED = 4
 WALL_JUMP_HORIZONTAL_SPEED = 40
 WALL_JUMP_VERTICAL_SPEED = 40
-WALL_STICK_TIME = 30
+WALL_STICK_TIME = 5
 WALL_SLIDE_TIME = 60
 
 VIEWPORT_PAN_SPEED = 5
@@ -564,10 +564,10 @@ class Level:
             if movement.on_ground:
                 self.player.state = PlayerState.STANDING
                 self.player.dy = 0
-            # else:
-            #     if movement.pushing_against_wall and self.player.dy >= 0:
-            #         self.player.state = PlayerState.WALL_SLIDING
-            #         self.wall_slide_counter = WALL_SLIDE_TIME
+            else:
+                if movement.pushing_against_wall and self.player.dy >= 0:
+                    self.player.state = PlayerState.WALL_SLIDING
+                    self.wall_slide_counter = WALL_SLIDE_TIME
         elif self.player.state == PlayerState.JUMPING:
             if movement.on_ground:
                 self.player.state = PlayerState.STANDING
