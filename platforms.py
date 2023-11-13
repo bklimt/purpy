@@ -29,6 +29,8 @@ def sign(n: int) -> int:
 
 class Platform(typing.Protocol):
     id: int
+    x: int
+    y: int
     dx: int
     dy: int
     is_solid: bool

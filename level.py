@@ -42,7 +42,7 @@ SPRING_JUMP_VELOCITY = 78
 WALL_SLIDE_SPEED = 4
 WALL_JUMP_HORIZONTAL_SPEED = 40
 WALL_JUMP_VERTICAL_SPEED = 40
-WALL_STICK_TIME = 5
+WALL_STICK_TIME = 3
 WALL_SLIDE_TIME = 60
 
 VIEWPORT_PAN_SPEED = 5
@@ -427,8 +427,12 @@ class Level:
 
         for platform in platforms:
             platform.occupied = True
-            # TODO: Be smarter about what platform we pick.
             self.current_platform = platform
+
+        # To prevent jitter, make sure the player's subpixels match the platform.
+        if self.current_platform is not None:
+            extra_sub_pixels = self.current_platform.x % 16
+            self.player.x = ((self.player.x // 16) * 16) + extra_sub_pixels
 
     def handle_switch_tiles(self, tiles: set[int], sounds: SoundManager):
         previous = self.current_switch_tiles
@@ -675,7 +679,8 @@ class Level:
                 attribs.append(f'platform={self.current_platform.id}')
             if len(self.current_slopes) > 0:
                 attribs.append(f'slopes={self.current_slopes}')
-            transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
+            transition = f'{start_state} x ({", ".join(
+                attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
                 print(transition)
