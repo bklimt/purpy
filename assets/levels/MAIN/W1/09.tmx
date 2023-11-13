@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="80" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="221">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="80" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="263">
  <tileset firstgid="1" source="../../../purple.tsx"/>
  <layer id="1" name="Tile Layer 1" width="80" height="22">
   <data encoding="csv">
-37,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,38,37,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,38,
+37,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,34,38,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
-19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,54,
-19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,38,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
-19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,131,131,131,131,0,0,0,0,0,0,0,131,131,131,131,0,0,0,0,0,131,131,0,0,0,131,131,131,0,0,0,0,0,0,131,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
@@ -28,321 +28,274 @@
 </data>
  </layer>
  <objectgroup id="2" name="cooloi">
-  <object id="3" gid="129" x="8" y="144" width="8" height="8"/>
-  <object id="4" gid="129" x="16" y="144" width="8" height="8"/>
-  <object id="5" gid="129" x="24" y="144" width="8" height="8"/>
-  <object id="6" gid="129" x="32" y="144" width="8" height="8"/>
-  <object id="7" gid="129" x="40" y="144" width="8" height="8"/>
-  <object id="8" gid="129" x="48" y="144" width="8" height="8"/>
-  <object id="9" gid="129" x="56" y="144" width="8" height="8"/>
-  <object id="10" gid="129" x="64" y="144" width="8" height="8"/>
-  <object id="12" gid="129" x="72" y="144" width="8" height="8"/>
-  <object id="13" gid="129" x="80" y="144" width="8" height="8"/>
-  <object id="14" gid="129" x="88" y="144" width="8" height="8"/>
-  <object id="15" gid="129" x="96" y="144" width="8" height="8"/>
-  <object id="16" gid="129" x="104" y="144" width="8" height="8"/>
-  <object id="17" gid="129" x="112" y="144" width="8" height="8"/>
-  <object id="18" gid="129" x="120" y="144" width="8" height="8"/>
-  <object id="19" gid="129" x="128" y="144" width="8" height="8"/>
-  <object id="20" gid="129" x="136" y="144" width="8" height="8"/>
-  <object id="21" gid="129" x="144" y="144" width="8" height="8"/>
-  <object id="22" gid="129" x="152" y="144" width="8" height="8"/>
-  <object id="23" gid="129" x="160" y="144" width="8" height="8"/>
-  <object id="24" gid="129" x="168" y="144" width="8" height="8"/>
-  <object id="25" gid="129" x="176" y="144" width="8" height="8"/>
-  <object id="26" gid="129" x="184" y="144" width="8" height="8"/>
-  <object id="27" gid="129" x="192" y="144" width="8" height="8"/>
-  <object id="28" gid="129" x="200" y="144" width="8" height="8"/>
-  <object id="29" gid="129" x="208" y="144" width="8" height="8"/>
-  <object id="30" gid="129" x="216" y="144" width="8" height="8"/>
-  <object id="49" gid="129" x="224" y="144" width="8" height="8"/>
-  <object id="50" gid="129" x="232" y="144" width="8" height="8"/>
-  <object id="51" gid="129" x="240" y="144" width="8" height="8"/>
-  <object id="52" gid="129" x="248" y="144" width="8" height="8"/>
-  <object id="53" gid="129" x="256" y="144" width="8" height="8"/>
-  <object id="54" gid="129" x="264" y="144" width="8" height="8"/>
-  <object id="55" gid="129" x="272" y="144" width="8" height="8"/>
-  <object id="56" gid="129" x="280" y="144" width="8" height="8"/>
-  <object id="57" gid="129" x="288" y="144" width="8" height="8"/>
-  <object id="58" gid="129" x="296" y="144" width="8" height="8"/>
-  <object id="59" gid="129" x="304" y="144" width="8" height="8"/>
-  <object id="60" gid="129" x="312" y="144" width="8" height="8"/>
-  <object id="61" gid="129" x="320" y="144" width="8" height="8"/>
-  <object id="62" gid="129" x="328" y="144" width="8" height="8"/>
-  <object id="63" gid="129" x="336" y="144" width="8" height="8"/>
-  <object id="64" gid="129" x="344" y="144" width="8" height="8"/>
-  <object id="65" gid="129" x="352" y="144" width="8" height="8"/>
-  <object id="66" gid="129" x="360" y="144" width="8" height="8"/>
-  <object id="67" gid="129" x="368" y="144" width="8" height="8"/>
-  <object id="68" gid="129" x="376" y="144" width="8" height="8"/>
-  <object id="69" gid="129" x="384" y="144" width="8" height="8"/>
-  <object id="70" gid="129" x="392" y="144" width="8" height="8"/>
-  <object id="71" gid="129" x="400" y="144" width="8" height="8"/>
-  <object id="72" gid="129" x="408" y="144" width="8" height="8"/>
-  <object id="73" gid="129" x="416" y="144" width="8" height="8"/>
-  <object id="74" gid="129" x="424" y="144" width="8" height="8"/>
-  <object id="75" gid="129" x="432" y="144" width="8" height="8"/>
-  <object id="76" gid="129" x="440" y="144" width="8" height="8"/>
-  <object id="77" gid="129" x="448" y="144" width="8" height="8"/>
-  <object id="78" gid="129" x="456" y="144" width="8" height="8"/>
-  <object id="79" gid="129" x="464" y="144" width="8" height="8"/>
-  <object id="80" gid="129" x="472" y="144" width="8" height="8"/>
-  <object id="81" gid="129" x="480" y="144" width="8" height="8"/>
-  <object id="82" gid="129" x="488" y="144" width="8" height="8"/>
-  <object id="83" gid="129" x="496" y="144" width="8" height="8"/>
-  <object id="84" gid="129" x="504" y="144" width="8" height="8"/>
-  <object id="85" gid="129" x="512" y="144" width="8" height="8"/>
-  <object id="86" gid="129" x="520" y="144" width="8" height="8"/>
-  <object id="87" gid="129" x="528" y="144" width="8" height="8"/>
-  <object id="88" gid="129" x="536" y="144" width="8" height="8"/>
-  <object id="89" gid="129" x="544" y="144" width="8" height="8"/>
-  <object id="90" gid="129" x="552" y="144" width="8" height="8"/>
-  <object id="91" gid="129" x="560" y="144" width="8" height="8"/>
-  <object id="92" gid="129" x="568" y="144" width="8" height="8"/>
-  <object id="93" gid="129" x="576" y="144" width="8" height="8"/>
-  <object id="95" gid="129" x="584" y="144" width="8" height="8"/>
-  <object id="96" gid="129" x="592" y="144" width="8" height="8"/>
-  <object id="97" gid="129" x="600" y="144" width="8" height="8"/>
-  <object id="98" gid="129" x="608" y="144" width="8" height="8"/>
-  <object id="99" gid="129" x="616" y="144" width="8" height="8"/>
-  <object id="100" gid="129" x="624" y="144" width="8" height="8"/>
-  <object id="105" gid="130" x="8" y="32" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="106" gid="130" x="72" y="32" width="8" height="8">
+  <object id="3" gid="129" x="8" y="128" width="8" height="8"/>
+  <object id="4" gid="129" x="16" y="128" width="8" height="8"/>
+  <object id="5" gid="129" x="24" y="128" width="8" height="8"/>
+  <object id="6" gid="129" x="32" y="128" width="8" height="8"/>
+  <object id="7" gid="129" x="40" y="128" width="8" height="8"/>
+  <object id="8" gid="129" x="48" y="128" width="8" height="8"/>
+  <object id="9" gid="129" x="56" y="128" width="8" height="8"/>
+  <object id="10" gid="129" x="64" y="128" width="8" height="8"/>
+  <object id="12" gid="129" x="72" y="128" width="8" height="8"/>
+  <object id="13" gid="129" x="80" y="128" width="8" height="8"/>
+  <object id="14" gid="129" x="88" y="128" width="8" height="8"/>
+  <object id="15" gid="129" x="96" y="128" width="8" height="8"/>
+  <object id="16" gid="129" x="104" y="128" width="8" height="8"/>
+  <object id="17" gid="129" x="112" y="128" width="8" height="8"/>
+  <object id="18" gid="129" x="120" y="128" width="8" height="8"/>
+  <object id="19" gid="129" x="128" y="128" width="8" height="8"/>
+  <object id="20" gid="129" x="136" y="128" width="8" height="8"/>
+  <object id="21" gid="129" x="144" y="128" width="8" height="8"/>
+  <object id="22" gid="129" x="152" y="128" width="8" height="8"/>
+  <object id="23" gid="129" x="160" y="128" width="8" height="8"/>
+  <object id="24" gid="129" x="168" y="128" width="8" height="8"/>
+  <object id="25" gid="129" x="176" y="128" width="8" height="8"/>
+  <object id="26" gid="129" x="184" y="128" width="8" height="8"/>
+  <object id="27" gid="129" x="192" y="128" width="8" height="8"/>
+  <object id="28" gid="129" x="200" y="128" width="8" height="8"/>
+  <object id="29" gid="129" x="208" y="128" width="8" height="8"/>
+  <object id="30" gid="129" x="216" y="128" width="8" height="8"/>
+  <object id="49" gid="129" x="224" y="128" width="8" height="8"/>
+  <object id="50" gid="129" x="232" y="128" width="8" height="8"/>
+  <object id="51" gid="129" x="240" y="128" width="8" height="8"/>
+  <object id="52" gid="129" x="248" y="128" width="8" height="8"/>
+  <object id="53" gid="129" x="256" y="128" width="8" height="8"/>
+  <object id="54" gid="129" x="264" y="128" width="8" height="8"/>
+  <object id="55" gid="129" x="272" y="128" width="8" height="8"/>
+  <object id="56" gid="129" x="280" y="128" width="8" height="8"/>
+  <object id="57" gid="129" x="288" y="128" width="8" height="8"/>
+  <object id="58" gid="129" x="296" y="128" width="8" height="8"/>
+  <object id="59" gid="129" x="304" y="128" width="8" height="8"/>
+  <object id="60" gid="129" x="312" y="128" width="8" height="8"/>
+  <object id="61" gid="129" x="320" y="128" width="8" height="8"/>
+  <object id="62" gid="129" x="328" y="128" width="8" height="8"/>
+  <object id="63" gid="129" x="336" y="128" width="8" height="8"/>
+  <object id="64" gid="129" x="344" y="128" width="8" height="8"/>
+  <object id="65" gid="129" x="352" y="128" width="8" height="8"/>
+  <object id="66" gid="129" x="360" y="128" width="8" height="8"/>
+  <object id="67" gid="129" x="368" y="128" width="8" height="8"/>
+  <object id="68" gid="129" x="376" y="128" width="8" height="8"/>
+  <object id="69" gid="129" x="384" y="128" width="8" height="8"/>
+  <object id="70" gid="129" x="392" y="128" width="8" height="8"/>
+  <object id="71" gid="129" x="400" y="128" width="8" height="8"/>
+  <object id="72" gid="129" x="408" y="128" width="8" height="8"/>
+  <object id="73" gid="129" x="416" y="128" width="8" height="8"/>
+  <object id="74" gid="129" x="424" y="128" width="8" height="8"/>
+  <object id="75" gid="129" x="432" y="128" width="8" height="8"/>
+  <object id="76" gid="129" x="440" y="128" width="8" height="8"/>
+  <object id="77" gid="129" x="448" y="128" width="8" height="8"/>
+  <object id="78" gid="129" x="456" y="128" width="8" height="8"/>
+  <object id="79" gid="129" x="464" y="128" width="8" height="8"/>
+  <object id="80" gid="129" x="472" y="128" width="8" height="8"/>
+  <object id="81" gid="129" x="480" y="128" width="8" height="8"/>
+  <object id="82" gid="129" x="488" y="128" width="8" height="8"/>
+  <object id="83" gid="129" x="496" y="128" width="8" height="8"/>
+  <object id="84" gid="129" x="504" y="128" width="8" height="8"/>
+  <object id="85" gid="129" x="512" y="128" width="8" height="8"/>
+  <object id="86" gid="129" x="520" y="128" width="8" height="8"/>
+  <object id="87" gid="129" x="528" y="128" width="8" height="8"/>
+  <object id="88" gid="129" x="536" y="128" width="8" height="8"/>
+  <object id="89" gid="129" x="544" y="128" width="8" height="8"/>
+  <object id="90" gid="129" x="552" y="128" width="8" height="8"/>
+  <object id="91" gid="129" x="560" y="128" width="8" height="8"/>
+  <object id="92" gid="129" x="568" y="128" width="8" height="8"/>
+  <object id="93" gid="129" x="576" y="128" width="8" height="8"/>
+  <object id="95" gid="129" x="584" y="128" width="8" height="8"/>
+  <object id="96" gid="129" x="592" y="128" width="8" height="8"/>
+  <object id="97" gid="129" x="600" y="128" width="8" height="8"/>
+  <object id="98" gid="129" x="608" y="128" width="8" height="8"/>
+  <object id="99" gid="129" x="616" y="128" width="8" height="8"/>
+  <object id="100" gid="129" x="624" y="128" width="8" height="8"/>
+  <object id="222" gid="146" x="56" y="16" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="108" gid="130" x="8" y="40" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="109" gid="130" x="72" y="40" width="8" height="8">
+  <object id="227" gid="146" x="56" y="24" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="110" gid="130" x="8" y="48" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="111" gid="130" x="72" y="48" width="8" height="8">
+  <object id="228" gid="146" x="56" y="48" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="112" gid="130" x="8" y="56" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="113" gid="130" x="72" y="56" width="8" height="8">
+  <object id="229" gid="146" x="56" y="48" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="114" gid="130" x="8" y="64" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="115" gid="130" x="72" y="64" width="8" height="8">
+  <object id="232" gid="146" x="56" y="32" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="116" gid="130" x="8" y="72" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="117" gid="130" x="72" y="72" width="8" height="8">
+  <object id="233" gid="146" x="56" y="40" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="118" gid="130" x="8" y="80" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="119" gid="130" x="72" y="80" width="8" height="8">
+  <object id="234" gid="146" x="56" y="56" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="120" gid="130" x="8" y="88" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="121" gid="130" x="72" y="88" width="8" height="8">
+  <object id="235" gid="146" x="56" y="64" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="122" gid="130" x="8" y="96" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="123" gid="130" x="72" y="96" width="8" height="8">
+  <object id="236" gid="146" x="56" y="80" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="124" gid="130" x="8" y="104" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="125" gid="130" x="72" y="104" width="8" height="8">
+  <object id="237" gid="146" x="56" y="72" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="126" gid="130" x="8" y="112" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="127" gid="130" x="72" y="112" width="8" height="8">
+  <object id="238" gid="146" x="56" y="88" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="128" gid="130" x="8" y="120" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="129" gid="130" x="72" y="120" width="8" height="8">
+  <object id="239" gid="146" x="56" y="104" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="130" gid="130" x="8" y="128" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="131" gid="130" x="72" y="128" width="8" height="8">
+  <object id="240" gid="146" x="56" y="96" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="132" gid="130" x="8" y="136" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="133" gid="130" x="72" y="136" width="8" height="8">
+  <object id="241" gid="146" x="56" y="112" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="136" gid="130" x="8" y="152" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="137" gid="130" x="72" y="152" width="8" height="8">
+  <object id="247" gid="146" x="112" y="112" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="138" gid="130" x="8" y="16" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="139" gid="130" x="72" y="16" width="8" height="8">
+  <object id="249" gid="146" x="112" y="104" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="140" gid="130" x="8" y="24" width="8" height="8">
-   <properties>
-    <property name="direction" value="e"/>
-    <property name="distance" type="int" value="61"/>
-    <property name="speed" type="int" value="9"/>
-   </properties>
-  </object>
-  <object id="141" gid="130" x="72" y="24" width="8" height="8">
+  <object id="250" gid="146" x="112" y="96" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>
-    <property name="distance" type="int" value="69"/>
-    <property name="speed" type="int" value="9"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
    </properties>
   </object>
+  <object id="251" gid="146" x="112" y="88" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="252" gid="146" x="112" y="72" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="253" gid="146" x="112" y="80" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="254" gid="146" x="112" y="56" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="255" gid="146" x="112" y="64" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="256" gid="146" x="112" y="48" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="257" gid="146" x="112" y="32" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="258" gid="146" x="112" y="24" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="259" gid="146" x="112" y="16" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="260" gid="146" x="112" y="40" width="8" height="8">
+   <properties>
+    <property name="direction" value="E"/>
+    <property name="distance" type="int" value="75"/>
+    <property name="speed" type="int" value="6"/>
+   </properties>
+  </object>
+  <object id="261" gid="145" x="608" y="104" width="8" height="8"/>
+  <object id="262" gid="145" x="24" y="96" width="8" height="8"/>
  </objectgroup>
 </map>
