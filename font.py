@@ -16,11 +16,13 @@ class Font:
         self.scale = 16
 
     def draw_string(self, batch: SpriteBatch, pos: tuple[int, int], s: str):
+        char_height = 8 * self.scale
+        char_width = 8 * self.scale
         for ch in s:
             c = ord(ch)
             if c > 127:
                 c = 127
             area = self.tileset.get_source_rect(c)
-            dest = pygame.Rect(pos[0], pos[1], 8 * self.scale, 8 * self.scale)
+            dest = pygame.Rect(pos[0], pos[1], char_width, char_height)
             batch.draw(self.tileset.surface, dest, area)
-            pos = (pos[0]+8 * self.scale, pos[1])
+            pos = (pos[0] + char_width, pos[1])

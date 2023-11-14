@@ -80,7 +80,7 @@ class Door:
             s = str(self.stars_remaining)
             if len(s) == 1:
                 s = '0' + s
-            images.font.draw_string(batch, (pos[0] + 8, pos[1] + 12), s)
+            images.font.draw_string(batch, (pos[0] + 8*16, pos[1] + 12*16), s)
 
     def draw_foreground(self, batch: SpriteBatch, offset: tuple[int, int]):
         pos = (self.x + offset[0], self.y + offset[1])
