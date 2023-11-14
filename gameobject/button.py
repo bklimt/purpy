@@ -1,7 +1,7 @@
 
 import pygame
 
-from platforms import PlatformBase
+from gameobject.platforms import PlatformBase
 from soundmanager import Sound, SoundManager
 from spritesheet import SpriteSheet
 from switchstate import SwitchState

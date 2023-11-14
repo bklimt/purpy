@@ -4,7 +4,7 @@ import pygame
 from math import trunc
 from random import randint
 
-from rendercontext import RenderContext
+from render.rendercontext import RenderContext
 from tilemap import MapObject
 from tileset import TileSet
 from utils import intersect

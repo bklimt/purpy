@@ -1,7 +1,7 @@
 
 import pygame
 
-from rendercontext import RenderContext
+from render.rendercontext import RenderContext
 
 
 class PygameRenderer:

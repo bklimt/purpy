@@ -8,7 +8,7 @@ import pygame
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileShader
 
-from rendercontext import RenderContext
+from render.rendercontext import RenderContext
 
 
 class Texture:

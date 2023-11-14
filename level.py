@@ -3,17 +3,17 @@ import os.path
 import pygame
 import typing
 
-from button import Button
-from door import Door
+from gameobject.button import Button
+from gameobject.door import Door
 from imagemanager import ImageManager
 from inputmanager import InputManager
 from kill import KillScreen
 from player import Player, PlayerState
-from platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
-from rendercontext import RenderContext
+from gameobject.platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
+from render.rendercontext import RenderContext
 from scene import Scene
 from soundmanager import Sound, SoundManager
-from star import Star
+from gameobject.star import Star
 from switchstate import SwitchState
 from tilemap import TileMap, load_map
 from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
@@ -631,7 +631,8 @@ class Level:
                 attribs.append(f'platform={self.current_platform.id}')
             if len(self.current_slopes) > 0:
                 attribs.append(f'slopes={self.current_slopes}')
-            transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
+            transition = f'{start_state} x ({", ".join(
+                attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
                 print(transition)

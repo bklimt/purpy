@@ -4,7 +4,7 @@ import os
 from imagemanager import ImageManager
 from inputmanager import InputManager
 from level import Level
-from rendercontext import RenderContext
+from render.rendercontext import RenderContext
 from scene import Scene
 from soundmanager import SoundManager
 

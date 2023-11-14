@@ -8,15 +8,15 @@ from levelselect import LevelSelect
 from level import Level
 from inputmanager import InputManager
 from imagemanager import ImageManager
-from renderer import Renderer
-from rendercontext import RenderContext
+from render.renderer import Renderer
+from render.rendercontext import RenderContext
 
 USE_OPENGL = True
 
 if USE_OPENGL:
-    from opengl_renderer import OpenGLRenderer
+    from render.opengl_renderer import OpenGLRenderer
 else:
-    from pygame_renderer import PygameRenderer
+    from render.pygame_renderer import PygameRenderer
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
