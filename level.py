@@ -356,11 +356,11 @@ class Level:
             if self.player.dx > 0 or (self.player.dx == 0 and self.player.facing_right):
                 # The player is facing right.
                 if right_y > left_y:
-                    fall = (right_y - left_y) * 16
+                    fall = right_y - left_y
             else:
                 # The player is facing left.
                 if left_y > right_y:
-                    fall = (left_y - right_y) * 16
+                    fall = left_y - right_y
             slope_fall = max(fall, slope_fall)
         return slope_fall
 

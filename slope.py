@@ -40,7 +40,7 @@ class Slope:
         if actor_center_x < target.left:
             target_y = target.top + self.left_y
         elif actor_center_x > target.right:
-            target_y_sub = target.top + self.right_y
+            target_y = target.top + self.right_y
         else:
             x_offset = actor_center_x - target.x
             slope = (self.right_y - self.left_y) / target.w

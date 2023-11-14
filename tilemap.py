@@ -4,6 +4,7 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from render.spritebatch import SpriteBatch
 from switchstate import SwitchState
 from tileset import TileSet, load_tileset
 from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Direction
@@ -184,11 +185,19 @@ class TileMap:
             if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, surface: pygame.Surface, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+    def draw_layer(self, surface: pygame.Surface | SpriteBatch, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         # pygame.draw.rect(surface, self.backgroundcolor, dest)
 
         if isinstance(layer, ImageLayer):
-            surface.blit(layer.surface, offset)
+            if isinstance(surface, SpriteBatch):
+                dest = pygame.Rect(
+                    offset[0],
+                    offset[1],
+                    layer.surface.get_width() * 16,
+                    layer.surface.get_height() * 16)
+                surface.draw(layer.surface, dest)
+            else:
+                surface.blit(layer.surface, (offset[0]//16, offset[1]//16))
             return
 
         offset_x = int(offset[0] // 16)
@@ -258,7 +267,12 @@ class TileMap:
                 if index in self.tileset.animations:
                     self.tileset.animations[index].blit(surface, pos, False)
                 else:
-                    surface.blit(self.tileset.surface, pos, source)
+                    if isinstance(surface, SpriteBatch):
+                        dest = pygame.Rect(
+                            pos[0], pos[1], source.w*16, source.h*16)
+                        surface.draw(self.tileset.surface, dest, source)
+                    else:
+                        surface.blit(self.tileset.surface, pos, source)
 
     def get_rect(self, row: int, col: int) -> pygame.Rect:
         return pygame.Rect(
