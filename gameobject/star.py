@@ -27,8 +27,8 @@ class Star:
         return intersect(self.area, player_rect)
 
     def draw(self, context: RenderContext, offset: tuple[int, int]):
-        x = self.area.x + offset[0]
-        y = self.area.y + offset[1]
+        x = (self.area.x + offset[0]) // 16
+        y = (self.area.y + offset[1]) // 16
         x += trunc(randint(-20, 20) / 20)
         y += trunc(randint(-20, 20) / 20)
         context.player_surface.blit(self.surface, (x, y), self.source)
