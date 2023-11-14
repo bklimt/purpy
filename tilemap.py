@@ -191,8 +191,8 @@ class TileMap:
             surface.blit(layer.surface, offset)
             return
 
-        offset_x = int(offset[0])
-        offset_y = int(offset[1])
+        offset_x = int(offset[0] // 16)
+        offset_y = int(offset[1] // 16)
         row_count = math.ceil(dest.height / self.tileheight) + 1
         col_count = math.ceil(dest.width / self.tilewidth) + 1
 
@@ -390,7 +390,8 @@ class TileMap:
                             index, hard_offset, soft_offset, direction)
         return result
 
-    def intersect(self, bounds: pygame.Rect, switches: SwitchState) -> list[int]:
+    # TODO: Delete this.
+    def intersect_old(self, bounds: pygame.Rect, switches: SwitchState) -> list[int]:
         ans = []
         rect = bounds
         row1 = rect.top // (self.tileheight * 16)

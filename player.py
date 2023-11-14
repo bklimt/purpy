@@ -102,15 +102,22 @@ class Player:
 
         pos_sub = (pos[0]*16, pos[1]*16)
 
-        if False:
+        if True:
             left = self.get_target_bounds_at(pos_sub, Direction.LEFT)
-            surface.fill(pygame.Color(255, 0, 255, 63), left.rect)
+            surface.fill(pygame.Color(255, 0, 255, 63),
+                         self.temp_map_to_pixels(left))
             right = self.get_target_bounds_at(pos_sub, Direction.RIGHT)
-            surface.fill(pygame.Color(127, 127, 63, 63), right.rect)
+            surface.fill(pygame.Color(127, 127, 63, 63),
+                         self.temp_map_to_pixels(right))
             up = self.get_target_bounds_at(pos_sub, Direction.UP)
-            surface.fill(pygame.Color(255, 127, 0, 63), up.rect)
+            surface.fill(pygame.Color(255, 127, 0, 63),
+                         self.temp_map_to_pixels(up))
             down = self.get_target_bounds_at(pos_sub, Direction.DOWN)
-            surface.fill(pygame.Color(0, 255, 127, 63), down.rect)
+            surface.fill(pygame.Color(0, 255, 127, 63),
+                         self.temp_map_to_pixels(down))
+
+    def temp_map_to_pixels(self, r: pygame.Rect):
+        return pygame.Rect(r.x//16, r.y//16, r.w//16, r.h//16)
 
     def get_target_bounds_at(self, pos: tuple[int, int], direction: Direction) -> pygame.Rect:
         x = pos[0]

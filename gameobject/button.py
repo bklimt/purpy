@@ -38,8 +38,8 @@ class Button(PlatformBase):
         return f'assets/sprites/buttons/{color}.png'
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.original_y//16 + offset[1]
+        x = (self.x + offset[0]) // 16
+        y = (self.original_y + offset[1]) // 16
         self.sprite.blit(surface, (x, y), self.level // BUTTON_DELAY)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
