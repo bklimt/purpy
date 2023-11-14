@@ -45,7 +45,7 @@ WALL_JUMP_VERTICAL_SPEED = 48
 WALL_STICK_TIME = 30
 WALL_SLIDE_TIME = 60
 
-VIEWPORT_PAN_SPEED = 5
+VIEWPORT_PAN_SPEED = 5*16
 
 TOAST_TIME = 100
 TOAST_HEIGHT = 12
@@ -631,8 +631,7 @@ class Level:
                 attribs.append(f'platform={self.current_platform.id}')
             if len(self.current_slopes) > 0:
                 attribs.append(f'slopes={self.current_slopes}')
-            transition = f'{start_state} x ({", ".join(
-                attribs)}) -> {self.player.state}'
+            transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
                 print(transition)
@@ -653,6 +652,9 @@ class Level:
     def draw(self, context: RenderContext, images: ImageManager) -> None:
         dest = context.logical_area
 
+        # TODO: Figure out what logical area means...
+        dest = pygame.Rect(dest.x * 16, dest.y * 16, dest.w * 16, dest.h * 16)
+
         # Make sure the player is on the screen, and then center them if possible.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
         preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
@@ -664,14 +666,14 @@ class Level:
             player_draw_x = player_x
         if player_draw_y > player_y + 4:
             player_draw_y = player_y + 4
-        if player_draw_x < player_x + dest.width - (self.map.width * self.map.tilewidth):
+        if player_draw_x < player_x + dest.width - (self.map.width * self.map.tilewidth * 16):
             player_draw_x = (
                 player_x + dest.width -
-                (self.map.width * self.map.tilewidth))
-        if player_draw_y < player_y + dest.height - (self.map.height * self.map.tileheight):
+                (self.map.width * self.map.tilewidth * 16))
+        if player_draw_y < player_y + dest.height - (self.map.height * self.map.tileheight * 16):
             player_draw_y = (
                 player_y + dest.height -
-                (self.map.height * self.map.tileheight))
+                (self.map.height * self.map.tileheight * 16))
         map_offset: tuple[int, int] = (
             player_draw_x - player_x,
             player_draw_y - player_y)
@@ -702,6 +704,7 @@ class Level:
 
         # Do the actual drawing.
         surface = context.player_surface
+        dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
         self.map.draw_background(surface, dest, map_offset, self.switches)
         for door in self.doors:
             door.draw_background(surface, map_offset, images)
