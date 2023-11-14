@@ -167,7 +167,7 @@ class Level:
         if (self.player.state == PlayerState.STANDING or
                 self.player.state == PlayerState.CROUCHING):
             # Fall at least one pixel so that we hit the ground again.
-            self.player.dy = max(self.player.dy, 16)
+            self.player.dy = max(self.player.dy, 1)
         elif self.player.state == PlayerState.JUMPING:
             # Apply gravity.
             if self.player.dy < JUMP_MAX_GRAVITY:
