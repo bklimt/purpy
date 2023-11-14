@@ -96,7 +96,7 @@ class Door:
         self.sprite.blit(surface, pos, layer=DoorLayer.FRAME)
 
     def is_inside(self, player_rect: pygame.Rect) -> bool:
-        door_rect = pygame.Rect(self.x+8, self.y, 24, 32)
+        door_rect = pygame.Rect(self.x+8*16, self.y, 24*16, 32*16)
         return intersect(player_rect, door_rect)
 
     def update(self, player_rect: pygame.Rect, star_count: int):
