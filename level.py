@@ -514,8 +514,8 @@ class Level:
                         self.spring_counter = SPRING_JUMP_DURATION
                         self.player.dy = -1 * SPRING_JUMP_VELOCITY
                     else:
-                        self.spring_counter = SPRING_BOUNCE_DURATION
-                        self.player.dy = -1 * SPRING_BOUNCE_VELOCITY
+                        self.spring_counter = 0
+                        self.player.dy = -1 * JUMP_INITIAL_SPEED
                     if self.current_platform is not None:
                         self.player.dx += self.current_platform.dx
         elif self.player.state == PlayerState.FALLING:
