@@ -38,13 +38,15 @@ class LevelSelect:
         return self
 
     def draw(self, context: RenderContext, images: ImageManager) -> None:
-        surface = context.hud_surface
+        batch = context.hud_batch
+        font_height = 8 * 16
+        line_spacing = font_height // 2
 
-        x = 4
-        y = 4
+        x = line_spacing
+        y = line_spacing
         dir_str = os.path.join(self.directory, "")
-        images.font.draw_string(surface, (x, y), dir_str)
-        y += 12
+        images.font.draw_string(batch, (x, y), dir_str)
+        y += (font_height + line_spacing)
 
         if self.current < self.start:
             # You scrolled up past what was visible.
@@ -53,8 +55,8 @@ class LevelSelect:
             # You scrolled off the bottom.
             self.start = self.current - 10
         if self.start != 0:
-            images.font.draw_string(surface, (x, y), ' ...')
-        y += 12
+            images.font.draw_string(batch, (x, y), ' ...')
+        y += (font_height + line_spacing)
 
         for i in range(self.start, self.start + 11):
             if i < 0 or i >= len(self.files):
@@ -63,8 +65,8 @@ class LevelSelect:
             if i == self.current:
                 cursor = '>'
             images.font.draw_string(
-                surface, (x, y), f'{cursor}{self.files[i]}')
-            y += 12
+                batch, (x, y), f'{cursor}{self.files[i]}')
+            y += (font_height + line_spacing)
 
         if self.start + 12 <= len(self.files):
-            images.font.draw_string(surface, (x, y), ' ...')
+            images.font.draw_string(batch, (x, y), ' ...')

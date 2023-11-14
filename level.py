@@ -703,28 +703,36 @@ class Level:
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
-        surface = context.player_surface
+        # surface = context.player_surface
         dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
-        self.map.draw_background(surface, dest, map_offset, self.switches)
+        self.map.draw_background(context.player_batch,
+                                 dest, map_offset, self.switches)
         for door in self.doors:
-            door.draw_background(surface, map_offset, images)
+            door.draw_background(context.player_batch, map_offset, images)
         for platform in self.platforms:
             platform.draw(context.player_batch, map_offset)
         for star in self.stars:
             star.draw(context, map_offset)
-        self.player.draw(surface, (player_draw_x, player_draw_y))
+        self.player.draw(context.player_batch, (player_draw_x, player_draw_y))
         for door in self.doors:
-            door.draw_foreground(surface, map_offset)
-        self.map.draw_foreground(surface, dest, map_offset, self.switches)
+            door.draw_foreground(context.player_batch, map_offset)
+        self.map.draw_foreground(context.player_batch,
+                                 dest, map_offset, self.switches)
 
         # Draw the text overlay.
+        # TODO: How to fix this...
         top_bar_bgcolor = pygame.Color(0, 0, 0, 127)
         top_bar_area = pygame.Rect(
             dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
-        top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
-        top_bar.fill(top_bar_bgcolor)
-        images.font.draw_string(top_bar, (2, 2), self.toast_text)
-        context.hud_surface.blit(top_bar, top_bar_area)
+
+        context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
+        images.font.draw_string(
+            context.hud_batch, (2*16, 2*16), self.toast_text)
+
+        # top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
+        # top_bar.fill(top_bar_bgcolor)
+        # images.font.draw_string(top_bar, (2, 2), self.toast_text)
+        # context.hud_surface.blit(top_bar, top_bar_area)
 
         context.dark = self.map.is_dark
 

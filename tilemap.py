@@ -168,14 +168,17 @@ class TileMap:
             return True
         return switches.is_condition_true(condition)
 
-    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
-        surface.fill(self.backgroundcolor, dest)
+    def draw_background(self, surface: pygame.Surface | SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+        if isinstance(surface, SpriteBatch):
+            surface.draw_rect(dest, self.backgroundcolor)
+        else:
+            surface.fill(self.backgroundcolor, dest)
         for layer in self.layers:
             self.draw_layer(surface, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 return
 
-    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+    def draw_foreground(self, surface: pygame.Surface | SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         if self.player_layer is None:
             return
         drawing = False
@@ -265,12 +268,13 @@ class TileMap:
                 # Draw the rest of the turtle.
                 pos = (pos_x, pos_y)
                 if index in self.tileset.animations:
-                    self.tileset.animations[index].blit(surface, pos, False)
+                    self.tileset.animations[index].blit(
+                        surface, (pos[0]*16, pos[1]*16), False)
                 else:
                     if isinstance(surface, SpriteBatch):
-                        dest = pygame.Rect(
-                            pos[0], pos[1], source.w*16, source.h*16)
-                        surface.draw(self.tileset.surface, dest, source)
+                        destination = pygame.Rect(
+                            pos[0]*16, pos[1]*16, source.w*16, source.h*16)
+                        surface.draw(self.tileset.surface, destination, source)
                     else:
                         surface.blit(self.tileset.surface, pos, source)
 

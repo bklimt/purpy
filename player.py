@@ -4,6 +4,7 @@ import pygame
 from enum import Enum
 from random import randint
 
+from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from utils import Direction
 
@@ -41,7 +42,7 @@ class Player:
         self.texture = pygame.image.load('assets/sprites/skelly.png')
         self.sprite = SpriteSheet(self.texture, 24, 24)
 
-    def draw(self, surface: pygame.Surface, pos: tuple[int, int]):
+    def draw(self, batch: SpriteBatch, pos: tuple[int, int]):
         if self.dx < 0:
             self.facing_right = False
         if self.dx > 0:
@@ -91,33 +92,22 @@ class Player:
             self.is_idle = False
             self.idle_counter = IDLE_TIME
 
-        pos = (pos[0] // 16, pos[1] // 16)
-
         if self.is_dead:
-            pos = (pos[0] + randint(-1, 1), pos[1] + randint(-1, 1))
-        self.sprite.blit(surface,
+            pos = (pos[0] + randint(-16, 16), pos[1] + randint(-16, 16))
+        self.sprite.blit(batch,
                          pos,
                          index=index,
                          reverse=not self.facing_right)
 
-        pos_sub = (pos[0]*16, pos[1]*16)
-
         if True:
-            left = self.get_target_bounds_at(pos_sub, Direction.LEFT)
-            surface.fill(pygame.Color(255, 0, 255, 63),
-                         self.temp_map_to_pixels(left))
-            right = self.get_target_bounds_at(pos_sub, Direction.RIGHT)
-            surface.fill(pygame.Color(127, 127, 63, 63),
-                         self.temp_map_to_pixels(right))
-            up = self.get_target_bounds_at(pos_sub, Direction.UP)
-            surface.fill(pygame.Color(255, 127, 0, 63),
-                         self.temp_map_to_pixels(up))
-            down = self.get_target_bounds_at(pos_sub, Direction.DOWN)
-            surface.fill(pygame.Color(0, 255, 127, 63),
-                         self.temp_map_to_pixels(down))
-
-    def temp_map_to_pixels(self, r: pygame.Rect):
-        return pygame.Rect(r.x//16, r.y//16, r.w//16, r.h//16)
+            left = self.get_target_bounds_at(pos, Direction.LEFT)
+            right = self.get_target_bounds_at(pos, Direction.RIGHT)
+            up = self.get_target_bounds_at(pos, Direction.UP)
+            down = self.get_target_bounds_at(pos, Direction.DOWN)
+            batch.draw_rect(left, pygame.Color(255, 0, 255, 63))
+            batch.draw_rect(right, pygame.Color(127, 127, 63, 63))
+            batch.draw_rect(up, pygame.Color(255, 127, 0, 63))
+            batch.draw_rect(down, pygame.Color(0, 255, 127, 63))
 
     def get_target_bounds_at(self, pos: tuple[int, int], direction: Direction) -> pygame.Rect:
         x = pos[0]

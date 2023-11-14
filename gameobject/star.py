@@ -31,5 +31,6 @@ class Star:
         y = (self.area.y + offset[1]) // 16
         x += trunc(randint(-20, 20) / 20)
         y += trunc(randint(-20, 20) / 20)
-        context.player_surface.blit(self.surface, (x, y), self.source)
+        rect = pygame.Rect(x*16, y*16, 8*16, 8*16)
+        context.player_batch.draw(self.surface, rect, self.source)
         context.add_light((x + 3, y + 5), 12)
