@@ -90,8 +90,8 @@ class Level:
         self.previous_map_offset = None
         self.map = load_map(map_path)
         self.player = Player()
-        self.player.x = self.map.tilewidth * 16
-        self.player.y = self.map.tileheight * 16
+        self.player.x = 128
+        self.player.y = 128
         self.transition: str = ''
         self.platforms = []
         self.stars = []
