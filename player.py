@@ -5,7 +5,7 @@ from enum import Enum
 from random import randint
 
 from spritesheet import SpriteSheet
-from utils import Bounds, Direction
+from utils import Direction
 
 FRAMES_PER_FRAME = 8
 IDLE_TIME = 240
@@ -91,6 +91,8 @@ class Player:
             self.is_idle = False
             self.idle_counter = IDLE_TIME
 
+        pos = (pos[0] // 16, pos[1] // 16)
+
         if self.is_dead:
             pos = (pos[0] + randint(-1, 1), pos[1] + randint(-1, 1))
         self.sprite.blit(surface,
@@ -110,23 +112,23 @@ class Player:
             down = self.get_target_bounds_at(pos_sub, Direction.DOWN)
             surface.fill(pygame.Color(0, 255, 127, 63), down.rect)
 
-    def get_target_bounds_at(self, pos: tuple[int, int], direction: Direction) -> Bounds:
+    def get_target_bounds_at(self, pos: tuple[int, int], direction: Direction) -> pygame.Rect:
         x = pos[0]
         y = pos[1]
         if self.state == PlayerState.CROUCHING:
-            return Bounds(x+8*16, y+14*16, 8*16, 9*16)
+            return pygame.Rect(x+8*16, y+14*16, 8*16, 9*16)
         match direction:
             case Direction.NONE:
-                return Bounds(x+8*16, y+4*16, 8*16, 19*16)
+                return pygame.Rect(x+8*16, y+4*16, 8*16, 19*16)
             case Direction.UP:
-                return Bounds(x+8*16, y+4*16, 8*16, 4*16)
+                return pygame.Rect(x+8*16, y+4*16, 8*16, 4*16)
             case Direction.DOWN:
-                return Bounds(x+8*16, y+19*16, 8*16, 4*16)
+                return pygame.Rect(x+8*16, y+19*16, 8*16, 4*16)
             case Direction.RIGHT:
-                return Bounds(x+12*16, y+4*16, 4*16, 14*16)
+                return pygame.Rect(x+12*16, y+4*16, 4*16, 14*16)
             case Direction.LEFT:
-                return Bounds(x+8*16, y+4*16, 4*16, 14*16)
+                return pygame.Rect(x+8*16, y+4*16, 4*16, 14*16)
 
-    def get_target_bounds_rect(self, direction: Direction) -> Bounds:
+    def get_target_bounds_rect(self, direction: Direction) -> pygame.Rect:
         """ Returns the bounds rect in pixels to check when moving in direction. """
         return self.get_target_bounds_at((self.x, self.y), direction)

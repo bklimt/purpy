@@ -6,7 +6,7 @@ import xml.etree.ElementTree
 
 from switchstate import SwitchState
 from tileset import TileSet, load_tileset
-from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Bounds, Direction
+from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Direction
 
 
 class ImageLayer:
@@ -286,9 +286,9 @@ class TileMap:
 
     class MoveResult:
         # This is the offset that stops the player.
-        hard_offset_sub: int = 0
+        hard_offset: int = 0
         # This is the offset for being on a slope.
-        soft_offset_sub: int = 0
+        soft_offset: int = 0
         tile_ids: set[int]
 
         def __init__(self):
@@ -296,60 +296,59 @@ class TileMap:
 
         def consider_tile(self,
                           index: int,
-                          hard_offset_sub: int,
-                          soft_offset_sub: int,
+                          hard_offset: int,
+                          soft_offset: int,
                           direction: Direction):
             cmp = cmp_in_direction(
-                hard_offset_sub, self.hard_offset_sub, direction)
+                hard_offset, self.hard_offset, direction)
             if cmp < 0:
-                self.hard_offset_sub = hard_offset_sub
+                self.hard_offset = hard_offset
 
             cmp = cmp_in_direction(
-                soft_offset_sub, self.soft_offset_sub, direction)
+                soft_offset, self.soft_offset, direction)
             if cmp < 0:
-                self.soft_offset_sub = soft_offset_sub
+                self.soft_offset = soft_offset
                 self.tile_ids = set([index])
             elif cmp == 0:
                 self.tile_ids.add(index)
 
     def try_move_to(self,
-                    bounds: Bounds,
+                    player_rect: pygame.Rect,
                     direction: Direction,
                     switches: SwitchState,
                     is_backwards: bool) -> MoveResult:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()
-        player_rect = bounds.rect
 
-        right_edge_sub = self.width * self.tilewidth * 16
-        bottom_edge_sub = self.height * self.tileheight * 16
+        right_edge = self.width * self.tilewidth * 16
+        bottom_edge = self.height * self.tileheight * 16
 
-        if direction == Direction.LEFT and bounds.x_sub < 0:
-            result.hard_offset_sub = -bounds.x_sub
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.LEFT and player_rect.x < 0:
+            result.hard_offset = -player_rect.x
+            result.soft_offset = result.hard_offset
             return result
-        if direction == Direction.UP and bounds.y_sub < 0:
-            result.hard_offset_sub = -bounds.y_sub
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.UP and player_rect.y < 0:
+            result.hard_offset = -player_rect.y
+            result.soft_offset = result.hard_offset
             return result
-        if direction == Direction.RIGHT and bounds.right_sub >= right_edge_sub:
-            result.hard_offset_sub = (right_edge_sub - bounds.right_sub) - 1
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.RIGHT and player_rect.right >= right_edge:
+            result.hard_offset = (right_edge - player_rect.right) - 1
+            result.soft_offset = result.hard_offset
             return result
-        if direction == Direction.DOWN and bounds.bottom_sub >= bottom_edge_sub:
-            result.hard_offset_sub = (bottom_edge_sub - bounds.bottom_sub) - 1
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.DOWN and player_rect.bottom >= bottom_edge:
+            result.hard_offset = (bottom_edge - player_rect.bottom) - 1
+            result.soft_offset = result.hard_offset
             return result
 
-        row1 = player_rect.top // self.tileheight
-        col1 = player_rect.left // self.tilewidth
-        row2 = player_rect.bottom // self.tileheight
-        col2 = player_rect.right // self.tilewidth
+        row1 = player_rect.top // (self.tileheight * 16)
+        col1 = player_rect.left // (self.tilewidth * 16)
+        row2 = player_rect.bottom // (self.tileheight * 16)
+        col2 = player_rect.right // (self.tilewidth * 16)
 
         for row in range(row1, row2+1):
             for col in range(col1, col2+1):
                 tile_rect = self.get_rect(row, col)
-                tile_bounds = Bounds(
+                tile_bounds = pygame.Rect(
                     tile_rect.x * 16,
                     tile_rect.y * 16,
                     tile_rect.w * 16,
@@ -375,7 +374,7 @@ class TileMap:
                             continue
 
                         soft_offset_sub = try_move_to_bounds(
-                            bounds,
+                            player_rect,
                             tile_bounds,
                             direction)
                         hard_offset_sub = soft_offset_sub
@@ -383,7 +382,7 @@ class TileMap:
                         if self.tileset.is_slope(index):
                             slope = self.tileset.get_slope(index)
                             hard_offset_sub = slope.try_move_to_bounds(
-                                bounds,
+                                player_rect,
                                 tile_bounds,
                                 direction)
 
@@ -391,13 +390,13 @@ class TileMap:
                             index, hard_offset_sub, soft_offset_sub, direction)
         return result
 
-    def intersect(self, bounds: Bounds, switches: SwitchState) -> list[int]:
+    def intersect(self, bounds: pygame.Rect, switches: SwitchState) -> list[int]:
         ans = []
-        rect = bounds.rect
-        row1 = rect.top // self.tileheight
-        col1 = rect.left // self.tilewidth
-        row2 = rect.bottom // self.tileheight
-        col2 = rect.right // self.tilewidth
+        rect = bounds
+        row1 = rect.top // (self.tileheight * 16)
+        col1 = rect.left // (self.tilewidth * 16)
+        row2 = rect.bottom // (self.tileheight * 16)
+        col2 = rect.right // (self.tilewidth * 16)
         if row1 < 0:
             row1 = 0
         if col1 < 0:

@@ -9,7 +9,7 @@ from random import randint
 from soundmanager import SoundManager
 from spritesheet import SpriteSheet
 from switchstate import SwitchState
-from utils import assert_int, assert_str, try_move_to_bounds, Bounds, Direction
+from utils import assert_int, assert_str, try_move_to_bounds, Direction
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
@@ -40,7 +40,7 @@ class Platform(typing.Protocol):
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
         raise Exception('abstract protocol')
 
-    def try_move_to(self, player_rect: Bounds, direction: Direction, is_backwards: bool) -> int:
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
         raise Exception('abstract protocol')
 
 
@@ -72,8 +72,8 @@ class PlatformBase:
         pass
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.y//16 + offset[1]
+        x = (self.x + offset[0]) // 16
+        y = (self.y + offset[1]) // 16
         if self.tile_id in self.tileset.animations:
             anim = self.tileset.animations[self.tile_id]
             anim.blit(surface, (x, y), False)
@@ -81,9 +81,9 @@ class PlatformBase:
             area = self.tileset.get_source_rect(self.tile_id)
             surface.blit(self.tileset.surface, (x, y), area)
 
-    def try_move_to(self, player_rect: Bounds, direction: Direction, is_backwards: bool) -> int:
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
         if self.is_solid:
-            area = Bounds(
+            area = pygame.Rect(
                 self.x,
                 self.y,
                 self.tileset.tilewidth * 16,
@@ -94,7 +94,7 @@ class PlatformBase:
                 return 0
             if is_backwards:
                 return 0
-            area = Bounds(
+            area = pygame.Rect(
                 self.x,
                 self.y,
                 self.tileset.tilewidth * 16,
@@ -290,8 +290,8 @@ class Spring(PlatformBase):
         self.sprite = SpriteSheet(surface, 8, 8)
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.y//16 + offset[1]
+        x = self.x + offset[0]
+        y = self.y + offset[1]
         self.sprite.blit(surface, (x, y), self.position)
 
     def should_boost(self):

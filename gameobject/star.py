@@ -16,7 +16,8 @@ class Star:
     source: pygame.Rect
 
     def __init__(self, obj: MapObject, tileset: TileSet):
-        self.area = pygame.Rect(obj.x, obj.y, obj.width, obj.height)
+        self.area = pygame.Rect(
+            obj.x*16, obj.y*16, obj.width*16, obj.height*16)
         self.surface = tileset.surface
         if not obj.gid:
             raise Exception('star must have gid')

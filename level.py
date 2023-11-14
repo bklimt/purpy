@@ -16,7 +16,7 @@ from soundmanager import Sound, SoundManager
 from gameobject.star import Star
 from switchstate import SwitchState
 from tilemap import TileMap, load_map
-from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
+from utils import Direction, cmp_in_direction, opposite_direction, sign
 
 # Horizontal speed.
 TARGET_WALK_SPEED = 24
@@ -187,15 +187,15 @@ class Level:
                 self.player.dy = WALL_SLIDE_SPEED
 
     class PlatformIntersectionResult:
-        offset_sub: int
+        offset: int
         platforms: set[Platform]
 
         def __init__(self):
-            self.offset_sub = 0
+            self.offset = 0
             self.platforms = set()
 
     def find_platform_intersections(self,
-                                    player_rect: Bounds,
+                                    player_rect: pygame.Rect,
                                     direction: Direction,
                                     is_backwards: bool = False
                                     ) -> PlatformIntersectionResult:
@@ -206,9 +206,9 @@ class Level:
             if distance == 0:
                 continue
 
-            cmp = cmp_in_direction(distance, result.offset_sub, direction)
+            cmp = cmp_in_direction(distance, result.offset, direction)
             if cmp < 0:
-                result.offset_sub = distance
+                result.offset = distance
                 result.platforms = set([platform])
             elif cmp == 0:
                 result.platforms.add(platform)
@@ -216,12 +216,12 @@ class Level:
 
     class TryMovePlayerResult:
         """ The results of trying to move. """
-        offset_sub: int
+        offset: int
         tile_ids: set[int]
         platforms: set[Platform]
 
         def __init__(self):
-            self.offset_sub = 0
+            self.offset = 0
             self.tile_ids = set()
             self.platforms = set()
 
@@ -235,11 +235,11 @@ class Level:
             player_rect, direction, is_backwards)
 
         result = Level.TryMovePlayerResult()
-        if cmp_in_direction(platform_result.offset_sub, map_result.hard_offset_sub, direction) <= 0:
-            result.offset_sub = platform_result.offset_sub
+        if cmp_in_direction(platform_result.offset, map_result.hard_offset, direction) <= 0:
+            result.offset = platform_result.offset
             result.platforms = platform_result.platforms
         else:
-            result.offset_sub = map_result.hard_offset_sub
+            result.offset = map_result.hard_offset
             result.tile_ids = map_result.tile_ids
 
         return result
@@ -259,17 +259,17 @@ class Level:
                        ) -> MoveAndCheckResult:
         """ Returns whether the first move hit a wall or platform. """
         move_result1 = self.try_move_player(forward)
-        apply_offset(move_result1.offset_sub)
+        apply_offset(move_result1.offset)
 
         # Try the opposite direction.
         move_result2 = self.try_move_player(
             opposite_direction(forward), is_backwards=True)
-        offset_sub = move_result2.offset_sub
-        apply_offset(offset_sub)
+        offset = move_result2.offset
+        apply_offset(offset)
 
         result = Level.MoveAndCheckResult()
         if forward == Direction.DOWN:
-            result.on_ground = move_result1.offset_sub != 0
+            result.on_ground = move_result1.offset != 0
             result.on_tile_ids = set(move_result1.tile_ids)
             result.on_platforms = set(move_result1.platforms)
         if forward == Direction.UP:
@@ -277,17 +277,17 @@ class Level:
             # unless we're standing on a platform.
             if (self.player.state != PlayerState.JUMPING and
                     self.player.state != PlayerState.FALLING):
-                result.on_ground = move_result2.offset_sub != 0
-            result.hit_ceiling = move_result1.offset_sub != 0
+                result.on_ground = move_result2.offset != 0
+            result.hit_ceiling = move_result1.offset != 0
             result.on_tile_ids = set(move_result2.tile_ids)
             result.on_platforms = set(move_result2.platforms)
         if forward == Direction.LEFT or forward == Direction.RIGHT:
-            result.against_wall = move_result1.offset_sub != 0
+            result.against_wall = move_result1.offset != 0
 
         # See if we're crushed.
-        if offset_sub != 0:
+        if offset != 0:
             crush_check = self.try_move_player(forward)
-            if crush_check.offset_sub != 0:
+            if crush_check.offset != 0:
                 crushed = False
                 for platform in move_result1.platforms:
                     if platform.is_solid:
@@ -593,7 +593,7 @@ class Level:
 
         self.current_door = None
         for door in self.doors:
-            door.update(player_rect.rect, self.star_count)
+            door.update(player_rect, self.star_count)
             if door.is_closed:
                 if door.destination is not None:
                     return Level(self.parent, door.destination)
@@ -602,7 +602,7 @@ class Level:
                 self.current_door = door
 
         for star in self.stars:
-            if star.intersects(player_rect.rect):
+            if star.intersects(player_rect):
                 sounds.play(Sound.STAR)
                 self.stars.remove(star)
                 self.star_count += 1
@@ -655,10 +655,9 @@ class Level:
 
         # Make sure the player is on the screen, and then center them if possible.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
-        preferred_x, preferred_y = self.map.get_preferred_view(
-            player_rect.rect)
-        player_x = self.player.x // 16
-        player_y = self.player.y // 16
+        preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
+        player_x = self.player.x
+        player_y = self.player.y
         player_draw_x: int = dest.width // 2
         player_draw_y: int = dest.height // 2
         if player_draw_x > player_x:
