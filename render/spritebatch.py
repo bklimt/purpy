@@ -12,4 +12,5 @@ class SpriteBatch:
              texture: pygame.Surface,
              dest: pygame.Rect,
              src: pygame.Rect | None = None):
+        dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
         self.canvas.blit(texture, dest, area=src)

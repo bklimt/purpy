@@ -6,6 +6,7 @@ from tilemap import MapObject
 from tileset import TileSet
 from random import randint
 from soundmanager import SoundManager
+from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from switchstate import SwitchState
 from utils import assert_int, assert_str, try_move_to_bounds, Direction
@@ -36,7 +37,7 @@ class Platform(typing.Protocol):
     def update(self, switches: SwitchState, sounds: SoundManager) -> None:
         raise Exception('abstract protocol')
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
+    def draw(self, batch: SpriteBatch, offset: tuple[int, int]) -> None:
         raise Exception('abstract protocol')
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
@@ -70,15 +71,17 @@ class PlatformBase:
 
         pass
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = (self.x + offset[0]) // 16
-        y = (self.y + offset[1]) // 16
+    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
+        x = self.x + offset[0]
+        y = self.y + offset[1]
         if self.tile_id in self.tileset.animations:
             anim = self.tileset.animations[self.tile_id]
-            anim.blit(surface, (x, y), False)
+            anim.blit(batch, (x, y), False)
         else:
             area = self.tileset.get_source_rect(self.tile_id)
-            surface.blit(self.tileset.surface, (x, y), area)
+            # TODO: Use the actual width here.
+            dest = pygame.Rect(x, y, area.w * 16, area.h * 16)
+            batch.draw(self.tileset.surface, dest, area)
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
         if self.is_solid:
@@ -228,14 +231,16 @@ class Bagel(PlatformBase):
         super().__init__(obj, tileset)
         self.original_y = self.y
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = (self.x + offset[0]) // 16
-        y = (self.y + offset[1]) // 16
+    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
+        x = self.x + offset[0]
+        y = self.y + offset[1]
         area = self.tileset.get_source_rect(self.tile_id)
         if self.occupied:
             x += randint(-1, 1)
             y += randint(-1, 1)
-        surface.blit(self.tileset.surface, (x, y), area)
+        # TODO: Change this.
+        rect = pygame.Rect(x, y, area.w * 16, area.h * 16)
+        batch.draw(self.tileset.surface, rect, area)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         if self.falling:
@@ -288,10 +293,10 @@ class Spring(PlatformBase):
         surface = pygame.image.load('assets/sprites/spring.png')
         self.sprite = SpriteSheet(surface, 8, 8)
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
+    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
-        self.sprite.blit(surface, (x, y), self.position)
+        self.sprite.blit(batch, (x, y), self.position)
 
     def should_boost(self):
         return self.up or (self.position == SPRING_FRAMES - 1)

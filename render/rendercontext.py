@@ -1,6 +1,8 @@
 
 import pygame
 
+from render.spritebatch import SpriteBatch
+
 MAX_LIGHTS = 20
 
 
@@ -16,20 +18,28 @@ class Light:
 class RenderContext:
     logical_size: tuple[int, int]
     logical_area: pygame.Rect
+
     hud_surface: pygame.Surface
     foreground_surface: pygame.Surface
     player_surface: pygame.Surface
     background_surface: pygame.Surface
+
+    player_batch: SpriteBatch
+
     dark: bool = False
     lights: list[Light]
 
     def __init__(self, logical_size: tuple[int, int]):
         self.logical_size = logical_size
         self.logical_area = pygame.Rect(0, 0, logical_size[0], logical_size[1])
+
         self.hud_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
         self.foreground_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
         self.player_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
         self.background_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
+
+        self.player_batch = SpriteBatch(self.player_surface)
+
         self.lights = []
 
     def clear(self):

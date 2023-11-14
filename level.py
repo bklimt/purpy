@@ -709,7 +709,7 @@ class Level:
         for door in self.doors:
             door.draw_background(surface, map_offset, images)
         for platform in self.platforms:
-            platform.draw(surface, map_offset)
+            platform.draw(context.player_batch, map_offset)
         for star in self.stars:
             star.draw(context, map_offset)
         self.player.draw(surface, (player_draw_x, player_draw_y))

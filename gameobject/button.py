@@ -2,6 +2,7 @@
 import pygame
 
 from gameobject.platforms import PlatformBase
+from render.spritebatch import SpriteBatch
 from soundmanager import Sound, SoundManager
 from spritesheet import SpriteSheet
 from switchstate import SwitchState
@@ -38,10 +39,10 @@ class Button(PlatformBase):
             color = 'black'
         return f'assets/sprites/buttons/{color}.png'
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = (self.x + offset[0]) // 16
-        y = (self.original_y + offset[1]) // 16
-        self.sprite.blit(surface, (x, y), self.level // BUTTON_DELAY)
+    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
+        x = self.x + offset[0]
+        y = self.original_y + offset[1]
+        self.sprite.blit(batch, (x, y), self.level // BUTTON_DELAY)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         was_clicked = self.clicked
