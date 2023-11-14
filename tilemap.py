@@ -373,21 +373,21 @@ class TileMap:
                         if not self.is_solid_in_direction(index, direction, is_backwards):
                             continue
 
-                        soft_offset_sub = try_move_to_bounds(
+                        soft_offset = try_move_to_bounds(
                             player_rect,
                             tile_bounds,
                             direction)
-                        hard_offset_sub = soft_offset_sub
+                        hard_offset = soft_offset
 
                         if self.tileset.is_slope(index):
                             slope = self.tileset.get_slope(index)
-                            hard_offset_sub = slope.try_move_to_bounds(
+                            hard_offset = slope.try_move_to_bounds(
                                 player_rect,
                                 tile_bounds,
                                 direction)
 
                         result.consider_tile(
-                            index, hard_offset_sub, soft_offset_sub, direction)
+                            index, hard_offset, soft_offset, direction)
         return result
 
     def intersect(self, bounds: pygame.Rect, switches: SwitchState) -> list[int]:

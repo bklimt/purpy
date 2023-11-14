@@ -2,7 +2,6 @@
 import pygame
 import typing
 
-from player import Player
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
