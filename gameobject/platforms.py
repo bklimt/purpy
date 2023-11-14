@@ -229,8 +229,8 @@ class Bagel(PlatformBase):
         self.original_y = self.y
 
     def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.y//16 + offset[1]
+        x = (self.x + offset[0]) // 16
+        y = (self.y + offset[1]) // 16
         area = self.tileset.get_source_rect(self.tile_id)
         if self.occupied:
             x += randint(-1, 1)

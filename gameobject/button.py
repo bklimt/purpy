@@ -25,6 +25,7 @@ class Button(PlatformBase):
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
         self.original_y = self.y
+        self.dy = 16
         self.color = assert_str(obj.properties.get('color', 'red'))
         surface = pygame.image.load(self.get_image_path(obj))
         self.sprite = SpriteSheet(surface, 8, 8)

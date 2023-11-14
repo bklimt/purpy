@@ -44,8 +44,8 @@ class Door:
     def __init__(self, obj: MapObject):
         surface = pygame.image.load('assets/sprites/door.png')
         self.sprite = SpriteSheet(surface, 32, 32)
-        self.x = obj.x
-        self.y = obj.y
+        self.x = obj.x * 16
+        self.y = obj.y * 16
         self.active = False
 
         dest = obj.properties.get('destination', None)
@@ -63,6 +63,7 @@ class Door:
 
     def draw_background(self, surface: pygame.Surface, offset: tuple[int, int], images: ImageManager):
         pos = (self.x + offset[0], self.y + offset[1])
+        pos = (pos[0] // 16, pos[1] // 16)
         layer = DoorLayer.ACTIVE if self.active else DoorLayer.INACTIVE
         self.sprite.blit(surface, pos, 0, layer=layer)
         if self.state == DoorState.LOCKED:
@@ -83,6 +84,7 @@ class Door:
 
     def draw_foreground(self, surface: pygame.Surface, offset: tuple[int, int]):
         pos = (self.x + offset[0], self.y + offset[1])
+        pos = (pos[0] // 16, pos[1] // 16)
         if self.state == DoorState.CLOSING:
             self.sprite.blit(surface,
                              pos,
