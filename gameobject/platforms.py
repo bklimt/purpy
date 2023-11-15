@@ -83,12 +83,12 @@ class PlatformBase:
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
+        dest = pygame.Rect(x, y, self.width, self.height)
         if self.tile_id in self.tileset.animations:
             anim = self.tileset.animations[self.tile_id]
-            anim.blit(batch, (x, y), False)
+            anim.blit(batch, dest, False)
         else:
             area = self.tileset.get_source_rect(self.tile_id)
-            dest = pygame.Rect(x, y, self.width, self.height)
             batch.draw(self.tileset.surface, dest, area)
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
@@ -306,7 +306,8 @@ class Spring(PlatformBase):
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
-        self.sprite.blit(batch, (x, y), self.frame)
+        dest = pygame.Rect(x, y, self.width, self.height)
+        self.sprite.blit(batch, dest, self.frame)
 
     def should_boost(self):
         return self.up or (self.frame == SPRING_STEPS - 1)

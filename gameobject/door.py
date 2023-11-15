@@ -67,16 +67,18 @@ class Door:
 
     def draw_background(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int], images: ImageManager):
         pos = (self.x + offset[0], self.y + offset[1])
+        dest = pygame.Rect(pos[0], pos[1], 32 *
+                           context.subpixels, 32 * context.subpixels)
         layer = DoorLayer.ACTIVE if self.active else DoorLayer.INACTIVE
-        self.sprite.blit(batch, pos, 0, layer=layer)
+        self.sprite.blit(batch, dest, 0, layer=layer)
         if self.state == DoorState.LOCKED:
             self.sprite.blit(batch,
-                             pos,
+                             dest,
                              index=0,
                              layer=DoorLayer.LOCKED)
         if self.state == DoorState.UNLOCKING:
             self.sprite.blit(batch,
-                             pos,
+                             dest,
                              index=(self.frame // DOOR_SPEED),
                              layer=DoorLayer.LOCKED)
         if self.stars_remaining > 0:
@@ -88,19 +90,21 @@ class Door:
                                      pos[1] + 12*context.subpixels),
                                     s)
 
-    def draw_foreground(self, batch: SpriteBatch, offset: tuple[int, int]):
+    def draw_foreground(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         pos = (self.x + offset[0], self.y + offset[1])
+        dest = pygame.Rect(pos[0], pos[1], 32 *
+                           context.subpixels, 32 * context.subpixels)
         if self.state == DoorState.CLOSING:
             self.sprite.blit(batch,
-                             pos,
+                             dest,
                              index=(self.frame // DOOR_SPEED),
                              layer=DoorLayer.DOORS)
         if self.state == DoorState.CLOSED:
             self.sprite.blit(batch,
-                             pos,
+                             dest,
                              index=CLOSING_FRAMES - 1,
                              layer=DoorLayer.DOORS)
-        self.sprite.blit(batch, pos, layer=DoorLayer.FRAME)
+        self.sprite.blit(batch, dest, layer=DoorLayer.FRAME)
 
     def is_inside(self, player_rect: pygame.Rect) -> bool:
         door_rect = pygame.Rect(self.x + 8*self.scale,

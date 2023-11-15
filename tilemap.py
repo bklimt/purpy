@@ -278,17 +278,14 @@ class TileMap:
 
                 # Draw the rest of the turtle.
                 pos = (pos_x, pos_y)
+                destination = pygame.Rect(
+                    pos[0]*context.subpixels,
+                    pos[1]*context.subpixels,
+                    source.w*context.subpixels,
+                    source.h*context.subpixels)
                 if index in self.tileset.animations:
-                    self.tileset.animations[index].blit(
-                        batch,
-                        (pos[0]*context.subpixels, pos[1]*context.subpixels),
-                        False)
+                    self.tileset.animations[index].blit(batch, destination, reverse=False)
                 else:
-                    destination = pygame.Rect(
-                        pos[0]*context.subpixels,
-                        pos[1]*context.subpixels,
-                        source.w*context.subpixels,
-                        source.h*context.subpixels)
                     batch.draw(self.tileset.surface, destination, source)
 
     def get_rect(self, row: int, col: int) -> pygame.Rect:
@@ -416,6 +413,7 @@ class TileMap:
                             hard_offset = slope.try_move_to_bounds(
                                 player_rect,
                                 tile_bounds,
+                                scale,
                                 direction)
 
                         result.consider_tile(

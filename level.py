@@ -718,7 +718,7 @@ class Level:
         self.player.draw(context, context.player_batch,
                          (player_draw_x, player_draw_y))
         for door in self.doors:
-            door.draw_foreground(context.player_batch, map_offset)
+            door.draw_foreground(context, context.player_batch, map_offset)
         self.map.draw_foreground(context, context.player_batch,
                                  dest, map_offset, self.switches)
 

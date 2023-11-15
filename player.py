@@ -23,7 +23,6 @@ class PlayerState(Enum):
 
 
 class Player:
-    # These are in 1/16 sub-pixels.
     x: int = 0
     y: int = 0
     dx: int = 0
@@ -99,8 +98,12 @@ class Player:
             x_jiggle = randint(-context.subpixels, context.subpixels)
             y_jiggle = randint(-context.subpixels, context.subpixels)
             pos = (pos[0] + x_jiggle, pos[1] + y_jiggle)
+
+        dest = pygame.Rect(pos[0], pos[1], 24 *
+                           context.subpixels, 24 * context.subpixels)
+
         self.sprite.blit(batch,
-                         pos,
+                         dest,
                          index=index,
                          reverse=not self.facing_right)
 

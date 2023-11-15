@@ -43,7 +43,8 @@ class Button(PlatformBase):
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.original_y + offset[1]
-        self.sprite.blit(batch, (x, y), self.level // BUTTON_DELAY)
+        dest = pygame.Rect(x, y, self.width, self.height)
+        self.sprite.blit(batch, dest, self.level // BUTTON_DELAY)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         was_clicked = self.clicked

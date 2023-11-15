@@ -40,7 +40,7 @@ class LevelSelect:
 
     def draw(self, context: RenderContext, images: ImageManager) -> None:
         batch = context.hud_batch
-        font_height = 8 * 16
+        font_height = images.font.char_height
         line_spacing = font_height // 2
 
         x = line_spacing
