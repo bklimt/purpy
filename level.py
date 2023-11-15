@@ -737,6 +737,6 @@ class Level:
 
         context.dark = self.map.is_dark
 
-        spotlight_pos = (player_draw_x + 12, player_draw_y + 12)
+        spotlight_pos = (player_draw_x//16 + 12, player_draw_y//16 + 12)
         spotlight_radius = 120.0
         context.add_light(spotlight_pos, spotlight_radius)

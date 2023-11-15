@@ -24,15 +24,21 @@ class KillScreen:
 
     def draw(self, context: RenderContext, images: ImageManager) -> None:
         dest = context.logical_area
+        # TODO: Figure out what logical area means...
+        dest = pygame.Rect(dest.x * 16, dest.y * 16, dest.w * 16, dest.h * 16)
         self.previous.draw(context, images)
 
         red_color = pygame.Color(255, 0, 0, 127)
-        red_surface = pygame.Surface(dest.size, pygame.SRCALPHA)
-        red_surface.fill(red_color, dest)
-        surface = context.hud_surface
-        surface.blit(red_surface, dest)
+        context.hud_batch.draw_rect(dest, red_color)
+        # red_surface = pygame.Surface(dest.size, pygame.SRCALPHA)
+        # red_surface.fill(red_color, dest)
+        # surface = context.hud_surface
+
+        # surface.blit(red_surface, dest)
+        # TODO: Get this from the font.
+        char_width = 8*16
         text = "DEAD"
         text_pos = (
-            dest.width//2 - len(text) * 4,
-            dest.height//2 - len(text) * 4)
-        images.font.draw_string(surface, text_pos, text)
+            dest.width//2 - len(text) * (char_width//2),
+            dest.height//2 - len(text) * (char_width//2))
+        images.font.draw_string(context.hud_batch, text_pos, text)

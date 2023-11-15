@@ -99,7 +99,7 @@ class Player:
                          index=index,
                          reverse=not self.facing_right)
 
-        if True:
+        if False:
             left = self.get_target_bounds_at(pos, Direction.LEFT)
             right = self.get_target_bounds_at(pos, Direction.RIGHT)
             up = self.get_target_bounds_at(pos, Direction.UP)
