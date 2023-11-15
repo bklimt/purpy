@@ -4,6 +4,7 @@ import pygame
 from enum import Enum, IntEnum
 
 from imagemanager import ImageManager
+from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from tilemap import MapObject
@@ -33,6 +34,7 @@ class DoorState(Enum):
 class Door:
     x: int
     y: int
+    scale: int
     sprite: SpriteSheet
     destination: str | None
     stars_needed: int
@@ -42,12 +44,13 @@ class Door:
     state: DoorState
     frame: int = 0
 
-    def __init__(self, obj: MapObject):
+    def __init__(self, obj: MapObject, scale: int):
         surface = pygame.image.load('assets/sprites/door.png')
         self.sprite = SpriteSheet(surface, 32, 32)
-        self.x = obj.x * 16
-        self.y = obj.y * 16
+        self.x = obj.x * scale
+        self.y = obj.y * scale
         self.active = False
+        self.scale = scale
 
         dest = obj.properties.get('destination', None)
         if dest is not None and not isinstance(dest, str):
@@ -62,7 +65,7 @@ class Door:
 
         self.state = DoorState.LOCKED if self.stars_needed > 0 else DoorState.OPEN
 
-    def draw_background(self, batch: SpriteBatch, offset: tuple[int, int], images: ImageManager):
+    def draw_background(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int], images: ImageManager):
         pos = (self.x + offset[0], self.y + offset[1])
         layer = DoorLayer.ACTIVE if self.active else DoorLayer.INACTIVE
         self.sprite.blit(batch, pos, 0, layer=layer)
@@ -80,7 +83,10 @@ class Door:
             s = str(self.stars_remaining)
             if len(s) == 1:
                 s = '0' + s
-            images.font.draw_string(batch, (pos[0] + 8*16, pos[1] + 12*16), s)
+            images.font.draw_string(batch,
+                                    (pos[0] + 8*context.subpixels,
+                                     pos[1] + 12*context.subpixels),
+                                    s)
 
     def draw_foreground(self, batch: SpriteBatch, offset: tuple[int, int]):
         pos = (self.x + offset[0], self.y + offset[1])
@@ -97,7 +103,10 @@ class Door:
         self.sprite.blit(batch, pos, layer=DoorLayer.FRAME)
 
     def is_inside(self, player_rect: pygame.Rect) -> bool:
-        door_rect = pygame.Rect(self.x+8*16, self.y, 24*16, 32*16)
+        door_rect = pygame.Rect(self.x + 8*self.scale,
+                                self.y,
+                                24*self.scale,
+                                32*self.scale)
         return intersect(player_rect, door_rect)
 
     def update(self, player_rect: pygame.Rect, star_count: int):

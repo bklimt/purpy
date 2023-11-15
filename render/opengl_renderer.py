@@ -132,21 +132,22 @@ class OpenGLRenderer:
         ls = context.lights
         if len(ls) > 20:
             ls = ls[:20]
+        positions = [
+            (l.position[0] // context.subpixels,
+             l.position[1] // context.subpixels)
+            for l in ls]
+        radii = [l.radius // context.subpixels for l in ls]
 
         glUniform1i(glGetUniformLocation(
             self.program, 'iSpotlightCount'), len(ls))
 
         glUniform2fv(glGetUniformLocation(self.program, 'iSpotlightPosition'),
-                     len(ls),
-                     [l.position for l in ls])
+                     len(ls), positions)
 
         glUniform1fv(glGetUniformLocation(self.program, 'iSpotlightRadius'),
-                     len(ls),
-                     [l.radius for l in ls])
+                     len(ls), radii)
 
     def render(self, context: RenderContext):
-        surface = context.player_surface
-
         glClearColor(0, 0, 1, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
 

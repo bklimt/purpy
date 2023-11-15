@@ -21,14 +21,10 @@ class RenderContext:
     logical_area: pygame.Rect  # the render_area * subpixels
 
     hud_surface: pygame.Surface
-    foreground_surface: pygame.Surface
     player_surface: pygame.Surface
-    background_surface: pygame.Surface
 
     hud_batch: SpriteBatch
-    foreground_batch: SpriteBatch
     player_batch: SpriteBatch
-    background_batch: SpriteBatch
 
     dark: bool = False
     lights: list[Light]
@@ -46,10 +42,10 @@ class RenderContext:
         self.player_surface = pygame.Surface(render_size, pygame.SRCALPHA)
         self.background_surface = pygame.Surface(render_size, pygame.SRCALPHA)
 
-        self.hud_batch = SpriteBatch(self.hud_surface)
-        self.foreground_batch = SpriteBatch(self.foreground_surface)
-        self.player_batch = SpriteBatch(self.player_surface)
-        self.background_batch = SpriteBatch(self.background_surface)
+        self.hud_batch = SpriteBatch(self.hud_surface, subpixels)
+        self.foreground_batch = SpriteBatch(self.foreground_surface, subpixels)
+        self.player_batch = SpriteBatch(self.player_surface, subpixels)
+        self.background_batch = SpriteBatch(self.background_surface, subpixels)
 
         self.lights = []
 

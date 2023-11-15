@@ -4,15 +4,18 @@ import pygame
 
 class SpriteBatch:
     canvas: pygame.Surface
+    subpixels: int
 
-    def __init__(self, canvas: pygame.Surface):
+    def __init__(self, canvas: pygame.Surface, subpixels: int):
         self.canvas = canvas
+        self.subpixels = subpixels
 
     def draw(self,
              texture: pygame.Surface,
              dest: pygame.Rect,
              src: pygame.Rect | None = None):
-        dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
+        s = self.subpixels
+        dest = pygame.Rect(dest.x//s, dest.y//s, dest.w//s, dest.h//s)
         self.canvas.blit(texture, dest, area=src)
 
     def draw_rect(self, dest: pygame.Rect, color: pygame.Color | str):
@@ -20,5 +23,6 @@ class SpriteBatch:
             return
         if dest.y < 0:
             dest = pygame.Rect(dest.x, 0, dest.w, dest.h + dest.y)
-        dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
+        s = self.subpixels
+        dest = pygame.Rect(dest.x//s, dest.y//s, dest.w//s, dest.h//s)
         self.canvas.fill(color, dest)

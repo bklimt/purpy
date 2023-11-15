@@ -116,9 +116,9 @@ class Level:
             if obj.properties.get('button', False):
                 self.platforms.append(Button(obj, self.map.tileset, scale))
             if obj.properties.get('door', False):
-                self.doors.append(Door(obj))
+                self.doors.append(Door(obj, scale))
             if obj.properties.get('star', False):
-                self.stars.append(Star(obj, self.map.tileset))
+                self.stars.append(Star(obj, self.map.tileset, scale))
 
     #
     # Movement.
@@ -709,7 +709,8 @@ class Level:
         self.map.draw_background(context, context.player_batch,
                                  dest, map_offset, self.switches)
         for door in self.doors:
-            door.draw_background(context.player_batch, map_offset, images)
+            door.draw_background(
+                context, context.player_batch, map_offset, images)
         for platform in self.platforms:
             platform.draw(context, context.player_batch, map_offset)
         for star in self.stars:
@@ -735,7 +736,8 @@ class Level:
 
         context.dark = self.map.is_dark
 
-        # TODO: Fix spotlights.
-        spotlight_pos = (player_draw_x//16 + 12, player_draw_y//16 + 12)
-        spotlight_radius = 120.0
+        spotlight_pos = (
+            player_draw_x + 12 * context.subpixels,
+            player_draw_y + 12 * context.subpixels)
+        spotlight_radius = 120.0 * context.subpixels
         context.add_light(spotlight_pos, spotlight_radius)
