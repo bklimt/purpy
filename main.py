@@ -23,6 +23,7 @@ WINDOW_HEIGHT = 900
 LOGICAL_WIDTH = 320
 LOGICAL_HEIGHT = 180
 FRAME_RATE = 60
+SUBPIXELS = 16
 
 
 class Game:
@@ -53,7 +54,7 @@ class Game:
             self.renderer = PygameRenderer(logical, destination, window)
 
         print('loading game content')
-        self.images = ImageManager()
+        self.images = ImageManager(SUBPIXELS)
         self.inputs = InputManager()
         self.sounds = SoundManager()
 

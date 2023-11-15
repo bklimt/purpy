@@ -14,8 +14,6 @@ class Font:
     def __init__(self, path: str, scale: int = 1):
         self.tileset = load_tileset(path)
         self.scale = scale
-        # TODO: Replace this.
-        self.scale = 16
         self.char_width = 8 * self.scale
         self.char_height = 8 * self.scale
 
