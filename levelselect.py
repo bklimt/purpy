@@ -16,11 +16,12 @@ class LevelSelect:
     current: int
     start: int = 0
 
-    def __init__(self, parent: Scene | None, directory: str):
+    def __init__(self, parent: Scene | None, directory: str, scale: int):
         self.parent = parent
         self.directory = os.path.normpath(directory)
         self.current = 0
         self.files = sorted(os.listdir(directory))
+        self.scale = scale
 
     def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
         if inputs.is_cancel_triggered():
@@ -32,9 +33,9 @@ class LevelSelect:
         if inputs.is_ok_triggered():
             new_path = os.path.join(self.directory, self.files[self.current])
             if os.path.isdir(new_path):
-                return LevelSelect(self, new_path)
+                return LevelSelect(self, new_path, self.scale)
             else:
-                return Level(self, new_path)
+                return Level(self, new_path, self.scale)
         return self
 
     def draw(self, context: RenderContext, images: ImageManager) -> None:

@@ -4,6 +4,7 @@ import pygame
 from enum import Enum
 from random import randint
 
+from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from utils import Direction
@@ -27,6 +28,7 @@ class Player:
     y: int = 0
     dx: int = 0
     dy: int = 0
+    scale: int
     facing_right: bool = True
     # 24x24 sprite sheet
     texture: pygame.Surface
@@ -38,11 +40,12 @@ class Player:
     is_idle: bool = False
     is_dead: bool = False
 
-    def __init__(self):
+    def __init__(self, scale: int):
         self.texture = pygame.image.load('assets/sprites/skelly.png')
         self.sprite = SpriteSheet(self.texture, 24, 24)
+        self.scale = scale
 
-    def draw(self, batch: SpriteBatch, pos: tuple[int, int]):
+    def draw(self, context: RenderContext, batch: SpriteBatch, pos: tuple[int, int]):
         if self.dx < 0:
             self.facing_right = False
         if self.dx > 0:
@@ -93,7 +96,9 @@ class Player:
             self.idle_counter = IDLE_TIME
 
         if self.is_dead:
-            pos = (pos[0] + randint(-16, 16), pos[1] + randint(-16, 16))
+            x_jiggle = randint(-context.subpixels, context.subpixels)
+            y_jiggle = randint(-context.subpixels, context.subpixels)
+            pos = (pos[0] + x_jiggle, pos[1] + y_jiggle)
         self.sprite.blit(batch,
                          pos,
                          index=index,
@@ -109,23 +114,26 @@ class Player:
             batch.draw_rect(up, pygame.Color(255, 127, 0, 63))
             batch.draw_rect(down, pygame.Color(0, 255, 127, 63))
 
-    def get_target_bounds_at(self, pos: tuple[int, int], direction: Direction) -> pygame.Rect:
-        x = pos[0]
-        y = pos[1]
+    def get_raw_target_bounds(self, direction: Direction) -> pygame.Rect:
         if self.state == PlayerState.CROUCHING:
-            return pygame.Rect(x+8*16, y+14*16, 8*16, 9*16)
+            return pygame.Rect(8, 14, 8, 9)
         match direction:
             case Direction.NONE:
-                return pygame.Rect(x+8*16, y+4*16, 8*16, 19*16)
+                return pygame.Rect(8, 4, 8, 19)
             case Direction.UP:
-                return pygame.Rect(x+8*16, y+4*16, 8*16, 4*16)
+                return pygame.Rect(8, 4, 8, 4)
             case Direction.DOWN:
-                return pygame.Rect(x+8*16, y+19*16, 8*16, 4*16)
+                return pygame.Rect(8, 19, 8, 4)
             case Direction.RIGHT:
-                return pygame.Rect(x+12*16, y+4*16, 4*16, 14*16)
+                return pygame.Rect(12, 4, 4, 14)
             case Direction.LEFT:
-                return pygame.Rect(x+8*16, y+4*16, 4*16, 14*16)
+                return pygame.Rect(8, 4, 4, 14)
 
     def get_target_bounds_rect(self, direction: Direction) -> pygame.Rect:
         """ Returns the bounds rect in pixels to check when moving in direction. """
-        return self.get_target_bounds_at((self.x, self.y), direction)
+        unscaled = self.get_raw_target_bounds(direction)
+        return pygame.Rect(
+            self.x + unscaled.x * self.scale,
+            self.y + unscaled.y * self.scale,
+            unscaled.w * self.scale,
+            unscaled.h * self.scale)

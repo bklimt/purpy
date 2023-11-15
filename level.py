@@ -48,13 +48,14 @@ WALL_SLIDE_TIME = 60
 VIEWPORT_PAN_SPEED = 5*16
 
 TOAST_TIME = 150
-TOAST_HEIGHT = 12 * 16
+TOAST_HEIGHT = 12*16
 TOAST_SPEED = 8
 
 
 class Level:
     parent: Scene | None
     map_path: str
+    scale: int
     name: str
     map: TileMap
     player: Player
@@ -83,14 +84,14 @@ class Level:
     current_switch_tiles: set[int]
     current_door: Door | None
 
-    def __init__(self, parent: Scene | None, map_path: str):
+    def __init__(self, parent: Scene | None, map_path: str, scale: int):
         self.parent = parent
         self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
         self.toast_text = self.name
         self.previous_map_offset = None
         self.map = load_map(map_path)
-        self.player = Player()
+        self.player = Player(scale)
         self.player.x = 128
         self.player.y = 128
         self.transition: str = ''
@@ -101,17 +102,19 @@ class Level:
         self.current_switch_tiles = set()
         self.star_count = 0
         self.current_slopes = set()
+        self.scale = scale
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
-                self.platforms.append(MovingPlatform(obj, self.map.tileset))
+                self.platforms.append(MovingPlatform(
+                    obj, self.map.tileset, scale))
             if obj.properties.get('bagel', False):
-                self.platforms.append(Bagel(obj, self.map.tileset))
+                self.platforms.append(Bagel(obj, self.map.tileset, scale))
             if obj.properties.get('convey', '') != '':
-                self.platforms.append(Conveyor(obj, self.map.tileset))
+                self.platforms.append(Conveyor(obj, self.map.tileset, scale))
             if obj.properties.get('spring', '') != '':
-                self.platforms.append(Spring(obj, self.map.tileset))
+                self.platforms.append(Spring(obj, self.map.tileset, scale))
             if obj.properties.get('button', False):
-                self.platforms.append(Button(obj, self.map.tileset))
+                self.platforms.append(Button(obj, self.map.tileset, scale))
             if obj.properties.get('door', False):
                 self.doors.append(Door(obj))
             if obj.properties.get('star', False):
@@ -573,7 +576,7 @@ class Level:
         if inputs.is_cancel_triggered():
             return self.parent
         if inputs.is_restart_down():
-            return Level(self.parent, self.map_path)
+            return Level(self.parent, self.map_path, self.scale)
 
         self.map.update_animations()
 
@@ -597,8 +600,8 @@ class Level:
             door.update(player_rect, self.star_count)
             if door.is_closed:
                 if door.destination is not None:
-                    return Level(self.parent, door.destination)
-                return Level(self.parent, self.map_path)
+                    return Level(self.parent, door.destination, self.scale)
+                return Level(self.parent, self.map_path, self.scale)
             if door.active:
                 self.current_door = door
 
@@ -638,7 +641,7 @@ class Level:
                 print(transition)
 
         if self.player.is_dead:
-            return KillScreen(self, lambda: Level(self.parent, self.map_path))
+            return KillScreen(self, lambda: Level(self.parent, self.map_path, self.scale))
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:
@@ -665,16 +668,18 @@ class Level:
         player_draw_y: int = dest.height // 2
         if player_draw_x > player_x:
             player_draw_x = player_x
+        # TODO: Why 4?
         if player_draw_y > player_y + 4:
             player_draw_y = player_y + 4
-        if player_draw_x < player_x + dest.width - (self.map.width * self.map.tilewidth * 16):
-            player_draw_x = (
-                player_x + dest.width -
-                (self.map.width * self.map.tilewidth * 16))
-        if player_draw_y < player_y + dest.height - (self.map.height * self.map.tileheight * 16):
-            player_draw_y = (
-                player_y + dest.height -
-                (self.map.height * self.map.tileheight * 16))
+        # TODO: What?
+        right_limit = dest.width - \
+            (self.map.width * self.map.tilewidth * context.subpixels)
+        if player_draw_x < player_x + right_limit:
+            player_draw_x = player_x + right_limit
+        bottom_limit = dest.height - \
+            (self.map.height * self.map.tileheight * context.subpixels)
+        if player_draw_y < player_y + bottom_limit:
+            player_draw_y = player_y + bottom_limit
         map_offset: tuple[int, int] = (
             player_draw_x - player_x,
             player_draw_y - player_y)
@@ -704,18 +709,19 @@ class Level:
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
-        self.map.draw_background(context.player_batch,
+        self.map.draw_background(context, context.player_batch,
                                  dest, map_offset, self.switches)
         for door in self.doors:
             door.draw_background(context.player_batch, map_offset, images)
         for platform in self.platforms:
-            platform.draw(context.player_batch, map_offset)
+            platform.draw(context, context.player_batch, map_offset)
         for star in self.stars:
             star.draw(context, map_offset)
-        self.player.draw(context.player_batch, (player_draw_x, player_draw_y))
+        self.player.draw(context, context.player_batch,
+                         (player_draw_x, player_draw_y))
         for door in self.doors:
             door.draw_foreground(context.player_batch, map_offset)
-        self.map.draw_foreground(context.player_batch,
+        self.map.draw_foreground(context, context.player_batch,
                                  dest, map_offset, self.switches)
 
         # Draw the text overlay.
@@ -725,10 +731,14 @@ class Level:
 
         context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
         images.font.draw_string(
-            context.hud_batch, (top_bar_area.x + 2*16, top_bar_area.y + 2*16), self.toast_text)
+            context.hud_batch,
+            (top_bar_area.x + 2*context.subpixels,
+             top_bar_area.y + 2*context.subpixels),
+            self.toast_text)
 
         context.dark = self.map.is_dark
 
+        # TODO: Fix spotlights.
         spotlight_pos = (player_draw_x//16 + 12, player_draw_y//16 + 12)
         spotlight_radius = 120.0
         context.add_light(spotlight_pos, spotlight_radius)

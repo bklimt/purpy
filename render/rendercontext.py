@@ -30,6 +30,7 @@ class RenderContext:
 
     dark: bool = False
     lights: list[Light]
+    subpixels: int = 16
 
     def __init__(self, logical_size: tuple[int, int]):
         self.logical_size = logical_size

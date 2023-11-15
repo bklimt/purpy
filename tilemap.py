@@ -4,6 +4,7 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from switchstate import SwitchState
 from tileset import TileSet, load_tileset
@@ -168,25 +169,41 @@ class TileMap:
             return True
         return switches.is_condition_true(condition)
 
-    def draw_background(self, batch: SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+    def draw_background(self,
+                        context: RenderContext,
+                        batch: SpriteBatch,
+                        dest: pygame.Rect,
+                        offset: tuple[float, float],
+                        switches: SwitchState):
         batch.draw_rect(dest, self.backgroundcolor)
         for layer in self.layers:
-            self.draw_layer(batch, layer, dest, offset, switches)
+            self.draw_layer(context, batch, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 return
 
-    def draw_foreground(self, batch: SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+    def draw_foreground(self,
+                        context: RenderContext,
+                        batch: SpriteBatch,
+                        dest: pygame.Rect,
+                        offset: tuple[float, float],
+                        switches: SwitchState):
         if self.player_layer is None:
             return
         drawing = False
         for layer in self.layers:
             if drawing:
-                self.draw_layer(batch, layer, dest, offset, switches)
+                self.draw_layer(context, batch, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, batch: SpriteBatch, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
-        # pygame.draw.rect(surface, self.backgroundcolor, dest)
+    def draw_layer(self,
+                   context: RenderContext,
+                   batch: SpriteBatch,
+                   layer: TileLayer | ImageLayer,
+                   dest: pygame.Rect,
+                   offset: tuple[float, float],
+                   switches: SwitchState):
+        batch.draw_rect(dest, self.backgroundcolor)
 
         if isinstance(layer, ImageLayer):
             dest = pygame.Rect(

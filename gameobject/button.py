@@ -2,6 +2,7 @@
 import pygame
 
 from gameobject.platforms import PlatformBase
+from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from soundmanager import Sound, SoundManager
 from spritesheet import SpriteSheet
@@ -23,10 +24,10 @@ class Button(PlatformBase):
     was_occupied: bool
     color: str
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
+        super().__init__(obj, tileset, scale)
         self.original_y = self.y
-        self.dy = 16
+        self.dy = scale
         self.color = assert_str(obj.properties.get('color', 'red'))
         surface = pygame.image.load(self.get_image_path(obj))
         self.sprite = SpriteSheet(surface, 8, 8)
@@ -39,7 +40,7 @@ class Button(PlatformBase):
             color = 'black'
         return f'assets/sprites/buttons/{color}.png'
 
-    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.original_y + offset[1]
         self.sprite.blit(batch, (x, y), self.level // BUTTON_DELAY)

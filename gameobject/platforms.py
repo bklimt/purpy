@@ -6,6 +6,7 @@ from tilemap import MapObject
 from tileset import TileSet
 from random import randint
 from soundmanager import SoundManager
+from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from switchstate import SwitchState
@@ -37,7 +38,7 @@ class Platform(typing.Protocol):
     def update(self, switches: SwitchState, sounds: SoundManager) -> None:
         raise Exception('abstract protocol')
 
-    def draw(self, batch: SpriteBatch, offset: tuple[int, int]) -> None:
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]) -> None:
         raise Exception('abstract protocol')
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
@@ -50,20 +51,25 @@ class PlatformBase:
     tile_id: int
     x: int
     y: int
+    width: int
+    height: int
     dx: int
     dy: int
     occupied: bool
     is_solid: bool
+    scale: int
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
+    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
         if obj.gid is None:
             raise Exception('platforms must have tile ids')
 
         self.id = obj.id
         self.tileset = tileset
         self.tile_id = obj.gid - 1
-        self.x = obj.x * 16
-        self.y = obj.y * 16
+        self.x = obj.x * scale
+        self.y = obj.y * scale
+        self.width = obj.width * scale
+        self.height = obj.height * scale
         self.dx = 0
         self.dy = 0
         self.occupied = False
@@ -71,7 +77,7 @@ class PlatformBase:
 
         pass
 
-    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
         if self.tile_id in self.tileset.animations:
@@ -79,8 +85,7 @@ class PlatformBase:
             anim.blit(batch, (x, y), False)
         else:
             area = self.tileset.get_source_rect(self.tile_id)
-            # TODO: Use the actual width here.
-            dest = pygame.Rect(x, y, area.w * 16, area.h * 16)
+            dest = pygame.Rect(x, y, self.width, self.height)
             batch.draw(self.tileset.surface, dest, area)
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
@@ -88,8 +93,8 @@ class PlatformBase:
             area = pygame.Rect(
                 self.x,
                 self.y,
-                self.tileset.tilewidth * 16,
-                self.tileset.tileheight * 16)
+                self.width,
+                self.height)
             return try_move_to_bounds(player_rect, area, direction)
         else:
             if direction != Direction.DOWN:
@@ -99,8 +104,8 @@ class PlatformBase:
             area = pygame.Rect(
                 self.x,
                 self.y,
-                self.tileset.tilewidth * 16,
-                4 * 16)
+                self.width,
+                self.height//2)
             return try_move_to_bounds(player_rect, area, direction)
 
 
@@ -115,9 +120,9 @@ class MovingPlatform(PlatformBase):
     condition: str | None
     overflow: str
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
-        self.distance = assert_int(obj.properties.get('distance', '0')) * 16
+    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
+        super().__init__(obj, tileset, scale)
+        self.distance = assert_int(obj.properties.get('distance', '0')) * scale
         self.speed = assert_int(obj.properties.get('speed', '1'))
         self.start_x = self.x
         self.start_y = self.y
@@ -227,11 +232,11 @@ class Bagel(PlatformBase):
     falling: bool = False
     remaining: int = BAGEL_WAIT_TIME
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
+        super().__init__(obj, tileset, scale)
         self.original_y = self.y
 
-    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
         area = self.tileset.get_source_rect(self.tile_id)
@@ -266,8 +271,8 @@ class Bagel(PlatformBase):
 
 
 class Conveyor(PlatformBase):
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
+        super().__init__(obj, tileset, scale)
         speed = int(obj.properties.get('speed', 24))
         if obj.properties.get('convey', 'E') == 'E':
             self.dx = speed
@@ -288,12 +293,12 @@ class Spring(PlatformBase):
     position: int = 0
     stall_counter = STALL_FRAMES
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
+        super().__init__(obj, tileset, scale)
         surface = pygame.image.load('assets/sprites/spring.png')
         self.sprite = SpriteSheet(surface, 8, 8)
 
-    def draw(self, batch: SpriteBatch, offset: tuple[int, int]):
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
         self.sprite.blit(batch, (x, y), self.position)

@@ -59,9 +59,9 @@ class Game:
         self.sounds = SoundManager()
 
         if len(sys.argv) > 1:
-            self.scene = Level(None, sys.argv[1])
+            self.scene = Level(None, sys.argv[1], SUBPIXELS)
         else:
-            self.scene = LevelSelect(None, 'assets/levels')
+            self.scene = LevelSelect(None, 'assets/levels', SUBPIXELS)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
