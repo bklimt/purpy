@@ -47,8 +47,9 @@ WALL_SLIDE_TIME = 60
 
 VIEWPORT_PAN_SPEED = 5*16
 
-TOAST_TIME = 100
-TOAST_HEIGHT = 12
+TOAST_TIME = 150
+TOAST_HEIGHT = 12 * 16
+TOAST_SPEED = 8
 
 
 class Level:
@@ -641,11 +642,11 @@ class Level:
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:
-                self.toast_position -= 1
+                self.toast_position -= TOAST_SPEED
         else:
             self.toast_counter -= 1
             if self.toast_position < 0:
-                self.toast_position += 1
+                self.toast_position += TOAST_SPEED
 
         return self
 
@@ -704,7 +705,7 @@ class Level:
 
         # Do the actual drawing.
         # surface = context.player_surface
-        dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
+        # dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
         self.map.draw_background(context.player_batch,
                                  dest, map_offset, self.switches)
         for door in self.doors:
@@ -727,7 +728,7 @@ class Level:
 
         context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
         images.font.draw_string(
-            context.hud_batch, (2*16, 2*16), self.toast_text)
+            context.hud_batch, (top_bar_area.x + 2*16, top_bar_area.y + 2*16), self.toast_text)
 
         # top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
         # top_bar.fill(top_bar_bgcolor)
