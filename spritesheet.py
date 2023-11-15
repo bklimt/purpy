@@ -29,7 +29,7 @@ class SpriteSheet:
         return pygame.Rect(x, y, self.sprite_width, self.sprite_height)
 
     def blit(self,
-             surface: pygame.Surface | SpriteBatch,
+             batch: SpriteBatch,
              pos: tuple[int, int],
              index: int = 0,
              layer: int = 0,
@@ -38,11 +38,8 @@ class SpriteSheet:
         if reverse:
             texture = self.reverse
         sprite = self.sprite(index, layer, reverse)
-        if isinstance(surface, SpriteBatch):
-            dest = pygame.Rect(pos[0], pos[1], sprite.w * 16, sprite.h * 16)
-            surface.draw(texture, dest, sprite)
-        else:
-            surface.blit(texture, pos, sprite)
+        dest = pygame.Rect(pos[0], pos[1], sprite.w * 16, sprite.h * 16)
+        batch.draw(texture, dest, sprite)
 
 
 class Animation:
@@ -66,5 +63,5 @@ class Animation:
         else:
             self.timer -= 1
 
-    def blit(self, surface: pygame.Surface | SpriteBatch, pos: tuple[int, int], reverse: bool):
-        self.spritesheet.blit(surface, pos, self.index, reverse)
+    def blit(self, batch: SpriteBatch, pos: tuple[int, int], reverse: bool):
+        self.spritesheet.blit(batch, pos, self.index, reverse)

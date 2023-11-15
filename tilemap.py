@@ -168,39 +168,33 @@ class TileMap:
             return True
         return switches.is_condition_true(condition)
 
-    def draw_background(self, surface: pygame.Surface | SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
-        if isinstance(surface, SpriteBatch):
-            surface.draw_rect(dest, self.backgroundcolor)
-        else:
-            surface.fill(self.backgroundcolor, dest)
+    def draw_background(self, batch: SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+        batch.draw_rect(dest, self.backgroundcolor)
         for layer in self.layers:
-            self.draw_layer(surface, layer, dest, offset, switches)
+            self.draw_layer(batch, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 return
 
-    def draw_foreground(self, surface: pygame.Surface | SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+    def draw_foreground(self, batch: SpriteBatch, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         if self.player_layer is None:
             return
         drawing = False
         for layer in self.layers:
             if drawing:
-                self.draw_layer(surface, layer, dest, offset, switches)
+                self.draw_layer(batch, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, surface: pygame.Surface | SpriteBatch, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+    def draw_layer(self, batch: SpriteBatch, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
         # pygame.draw.rect(surface, self.backgroundcolor, dest)
 
         if isinstance(layer, ImageLayer):
-            if isinstance(surface, SpriteBatch):
-                dest = pygame.Rect(
-                    offset[0],
-                    offset[1],
-                    layer.surface.get_width() * 16,
-                    layer.surface.get_height() * 16)
-                surface.draw(layer.surface, dest)
-            else:
-                surface.blit(layer.surface, (offset[0]//16, offset[1]//16))
+            dest = pygame.Rect(
+                offset[0],
+                offset[1],
+                layer.surface.get_width() * 16,
+                layer.surface.get_height() * 16)
+            batch.draw(layer.surface, dest)
             return
 
         offset_x = int(offset[0] // 16)
@@ -269,14 +263,11 @@ class TileMap:
                 pos = (pos_x, pos_y)
                 if index in self.tileset.animations:
                     self.tileset.animations[index].blit(
-                        surface, (pos[0]*16, pos[1]*16), False)
+                        batch, (pos[0]*16, pos[1]*16), False)
                 else:
-                    if isinstance(surface, SpriteBatch):
-                        destination = pygame.Rect(
-                            pos[0]*16, pos[1]*16, source.w*16, source.h*16)
-                        surface.draw(self.tileset.surface, destination, source)
-                    else:
-                        surface.blit(self.tileset.surface, pos, source)
+                    destination = pygame.Rect(
+                        pos[0]*16, pos[1]*16, source.w*16, source.h*16)
+                    batch.draw(self.tileset.surface, destination, source)
 
     def get_rect(self, row: int, col: int) -> pygame.Rect:
         return pygame.Rect(

@@ -30,11 +30,7 @@ class KillScreen:
 
         red_color = pygame.Color(255, 0, 0, 127)
         context.hud_batch.draw_rect(dest, red_color)
-        # red_surface = pygame.Surface(dest.size, pygame.SRCALPHA)
-        # red_surface.fill(red_color, dest)
-        # surface = context.hud_surface
 
-        # surface.blit(red_surface, dest)
         # TODO: Get this from the font.
         char_width = 8*16
         text = "DEAD"

@@ -704,8 +704,6 @@ class Level:
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
-        # surface = context.player_surface
-        # dest = pygame.Rect(dest.x//16, dest.y//16, dest.w//16, dest.h//16)
         self.map.draw_background(context.player_batch,
                                  dest, map_offset, self.switches)
         for door in self.doors:
@@ -721,7 +719,6 @@ class Level:
                                  dest, map_offset, self.switches)
 
         # Draw the text overlay.
-        # TODO: How to fix this...
         top_bar_bgcolor = pygame.Color(0, 0, 0, 127)
         top_bar_area = pygame.Rect(
             dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
@@ -729,11 +726,6 @@ class Level:
         context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
         images.font.draw_string(
             context.hud_batch, (top_bar_area.x + 2*16, top_bar_area.y + 2*16), self.toast_text)
-
-        # top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
-        # top_bar.fill(top_bar_bgcolor)
-        # images.font.draw_string(top_bar, (2, 2), self.toast_text)
-        # context.hud_surface.blit(top_bar, top_bar_area)
 
         context.dark = self.map.is_dark
 
