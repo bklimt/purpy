@@ -24,8 +24,6 @@ class KillScreen:
 
     def draw(self, context: RenderContext, images: ImageManager) -> None:
         dest = context.logical_area
-        # TODO: Figure out what logical area means...
-        dest = pygame.Rect(dest.x * 16, dest.y * 16, dest.w * 16, dest.h * 16)
         self.previous.draw(context, images)
 
         red_color = pygame.Color(255, 0, 0, 127)

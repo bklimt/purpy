@@ -20,8 +20,8 @@ else:
 
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
-LOGICAL_WIDTH = 320
-LOGICAL_HEIGHT = 180
+RENDER_WIDTH = 320
+RENDER_HEIGHT = 180
 FRAME_RATE = 60
 SUBPIXELS = 16
 
@@ -42,16 +42,17 @@ class Game:
         pygame.init()
         pygame.display.set_caption('purpy')
 
-        logical = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
         destination = self.compute_scaled_buffer_dest()
         window = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
         print('initializing render context')
-        self.render_context = RenderContext((LOGICAL_WIDTH, LOGICAL_HEIGHT))
+        render_area = pygame.Rect(0, 0, RENDER_WIDTH, RENDER_HEIGHT)
+        self.render_context = RenderContext(
+            (RENDER_WIDTH, RENDER_HEIGHT), SUBPIXELS)
         print('initializing renderer')
         if USE_OPENGL:
-            self.renderer = OpenGLRenderer(logical, destination, window)
+            self.renderer = OpenGLRenderer(render_area, destination, window)
         else:
-            self.renderer = PygameRenderer(logical, destination, window)
+            self.renderer = PygameRenderer(render_area, destination, window)
 
         print('loading game content')
         self.images = ImageManager(SUBPIXELS)
@@ -64,7 +65,7 @@ class Game:
             self.scene = LevelSelect(None, 'assets/levels', SUBPIXELS)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
-        target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
+        target_aspect_ratio = RENDER_WIDTH / RENDER_HEIGHT
         needed_width = target_aspect_ratio * WINDOW_HEIGHT
         if needed_width <= WINDOW_WIDTH:
             # The window is wider than needed.

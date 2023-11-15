@@ -125,7 +125,7 @@ class OpenGLRenderer:
         glUniform1f(glGetUniformLocation(self.program, 'iTime'),
                     pygame.time.get_ticks() / 1000.0)
         glUniform2f(glGetUniformLocation(self.program, 'iTextureSize'),
-                    context.logical_size[0], context.logical_size[1])
+                    context.render_size[0], context.render_size[1])
         glUniform1i(glGetUniformLocation(self.program, 'iDark'),
                     context.dark)
 

@@ -16,8 +16,9 @@ class Light:
 
 
 class RenderContext:
-    logical_size: tuple[int, int]
-    logical_area: pygame.Rect
+    render_size: tuple[int, int]
+    render_area: pygame.Rect
+    logical_area: pygame.Rect  # the render_area * subpixels
 
     hud_surface: pygame.Surface
     foreground_surface: pygame.Surface
@@ -31,16 +32,19 @@ class RenderContext:
 
     dark: bool = False
     lights: list[Light]
-    subpixels: int = 16
+    subpixels: int
 
-    def __init__(self, logical_size: tuple[int, int]):
-        self.logical_size = logical_size
-        self.logical_area = pygame.Rect(0, 0, logical_size[0], logical_size[1])
+    def __init__(self, render_size: tuple[int, int], subpixels: int):
+        self.subpixels = subpixels
+        self.render_size: tuple[int, int] = render_size
+        self.render_area = pygame.Rect(0, 0, render_size[0], render_size[1])
+        self.logical_area = pygame.Rect(
+            0, 0, render_size[0]*subpixels, render_size[1]*subpixels)
 
-        self.hud_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
-        self.foreground_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
-        self.player_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
-        self.background_surface = pygame.Surface(logical_size, pygame.SRCALPHA)
+        self.hud_surface = pygame.Surface(render_size, pygame.SRCALPHA)
+        self.foreground_surface = pygame.Surface(render_size, pygame.SRCALPHA)
+        self.player_surface = pygame.Surface(render_size, pygame.SRCALPHA)
+        self.background_surface = pygame.Surface(render_size, pygame.SRCALPHA)
 
         self.hud_batch = SpriteBatch(self.hud_surface)
         self.foreground_batch = SpriteBatch(self.foreground_surface)
@@ -52,10 +56,10 @@ class RenderContext:
     def clear(self):
         self.lights.clear()
         black = pygame.Color(0, 0, 0, 0)
-        self.background_surface.fill(black, self.logical_area)
-        self.player_surface.fill(black, self.logical_area)
-        self.foreground_surface.fill(black, self.logical_area)
-        self.hud_surface.fill(black, self.logical_area)
+        self.background_surface.fill(black, self.render_area)
+        self.player_surface.fill(black, self.render_area)
+        self.foreground_surface.fill(black, self.render_area)
+        self.hud_surface.fill(black, self.render_area)
 
     def add_light(self, position: tuple[int, int], radius: float):
         self.lights.append(Light(position, radius))

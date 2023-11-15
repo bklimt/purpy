@@ -656,9 +656,6 @@ class Level:
     def draw(self, context: RenderContext, images: ImageManager) -> None:
         dest = context.logical_area
 
-        # TODO: Figure out what logical area means...
-        dest = pygame.Rect(dest.x * 16, dest.y * 16, dest.w * 16, dest.h * 16)
-
         # Make sure the player is on the screen, and then center them if possible.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
         preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
