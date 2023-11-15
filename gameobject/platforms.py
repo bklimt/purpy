@@ -57,7 +57,6 @@ class PlatformBase:
     dy: int
     occupied: bool
     is_solid: bool
-    scale: int
 
     def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
         if obj.gid is None:

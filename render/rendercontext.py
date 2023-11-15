@@ -24,6 +24,7 @@ class RenderContext:
     player_surface: pygame.Surface
     background_surface: pygame.Surface
 
+    hud_batch: SpriteBatch
     foreground_batch: SpriteBatch
     player_batch: SpriteBatch
     background_batch: SpriteBatch
