@@ -351,11 +351,12 @@ class Level:
         crushed_by_platform: bool = False
 
     def get_slope_dy(self):
+        subpixels = self.scale
         slope_fall = 0
         for slope_id in self.current_slopes:
             slope = self.map.tileset.get_slope(slope_id)
-            left_y = slope.left_y
-            right_y = slope.right_y
+            left_y = slope.left_y * subpixels
+            right_y = slope.right_y * subpixels
             fall: int = 0
             if self.player.dx > 0 or (self.player.dx == 0 and self.player.facing_right):
                 # The player is facing right.

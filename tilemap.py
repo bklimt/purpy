@@ -284,7 +284,8 @@ class TileMap:
                     source.w*context.subpixels,
                     source.h*context.subpixels)
                 if index in self.tileset.animations:
-                    self.tileset.animations[index].blit(batch, destination, reverse=False)
+                    self.tileset.animations[index].blit(
+                        batch, destination, reverse=False)
                 else:
                     batch.draw(self.tileset.surface, destination, source)
 
@@ -378,10 +379,10 @@ class TileMap:
             for col in range(col1, col2+1):
                 tile_rect = self.get_rect(row, col)
                 tile_bounds = pygame.Rect(
-                    tile_rect.x * 16,
-                    tile_rect.y * 16,
-                    tile_rect.w * 16,
-                    tile_rect.h * 16)
+                    tile_rect.x * scale,
+                    tile_rect.y * scale,
+                    tile_rect.w * scale,
+                    tile_rect.h * scale)
                 for layer in self.layers:
                     if not isinstance(layer, TileLayer):
                         continue
