@@ -282,8 +282,9 @@ class Conveyor(PlatformBase):
         pass
 
 
-SPRING_FRAMES = 4
+SPRING_STEPS = 4
 STALL_FRAMES = 10
+SPRING_SPEED = 16
 
 
 class Spring(PlatformBase):
@@ -291,19 +292,25 @@ class Spring(PlatformBase):
     up: bool = False
     position: int = 0
     stall_counter = STALL_FRAMES
+    scale: int
 
     def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
         super().__init__(obj, tileset, scale)
         surface = pygame.image.load('assets/sprites/spring.png')
         self.sprite = SpriteSheet(surface, 8, 8)
+        self.scale = scale
+
+    @property
+    def frame(self):
+        return self.position // self.scale
 
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
-        self.sprite.blit(batch, (x, y), self.position)
+        self.sprite.blit(batch, (x, y), self.frame)
 
     def should_boost(self):
-        return self.up or (self.position == SPRING_FRAMES - 1)
+        return self.up or (self.frame == SPRING_STEPS - 1)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         self.dx = 0
@@ -313,24 +320,44 @@ class Spring(PlatformBase):
             self.stall_counter = STALL_FRAMES
             self.up = False
             if self.position > 0:
-                self.position -= 1
-                self.dy = -1
+                self.position -= SPRING_SPEED
+                self.dy = -SPRING_SPEED
         else:
             if self.up:
                 self.stall_counter = STALL_FRAMES
                 if self.position > 0:
-                    self.position -= 1
-                    self.dy = -1
+                    self.position -= SPRING_SPEED
+                    self.dy = -SPRING_SPEED
                 else:
                     self.launch = True
             else:
-                if self.position < SPRING_FRAMES - 1:
+                if self.position < (SPRING_STEPS * self.scale) - SPRING_SPEED:
                     self.stall_counter = STALL_FRAMES
-                    self.position += 1
-                    self.dy = 1
+                    self.position += SPRING_SPEED
+                    self.dy = SPRING_SPEED
                 else:
                     if self.stall_counter > 0:
                         self.stall_counter -= 1
                     else:
                         self.stall_counter = STALL_FRAMES
                         self.up = True
+
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
+        if self.is_solid:
+            area = pygame.Rect(
+                self.x,
+                self.y + self.position,
+                self.width,
+                self.height - self.position)
+            return try_move_to_bounds(player_rect, area, direction)
+        else:
+            if direction != Direction.DOWN:
+                return 0
+            if is_backwards:
+                return 0
+            area = pygame.Rect(
+                self.x,
+                self.y + self.position,
+                self.width,
+                self.height//2)
+            return try_move_to_bounds(player_rect, area, direction)
