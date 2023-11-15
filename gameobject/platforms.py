@@ -2,6 +2,7 @@
 import pygame
 import typing
 
+from constants import SUBPIXELS
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
@@ -14,12 +15,12 @@ from utils import assert_int, assert_str, try_move_to_bounds, Direction
 
 BAGEL_WAIT_TIME = 30
 BAGEL_FALL_TIME = 150
-BAGEL_MAX_GRAVITY = 11
+BAGEL_MAX_GRAVITY = 11 * SUBPIXELS//16
 BAGEL_GRAVITY_ACCELERATION = 1
 
 SPRING_STEPS = 4
 SPRING_STALL_FRAMES = 10
-SPRING_SPEED = 16
+SPRING_SPEED = 16 * SUBPIXELS//16
 
 
 def sign(n: int) -> int:
@@ -126,7 +127,8 @@ class MovingPlatform(PlatformBase):
     def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
         super().__init__(obj, tileset, scale)
         self.distance = assert_int(obj.properties.get('distance', '0')) * scale
-        self.speed = assert_int(obj.properties.get('speed', '1'))
+        self.speed = (assert_int(
+            obj.properties.get('speed', '1')) * scale) // 16
         self.start_x = self.x
         self.start_y = self.y
         self.moving_forward = True
