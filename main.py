@@ -2,6 +2,7 @@
 import pygame
 import sys
 
+from constants import SUBPIXELS
 from soundmanager import SoundManager
 from scene import Scene
 from levelselect import LevelSelect
@@ -23,7 +24,6 @@ WINDOW_HEIGHT = 900
 RENDER_WIDTH = 320
 RENDER_HEIGHT = 180
 FRAME_RATE = 60
-SUBPIXELS = 16
 
 
 class Game:
