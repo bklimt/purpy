@@ -234,7 +234,7 @@ class Level:
         player_rect = self.player.get_target_bounds_rect(direction)
 
         map_result = self.map.try_move_to(
-            player_rect, direction, self.switches, is_backwards)
+            player_rect, direction, self.switches, self.scale, is_backwards)
         platform_result = self.find_platform_intersections(
             player_rect, direction, is_backwards)
 

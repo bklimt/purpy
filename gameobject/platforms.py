@@ -17,6 +17,10 @@ BAGEL_FALL_TIME = 150
 BAGEL_MAX_GRAVITY = 11
 BAGEL_GRAVITY_ACCELERATION = 1
 
+SPRING_STEPS = 4
+SPRING_STALL_FRAMES = 10
+SPRING_SPEED = 16
+
 
 def sign(n: int) -> int:
     if n == 0:
@@ -282,16 +286,11 @@ class Conveyor(PlatformBase):
         pass
 
 
-SPRING_STEPS = 4
-STALL_FRAMES = 10
-SPRING_SPEED = 16
-
-
 class Spring(PlatformBase):
     sprite: SpriteSheet
     up: bool = False
     position: int = 0
-    stall_counter = STALL_FRAMES
+    stall_counter = SPRING_STALL_FRAMES
     scale: int
 
     def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
@@ -317,14 +316,14 @@ class Spring(PlatformBase):
         self.dy = 0
         self.launch = False
         if not self.occupied:
-            self.stall_counter = STALL_FRAMES
+            self.stall_counter = SPRING_STALL_FRAMES
             self.up = False
             if self.position > 0:
                 self.position -= SPRING_SPEED
                 self.dy = -SPRING_SPEED
         else:
             if self.up:
-                self.stall_counter = STALL_FRAMES
+                self.stall_counter = SPRING_STALL_FRAMES
                 if self.position > 0:
                     self.position -= SPRING_SPEED
                     self.dy = -SPRING_SPEED
@@ -332,14 +331,14 @@ class Spring(PlatformBase):
                     self.launch = True
             else:
                 if self.position < (SPRING_STEPS * self.scale) - SPRING_SPEED:
-                    self.stall_counter = STALL_FRAMES
+                    self.stall_counter = SPRING_STALL_FRAMES
                     self.position += SPRING_SPEED
                     self.dy = SPRING_SPEED
                 else:
                     if self.stall_counter > 0:
                         self.stall_counter -= 1
                     else:
-                        self.stall_counter = STALL_FRAMES
+                        self.stall_counter = SPRING_STALL_FRAMES
                         self.up = True
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:

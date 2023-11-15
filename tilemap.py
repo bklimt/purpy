@@ -209,13 +209,13 @@ class TileMap:
             dest = pygame.Rect(
                 offset[0],
                 offset[1],
-                layer.surface.get_width() * 16,
-                layer.surface.get_height() * 16)
+                layer.surface.get_width() * context.subpixels,
+                layer.surface.get_height() * context.subpixels)
             batch.draw(layer.surface, dest)
             return
 
-        offset_x = int(offset[0] // 16)
-        offset_y = int(offset[1] // 16)
+        offset_x = int(offset[0] // context.subpixels)
+        offset_y = int(offset[1] // context.subpixels)
         row_count = math.ceil(dest.height / self.tileheight) + 1
         col_count = math.ceil(dest.width / self.tilewidth) + 1
 
@@ -280,10 +280,15 @@ class TileMap:
                 pos = (pos_x, pos_y)
                 if index in self.tileset.animations:
                     self.tileset.animations[index].blit(
-                        batch, (pos[0]*16, pos[1]*16), False)
+                        batch,
+                        (pos[0]*context.subpixels, pos[1]*context.subpixels),
+                        False)
                 else:
                     destination = pygame.Rect(
-                        pos[0]*16, pos[1]*16, source.w*16, source.h*16)
+                        pos[0]*context.subpixels,
+                        pos[1]*context.subpixels,
+                        source.w*context.subpixels,
+                        source.h*context.subpixels)
                     batch.draw(self.tileset.surface, destination, source)
 
     def get_rect(self, row: int, col: int) -> pygame.Rect:
@@ -342,12 +347,13 @@ class TileMap:
                     player_rect: pygame.Rect,
                     direction: Direction,
                     switches: SwitchState,
+                    scale: int,
                     is_backwards: bool) -> MoveResult:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()
 
-        right_edge = self.width * self.tilewidth * 16
-        bottom_edge = self.height * self.tileheight * 16
+        right_edge = self.width * self.tilewidth * scale
+        bottom_edge = self.height * self.tileheight * scale
 
         if direction == Direction.LEFT and player_rect.x < 0:
             result.hard_offset = -player_rect.x
@@ -366,10 +372,10 @@ class TileMap:
             result.soft_offset = result.hard_offset
             return result
 
-        row1 = player_rect.top // (self.tileheight * 16)
-        col1 = player_rect.left // (self.tilewidth * 16)
-        row2 = player_rect.bottom // (self.tileheight * 16)
-        col2 = player_rect.right // (self.tilewidth * 16)
+        row1 = player_rect.top // (self.tileheight * scale)
+        col1 = player_rect.left // (self.tilewidth * scale)
+        row2 = player_rect.bottom // (self.tileheight * scale)
+        col2 = player_rect.right // (self.tilewidth * scale)
 
         for row in range(row1, row2+1):
             for col in range(col1, col2+1):
@@ -415,44 +421,6 @@ class TileMap:
                         result.consider_tile(
                             index, hard_offset, soft_offset, direction)
         return result
-
-    # TODO: Delete this.
-    def intersect_old(self, bounds: pygame.Rect, switches: SwitchState) -> list[int]:
-        ans = []
-        rect = bounds
-        row1 = rect.top // (self.tileheight * 16)
-        col1 = rect.left // (self.tilewidth * 16)
-        row2 = rect.bottom // (self.tileheight * 16)
-        col2 = rect.right // (self.tilewidth * 16)
-        if row1 < 0:
-            row1 = 0
-        if col1 < 0:
-            col1 = 0
-        if row2 < 0:
-            row2 = 0
-        if col2 < 0:
-            col2 = 0
-        for row in range(row1, row2+1):
-            for col in range(col1, col2+1):
-                for layer in self.layers:
-                    if not isinstance(layer, TileLayer):
-                        continue
-                    if layer.player or self.player_layer is None:
-                        index = layer.data[row][col]
-                        if index == 0:
-                            continue
-                        index -= 1
-                        if not self.is_condition_met(index, switches):
-                            alt = self.tileset.get_int_property(
-                                index, 'alternate')
-                            if alt is None:
-                                continue
-                            # Use an alt tile instead of the original.
-                            index = alt
-                        if not self.tileset.get_bool_property(index, 'solid', True):
-                            continue
-                        ans.append(index)
-        return ans
 
     def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:
         preferred_x: int | None = None
