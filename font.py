@@ -25,5 +25,7 @@ class Font:
             area = self.tileset.get_source_rect(c)
             dest = pygame.Rect(
                 pos[0], pos[1], self.char_width, self.char_height)
+            if dest.bottom <= 0 or dest.right <= 0:
+                continue
             batch.draw(self.tileset.surface, dest, area)
             pos = (pos[0] + self.char_width, pos[1])

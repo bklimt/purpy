@@ -728,13 +728,13 @@ class Level:
         top_bar_bgcolor = pygame.Color(0, 0, 0, 127)
         top_bar_area = pygame.Rect(
             dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
-
-        context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
-        images.font.draw_string(
-            context.hud_batch,
-            (top_bar_area.x + 2*context.subpixels,
-             top_bar_area.y + 2*context.subpixels),
-            self.toast_text)
+        if top_bar_area.bottom > 0:
+            context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
+            images.font.draw_string(
+                context.hud_batch,
+                (top_bar_area.x + 2*context.subpixels,
+                 top_bar_area.y + 2*context.subpixels),
+                self.toast_text)
 
         context.dark = self.map.is_dark
 

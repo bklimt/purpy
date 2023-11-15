@@ -203,8 +203,6 @@ class TileMap:
                    dest: pygame.Rect,
                    offset: tuple[float, float],
                    switches: SwitchState):
-        batch.draw_rect(dest, self.backgroundcolor)
-
         if isinstance(layer, ImageLayer):
             dest = pygame.Rect(
                 offset[0],

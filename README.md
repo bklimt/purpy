@@ -10,6 +10,7 @@ purpy
 * `python3 main.py`
 
 ## TODO
+* Don't draw tiles that are completely out of bounds.
 * Implement saving which stars you have.
 * Implement better menus.
 * Improve controls.

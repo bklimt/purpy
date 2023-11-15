@@ -15,8 +15,11 @@ class SpriteBatch:
              dest: pygame.Rect,
              src: pygame.Rect | None = None):
         s = self.subpixels
-        dest = pygame.Rect(dest.x//s, dest.y//s, dest.w//s, dest.h//s)
-        self.canvas.blit(texture, dest, area=src)
+        scaled = pygame.Rect(dest.x//s, dest.y//s, dest.w//s, dest.h//s)
+        overlap = scaled.clip(self.canvas.get_rect())
+        if overlap.w == 0:
+            return
+        self.canvas.blit(texture, scaled, area=src)
 
     def draw_rect(self, dest: pygame.Rect, color: pygame.Color | str):
         if dest.bottom < 0:

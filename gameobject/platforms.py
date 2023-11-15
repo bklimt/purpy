@@ -248,8 +248,12 @@ class Bagel(PlatformBase):
         if self.occupied:
             x += randint(-1, 1)
             y += randint(-1, 1)
-        # TODO: Change this.
-        rect = pygame.Rect(x, y, area.w * 16, area.h * 16)
+        rect = pygame.Rect(x, y, area.w * context.subpixels,
+                           area.h * context.subpixels)
+        if rect.bottom < 0 or rect.right < 0:
+            return
+        if rect.top >= context.logical_area.h or rect.right >= context.logical_area.w:
+            return
         batch.draw(self.tileset.surface, rect, area)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
