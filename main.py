@@ -2,7 +2,7 @@
 import pygame
 import sys
 
-from constants import SUBPIXELS
+from constants import *
 from soundmanager import SoundManager
 from scene import Scene
 from levelselect import LevelSelect
@@ -12,18 +12,10 @@ from imagemanager import ImageManager
 from render.renderer import Renderer
 from render.rendercontext import RenderContext
 
-USE_OPENGL = True
-
 if USE_OPENGL:
     from render.opengl_renderer import OpenGLRenderer
 else:
     from render.pygame_renderer import PygameRenderer
-
-WINDOW_WIDTH = 1600
-WINDOW_HEIGHT = 900
-RENDER_WIDTH = 320
-RENDER_HEIGHT = 180
-FRAME_RATE = 60
 
 
 class Game:

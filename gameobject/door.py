@@ -3,16 +3,13 @@ import pygame
 
 from enum import Enum, IntEnum
 
+from constants import *
 from imagemanager import ImageManager
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from tilemap import MapObject
 from utils import intersect
-
-DOOR_SPEED = 3
-CLOSING_FRAMES = 9
-UNLOCKING_FRAMES = 9
 
 
 class DoorLayer(IntEnum):
@@ -102,7 +99,7 @@ class Door:
         if self.state == DoorState.CLOSED:
             self.sprite.blit(batch,
                              dest,
-                             index=CLOSING_FRAMES - 1,
+                             index=DOOR_CLOSING_FRAMES - 1,
                              layer=DoorLayer.DOORS)
         self.sprite.blit(batch, dest, layer=DoorLayer.FRAME)
 
@@ -118,13 +115,13 @@ class Door:
         self.stars_remaining = max(0, self.stars_needed - star_count)
 
         if self.state == DoorState.UNLOCKING:
-            max_frame = UNLOCKING_FRAMES * DOOR_SPEED
+            max_frame = DOOR_UNLOCKING_FRAMES * DOOR_SPEED
             if self.frame == max_frame:
                 self.state = DoorState.OPEN
             self.frame = min(self.frame + 1, max_frame)
 
         if self.state == DoorState.CLOSING:
-            max_frame = CLOSING_FRAMES * DOOR_SPEED
+            max_frame = DOOR_CLOSING_FRAMES * DOOR_SPEED
             if self.frame == max_frame:
                 self.state = DoorState.CLOSED
             self.frame = min(self.frame + 1, max_frame)

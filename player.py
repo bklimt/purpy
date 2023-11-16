@@ -4,13 +4,11 @@ import pygame
 from enum import Enum
 from random import randint
 
+from constants import *
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from utils import Direction
-
-FRAMES_PER_FRAME = 8
-IDLE_TIME = 240
 
 
 class PlayerState(Enum):
@@ -34,7 +32,7 @@ class Player:
     sprite: SpriteSheet
     state: PlayerState = PlayerState.STANDING
     frame: int = 0
-    frames_to_next_frame: int = FRAMES_PER_FRAME
+    frames_to_next_frame: int = PLAYER_FRAMES_PER_FRAME
     idle_counter: int = IDLE_TIME
     is_idle: bool = False
     is_dead: bool = False
@@ -60,11 +58,11 @@ class Player:
         elif self.dx != 0 and self.state == PlayerState.STANDING:
             if self.frame < 6 or self.frame > 9:
                 self.frame = 6
-                self.frames_to_next_frame = FRAMES_PER_FRAME
+                self.frames_to_next_frame = PLAYER_FRAMES_PER_FRAME
             else:
                 self.frames_to_next_frame -= 1
                 if self.frames_to_next_frame <= 0:
-                    self.frames_to_next_frame = FRAMES_PER_FRAME
+                    self.frames_to_next_frame = PLAYER_FRAMES_PER_FRAME
                     self.frame += 1
                     if self.frame > 9:
                         self.frame = 6
@@ -77,11 +75,11 @@ class Player:
                 self.is_idle = True
                 if self.frame != 1 and self.frame != 2:
                     self.frame = 1
-                    self.frames_to_next_frame = FRAMES_PER_FRAME
+                    self.frames_to_next_frame = PLAYER_FRAMES_PER_FRAME
                 else:
                     self.frames_to_next_frame -= 1
                     if self.frames_to_next_frame <= 0:
-                        self.frames_to_next_frame = FRAMES_PER_FRAME
+                        self.frames_to_next_frame = PLAYER_FRAMES_PER_FRAME
                         self.frame += 1
                         if self.frame > 2:
                             self.frame = 0

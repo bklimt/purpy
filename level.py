@@ -3,7 +3,7 @@ import os.path
 import pygame
 import typing
 
-from constants import SUBPIXELS
+from constants import *
 from gameobject.button import Button
 from gameobject.door import Door
 from imagemanager import ImageManager
@@ -18,39 +18,6 @@ from gameobject.star import Star
 from switchstate import SwitchState
 from tilemap import TileMap, load_map
 from utils import Direction, cmp_in_direction, opposite_direction
-
-# Horizontal speed.
-TARGET_WALK_SPEED = 24 * SUBPIXELS//16
-WALK_SPEED_ACCELERATION = 1 * SUBPIXELS//16
-WALK_SPEED_DECELERATION = 3 * SUBPIXELS//16
-SLIDE_SPEED_DECELERATION = 1 * SUBPIXELS//16
-
-# Vertical speed.
-COYOTE_TIME = 6  # How long to hover in the air before officially falling.
-JUMP_GRACE_TIME = 12  # How long to remember jump was pressed while falling.
-JUMP_INITIAL_SPEED = 48 * SUBPIXELS//16
-JUMP_ACCELERATION = 2 * SUBPIXELS//16
-JUMP_MAX_GRAVITY = 32 * SUBPIXELS//16
-FALL_ACCELERATION = 5 * SUBPIXELS//16
-FALL_MAX_GRAVITY = 32 * SUBPIXELS//16
-
-SPRING_BOUNCE_DURATION = 30
-SPRING_BOUNCE_VELOCITY = JUMP_INITIAL_SPEED
-SPRING_JUMP_DURATION = 10
-SPRING_JUMP_VELOCITY = 78 * SUBPIXELS//16
-
-# Wall sliding.
-WALL_SLIDE_SPEED = 4 * SUBPIXELS//16
-WALL_JUMP_HORIZONTAL_SPEED = 48 * SUBPIXELS//16
-WALL_JUMP_VERTICAL_SPEED = 48 * SUBPIXELS//16
-WALL_STICK_TIME = 30
-WALL_SLIDE_TIME = 60
-
-VIEWPORT_PAN_SPEED = 5 * SUBPIXELS
-
-TOAST_TIME = 150
-TOAST_HEIGHT = 12 * SUBPIXELS
-TOAST_SPEED = 8 * SUBPIXELS//16
 
 
 class Level:

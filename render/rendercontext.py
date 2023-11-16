@@ -1,9 +1,8 @@
 
 import pygame
 
+from constants import MAX_LIGHTS
 from render.spritebatch import SpriteBatch
-
-MAX_LIGHTS = 20
 
 
 class Light:

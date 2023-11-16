@@ -1,6 +1,7 @@
 
 import pygame
 
+from constants import *
 from gameobject.platforms import PlatformBase
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
@@ -10,9 +11,6 @@ from switchstate import SwitchState
 from tilemap import MapObject
 from tileset import TileSet
 from utils import assert_str
-
-BUTTON_DELAY = 2
-MAX_LEVEL = BUTTON_DELAY * 3
 
 
 class Button(PlatformBase):
@@ -66,13 +64,13 @@ class Button(PlatformBase):
             self.clicked = self.occupied
 
         if self.clicked:
-            if self.level < MAX_LEVEL:
+            if self.level < BUTTON_MAX_LEVEL:
                 self.level += 1
         else:
             if self.level > 0:
                 self.level -= 1
 
-        self.y = self.original_y + ((self.level * 16) // BUTTON_DELAY)
+        self.y = self.original_y + ((self.level * SUBPIXELS) // BUTTON_DELAY)
 
         if self.clicked != was_clicked:
             sounds.play(Sound.CLICK)
