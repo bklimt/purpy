@@ -62,8 +62,7 @@ class Door:
 
     def draw_background(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int], images: ImageManager):
         pos = (self.x + offset[0], self.y + offset[1])
-        dest = pygame.Rect(pos[0], pos[1], 32 *
-                           context.subpixels, 32 * context.subpixels)
+        dest = pygame.Rect(pos[0], pos[1], 32*SUBPIXELS, 32*SUBPIXELS)
         layer = DoorLayer.ACTIVE if self.active else DoorLayer.INACTIVE
         self.sprite.blit(batch, dest, 0, layer=layer)
         if self.state == DoorState.LOCKED:
@@ -81,14 +80,13 @@ class Door:
             if len(s) == 1:
                 s = '0' + s
             images.font.draw_string(batch,
-                                    (pos[0] + 8*context.subpixels,
-                                     pos[1] + 12*context.subpixels),
+                                    (pos[0] + 8*SUBPIXELS,
+                                     pos[1] + 12*SUBPIXELS),
                                     s)
 
     def draw_foreground(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         pos = (self.x + offset[0], self.y + offset[1])
-        dest = pygame.Rect(pos[0], pos[1], 32 *
-                           context.subpixels, 32 * context.subpixels)
+        dest = pygame.Rect(pos[0], pos[1], 32*SUBPIXELS, 32*SUBPIXELS)
         if self.state == DoorState.CLOSING:
             self.sprite.blit(batch,
                              dest,

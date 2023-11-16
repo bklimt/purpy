@@ -33,11 +33,11 @@ class Star:
     def draw(self, context: RenderContext, offset: tuple[int, int]):
         x = self.area.x + offset[0]
         y = self.area.y + offset[1]
-        x += trunc(randint(-20, 20) / 20) * context.subpixels
-        y += trunc(randint(-20, 20) / 20) * context.subpixels
+        x += trunc(randint(-20, 20) / 20) * SUBPIXELS
+        y += trunc(randint(-20, 20) / 20) * SUBPIXELS
         rect = pygame.Rect(x, y, self.area.w, self.area.h)
         context.player_batch.draw(self.surface, rect, self.source)
         # These constants were hand-tuned to make the stars look nice.
-        context.add_light((x + 3 * context.subpixels,
-                           y + 5 * context.subpixels),
-                          12 * context.subpixels)
+        context.add_light((x + 3 * SUBPIXELS,
+                           y + 5 * SUBPIXELS),
+                          12 * SUBPIXELS)
