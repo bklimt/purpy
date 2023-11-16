@@ -56,6 +56,7 @@ TOAST_SPEED = 8 * SUBPIXELS//16
 class Level:
     parent: Scene | None
     map_path: str
+    scale: int
     name: str
     map: TileMap
     player: Player
