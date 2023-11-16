@@ -173,7 +173,7 @@ class TileMap:
                         context: RenderContext,
                         batch: SpriteBatch,
                         dest: pygame.Rect,
-                        offset: tuple[float, float],
+                        offset: tuple[int, int],
                         switches: SwitchState):
         batch.draw_rect(dest, self.backgroundcolor)
         for layer in self.layers:
