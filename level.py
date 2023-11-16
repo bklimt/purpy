@@ -637,8 +637,8 @@ class Level:
                 attribs.append(f'platform={self.current_platform.id}')
             if len(self.current_slopes) > 0:
                 attribs.append(f'slopes={self.current_slopes}')
-            transition = f'{start_state} x ({", ".join(
-                attribs)}) -> {self.player.state}'
+            attrib_list = ", ".join(attribs)
+            transition = f'{start_state} x ({attrib_list}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
                 print(transition)
