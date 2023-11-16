@@ -4,6 +4,7 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from constants import SUBPIXELS
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from switchstate import SwitchState
@@ -207,15 +208,15 @@ class TileMap:
             dest = pygame.Rect(
                 offset[0],
                 offset[1],
-                layer.surface.get_width() * context.subpixels,
-                layer.surface.get_height() * context.subpixels)
+                layer.surface.get_width() * SUBPIXELS,
+                layer.surface.get_height() * SUBPIXELS)
             batch.draw(layer.surface, dest)
             return
 
         offset_x = offset[0]
         offset_y = offset[1]
-        tileheight = self.tileheight * context.subpixels
-        tilewidth = self.tilewidth * context.subpixels
+        tileheight = self.tileheight * SUBPIXELS
+        tilewidth = self.tilewidth * SUBPIXELS
         row_count = math.ceil(dest.height / tileheight) + 1
         col_count = math.ceil(dest.width / tilewidth) + 1
 
@@ -253,12 +254,12 @@ class TileMap:
 
                 # If it's off the top/left side, trim it.
                 if pos_x < dest.left:
-                    extra = (dest.left - pos_x) // context.subpixels
+                    extra = (dest.left - pos_x) // SUBPIXELS
                     source.left += extra
                     source.width -= extra
                     pos_x = dest.left
                 if pos_y < dest.top:
-                    extra = (dest.top - pos_y) // context.subpixels
+                    extra = (dest.top - pos_y) // SUBPIXELS
                     source.top += extra
                     source.height -= extra
                     pos_y = dest.top
@@ -346,13 +347,12 @@ class TileMap:
                     player_rect: pygame.Rect,
                     direction: Direction,
                     switches: SwitchState,
-                    scale: int,
                     is_backwards: bool) -> MoveResult:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()
 
-        right_edge = self.width * self.tilewidth * scale
-        bottom_edge = self.height * self.tileheight * scale
+        right_edge = self.width * self.tilewidth * SUBPIXELS
+        bottom_edge = self.height * self.tileheight * SUBPIXELS
 
         if direction == Direction.LEFT and player_rect.x < 0:
             result.hard_offset = -player_rect.x
@@ -371,19 +371,19 @@ class TileMap:
             result.soft_offset = result.hard_offset
             return result
 
-        row1 = player_rect.top // (self.tileheight * scale)
-        col1 = player_rect.left // (self.tilewidth * scale)
-        row2 = player_rect.bottom // (self.tileheight * scale)
-        col2 = player_rect.right // (self.tilewidth * scale)
+        row1 = player_rect.top // (self.tileheight * SUBPIXELS)
+        col1 = player_rect.left // (self.tilewidth * SUBPIXELS)
+        row2 = player_rect.bottom // (self.tileheight * SUBPIXELS)
+        col2 = player_rect.right // (self.tilewidth * SUBPIXELS)
 
         for row in range(row1, row2+1):
             for col in range(col1, col2+1):
                 tile_rect = self.get_rect(row, col)
                 tile_bounds = pygame.Rect(
-                    tile_rect.x * scale,
-                    tile_rect.y * scale,
-                    tile_rect.w * scale,
-                    tile_rect.h * scale)
+                    tile_rect.x * SUBPIXELS,
+                    tile_rect.y * SUBPIXELS,
+                    tile_rect.w * SUBPIXELS,
+                    tile_rect.h * SUBPIXELS)
                 for layer in self.layers:
                     if not isinstance(layer, TileLayer):
                         continue
@@ -415,7 +415,6 @@ class TileMap:
                             hard_offset = slope.try_move_to_bounds(
                                 player_rect,
                                 tile_bounds,
-                                scale,
                                 direction)
 
                         result.consider_tile(

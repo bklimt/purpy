@@ -31,7 +31,6 @@ class DoorState(Enum):
 class Door:
     x: int
     y: int
-    scale: int
     sprite: SpriteSheet
     destination: str | None
     stars_needed: int
@@ -41,13 +40,12 @@ class Door:
     state: DoorState
     frame: int = 0
 
-    def __init__(self, obj: MapObject, scale: int):
+    def __init__(self, obj: MapObject):
         surface = pygame.image.load('assets/sprites/door.png')
         self.sprite = SpriteSheet(surface, 32, 32)
-        self.x = obj.x * scale
-        self.y = obj.y * scale
+        self.x = obj.x * SUBPIXELS
+        self.y = obj.y * SUBPIXELS
         self.active = False
-        self.scale = scale
 
         dest = obj.properties.get('destination', None)
         if dest is not None and not isinstance(dest, str):
@@ -104,10 +102,10 @@ class Door:
         self.sprite.blit(batch, dest, layer=DoorLayer.FRAME)
 
     def is_inside(self, player_rect: pygame.Rect) -> bool:
-        door_rect = pygame.Rect(self.x + 8*self.scale,
+        door_rect = pygame.Rect(self.x + 8*SUBPIXELS,
                                 self.y,
-                                24*self.scale,
-                                32*self.scale)
+                                24*SUBPIXELS,
+                                32*SUBPIXELS)
         return intersect(player_rect, door_rect)
 
     def update(self, player_rect: pygame.Rect, star_count: int):

@@ -23,7 +23,6 @@ from utils import Direction, cmp_in_direction, opposite_direction
 class Level:
     parent: Scene | None
     map_path: str
-    scale: int
     name: str
     map: TileMap
     player: Player
@@ -52,14 +51,14 @@ class Level:
     current_switch_tiles: set[int]
     current_door: Door | None
 
-    def __init__(self, parent: Scene | None, map_path: str, scale: int):
+    def __init__(self, parent: Scene | None, map_path: str):
         self.parent = parent
         self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
         self.toast_text = self.name
         self.previous_map_offset = None
         self.map = load_map(map_path)
-        self.player = Player(scale)
+        self.player = Player()
         self.player.x = 128
         self.player.y = 128
         self.transition: str = ''
@@ -70,23 +69,21 @@ class Level:
         self.current_switch_tiles = set()
         self.star_count = 0
         self.current_slopes = set()
-        self.scale = scale
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
-                self.platforms.append(MovingPlatform(
-                    obj, self.map.tileset, scale))
+                self.platforms.append(MovingPlatform(obj, self.map.tileset))
             if obj.properties.get('bagel', False):
-                self.platforms.append(Bagel(obj, self.map.tileset, scale))
+                self.platforms.append(Bagel(obj, self.map.tileset))
             if obj.properties.get('convey', '') != '':
-                self.platforms.append(Conveyor(obj, self.map.tileset, scale))
+                self.platforms.append(Conveyor(obj, self.map.tileset))
             if obj.properties.get('spring', '') != '':
-                self.platforms.append(Spring(obj, self.map.tileset, scale))
+                self.platforms.append(Spring(obj, self.map.tileset))
             if obj.properties.get('button', False):
-                self.platforms.append(Button(obj, self.map.tileset, scale))
+                self.platforms.append(Button(obj, self.map.tileset))
             if obj.properties.get('door', False):
-                self.doors.append(Door(obj, scale))
+                self.doors.append(Door(obj))
             if obj.properties.get('star', False):
-                self.stars.append(Star(obj, self.map.tileset, scale))
+                self.stars.append(Star(obj, self.map.tileset))
 
     #
     # Movement.
@@ -202,7 +199,7 @@ class Level:
         player_rect = self.player.get_target_bounds_rect(direction)
 
         map_result = self.map.try_move_to(
-            player_rect, direction, self.switches, self.scale, is_backwards)
+            player_rect, direction, self.switches, is_backwards)
         platform_result = self.find_platform_intersections(
             player_rect, direction, is_backwards)
 
@@ -319,12 +316,11 @@ class Level:
         crushed_by_platform: bool = False
 
     def get_slope_dy(self):
-        subpixels = self.scale
         slope_fall = 0
         for slope_id in self.current_slopes:
             slope = self.map.tileset.get_slope(slope_id)
-            left_y = slope.left_y * subpixels
-            right_y = slope.right_y * subpixels
+            left_y = slope.left_y
+            right_y = slope.right_y
             fall: int = 0
             if self.player.dx > 0 or (self.player.dx == 0 and self.player.facing_right):
                 # The player is facing right.
@@ -545,7 +541,7 @@ class Level:
         if inputs.is_cancel_triggered():
             return self.parent
         if inputs.is_restart_down():
-            return Level(self.parent, self.map_path, self.scale)
+            return Level(self.parent, self.map_path)
 
         self.map.update_animations()
 
@@ -569,8 +565,8 @@ class Level:
             door.update(player_rect, self.star_count)
             if door.is_closed:
                 if door.destination is not None:
-                    return Level(self.parent, door.destination, self.scale)
-                return Level(self.parent, self.map_path, self.scale)
+                    return Level(self.parent, door.destination)
+                return Level(self.parent, self.map_path)
             if door.active:
                 self.current_door = door
 
@@ -611,7 +607,7 @@ class Level:
                 print(transition)
 
         if self.player.is_dead:
-            return KillScreen(self, lambda: Level(self.parent, self.map_path, self.scale))
+            return KillScreen(self, lambda: Level(self.parent, self.map_path))
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:
@@ -640,11 +636,11 @@ class Level:
         if player_draw_y > player_y + 4:
             player_draw_y = player_y + 4
         right_limit = dest.width - \
-            (self.map.width * self.map.tilewidth * context.subpixels)
+            (self.map.width * self.map.tilewidth * SUBPIXELS)
         if player_draw_x < player_x + right_limit:
             player_draw_x = player_x + right_limit
         bottom_limit = dest.height - \
-            (self.map.height * self.map.tileheight * context.subpixels)
+            (self.map.height * self.map.tileheight * SUBPIXELS)
         if player_draw_y < player_y + bottom_limit:
             player_draw_y = player_y + bottom_limit
         map_offset: tuple[int, int] = (
@@ -700,14 +696,14 @@ class Level:
             context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
             images.font.draw_string(
                 context.hud_batch,
-                (top_bar_area.x + 2*context.subpixels,
-                 top_bar_area.y + 2*context.subpixels),
+                (top_bar_area.x + 2*SUBPIXELS,
+                 top_bar_area.y + 2*SUBPIXELS),
                 self.toast_text)
 
         context.dark = self.map.is_dark
 
         spotlight_pos = (
-            player_draw_x + 12 * context.subpixels,
-            player_draw_y + 12 * context.subpixels)
-        spotlight_radius = 120.0 * context.subpixels
+            player_draw_x + 12 * SUBPIXELS,
+            player_draw_y + 12 * SUBPIXELS)
+        spotlight_radius = 120.0 * SUBPIXELS
         context.add_light(spotlight_pos, spotlight_radius)

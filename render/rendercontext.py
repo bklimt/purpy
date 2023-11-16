@@ -1,7 +1,7 @@
 
 import pygame
 
-from constants import MAX_LIGHTS
+from constants import MAX_LIGHTS, SUBPIXELS
 from render.spritebatch import SpriteBatch
 
 
@@ -27,24 +27,22 @@ class RenderContext:
 
     dark: bool = False
     lights: list[Light]
-    subpixels: int
 
-    def __init__(self, render_size: tuple[int, int], subpixels: int):
-        self.subpixels = subpixels
+    def __init__(self, render_size: tuple[int, int]):
         self.render_size: tuple[int, int] = render_size
         self.render_area = pygame.Rect(0, 0, render_size[0], render_size[1])
         self.logical_area = pygame.Rect(
-            0, 0, render_size[0]*subpixels, render_size[1]*subpixels)
+            0, 0, render_size[0]*SUBPIXELS, render_size[1]*SUBPIXELS)
 
         self.hud_surface = pygame.Surface(render_size, pygame.SRCALPHA)
         self.foreground_surface = pygame.Surface(render_size, pygame.SRCALPHA)
         self.player_surface = pygame.Surface(render_size, pygame.SRCALPHA)
         self.background_surface = pygame.Surface(render_size, pygame.SRCALPHA)
 
-        self.hud_batch = SpriteBatch(self.hud_surface, subpixels)
-        self.foreground_batch = SpriteBatch(self.foreground_surface, subpixels)
-        self.player_batch = SpriteBatch(self.player_surface, subpixels)
-        self.background_batch = SpriteBatch(self.background_surface, subpixels)
+        self.hud_batch = SpriteBatch(self.hud_surface)
+        self.foreground_batch = SpriteBatch(self.foreground_surface)
+        self.player_batch = SpriteBatch(self.player_surface)
+        self.background_batch = SpriteBatch(self.background_surface)
 
         self.lights = []
 

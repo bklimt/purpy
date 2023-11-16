@@ -54,23 +54,21 @@ class PlatformBase:
     occupied: bool
     is_solid: bool
 
-    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
+    def __init__(self, obj: MapObject, tileset: TileSet):
         if obj.gid is None:
             raise Exception('platforms must have tile ids')
 
         self.id = obj.id
         self.tileset = tileset
         self.tile_id = obj.gid - 1
-        self.x = obj.x * scale
-        self.y = obj.y * scale
-        self.width = obj.width * scale
-        self.height = obj.height * scale
+        self.x = obj.x * SUBPIXELS
+        self.y = obj.y * SUBPIXELS
+        self.width = obj.width * SUBPIXELS
+        self.height = obj.height * SUBPIXELS
         self.dx = 0
         self.dy = 0
         self.occupied = False
         self.is_solid = bool(obj.properties.get('solid', False))
-
-        pass
 
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
@@ -115,12 +113,13 @@ class MovingPlatform(PlatformBase):
     condition: str | None
     overflow: str
 
-    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
-        super().__init__(obj, tileset, scale)
-        self.distance = assert_int(obj.properties.get('distance', '0')) * scale
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
+        self.distance = assert_int(
+            obj.properties.get('distance', '0')) * SUBPIXELS
         # This is 16 for historical reasons, just because that's what the speed is tuned for.
         self.speed = (assert_int(
-            obj.properties.get('speed', '1')) * scale) // 16
+            obj.properties.get('speed', '1')) * SUBPIXELS) // 16
         self.start_x = self.x
         self.start_y = self.y
         self.moving_forward = True
@@ -229,8 +228,8 @@ class Bagel(PlatformBase):
     falling: bool = False
     remaining: int = BAGEL_WAIT_TIME
 
-    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
-        super().__init__(obj, tileset, scale)
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
         self.original_y = self.y
 
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
@@ -240,8 +239,7 @@ class Bagel(PlatformBase):
         if self.occupied:
             x += randint(-1, 1)
             y += randint(-1, 1)
-        rect = pygame.Rect(x, y, area.w * context.subpixels,
-                           area.h * context.subpixels)
+        rect = pygame.Rect(x, y, area.w * SUBPIXELS, area.h * SUBPIXELS)
         if rect.bottom < 0 or rect.right < 0:
             return
         if rect.top >= context.logical_area.h or rect.right >= context.logical_area.w:
@@ -272,9 +270,10 @@ class Bagel(PlatformBase):
 
 
 class Conveyor(PlatformBase):
-    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
-        super().__init__(obj, tileset, scale)
-        speed = int(obj.properties.get('speed', 24))
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
+        # This is hand-tuned.
+        speed = int(obj.properties.get('speed', 24)) * SUBPIXELS//16
         if obj.properties.get('convey', 'E') == 'E':
             self.dx = speed
         else:
@@ -289,17 +288,15 @@ class Spring(PlatformBase):
     up: bool = False
     position: int = 0
     stall_counter = SPRING_STALL_FRAMES
-    scale: int
 
-    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
-        super().__init__(obj, tileset, scale)
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
         surface = pygame.image.load('assets/sprites/spring.png')
         self.sprite = SpriteSheet(surface, 8, 8)
-        self.scale = scale
 
     @property
     def frame(self):
-        return self.position // self.scale
+        return self.position // SUBPIXELS
 
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
@@ -329,7 +326,7 @@ class Spring(PlatformBase):
                 else:
                     self.launch = True
             else:
-                if self.position < (SPRING_STEPS * self.scale) - SPRING_SPEED:
+                if self.position < (SPRING_STEPS * SUBPIXELS) - SPRING_SPEED:
                     self.stall_counter = SPRING_STALL_FRAMES
                     self.position += SPRING_SPEED
                     self.dy = SPRING_SPEED

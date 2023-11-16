@@ -22,10 +22,11 @@ class Button(PlatformBase):
     was_occupied: bool
     color: str
 
-    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
-        super().__init__(obj, tileset, scale)
+    def __init__(self, obj: MapObject, tileset: TileSet):
+        super().__init__(obj, tileset)
         self.original_y = self.y
-        self.dy = scale
+        # Move down by a whole pixel while on a button.
+        self.dy = SUBPIXELS
         self.color = assert_str(obj.properties.get('color', 'red'))
         surface = pygame.image.load(self.get_image_path(obj))
         self.sprite = SpriteSheet(surface, 8, 8)

@@ -25,7 +25,6 @@ class Player:
     y: int = 0
     dx: int = 0
     dy: int = 0
-    scale: int
     facing_right: bool = True
     # 24x24 sprite sheet
     texture: pygame.Surface
@@ -37,10 +36,9 @@ class Player:
     is_idle: bool = False
     is_dead: bool = False
 
-    def __init__(self, scale: int):
+    def __init__(self):
         self.texture = pygame.image.load('assets/sprites/skelly.png')
         self.sprite = SpriteSheet(self.texture, 24, 24)
-        self.scale = scale
 
     def draw(self, context: RenderContext, batch: SpriteBatch, pos: tuple[int, int]):
         if self.dx < 0:
@@ -93,12 +91,11 @@ class Player:
             self.idle_counter = IDLE_TIME
 
         if self.is_dead:
-            x_jiggle = randint(-context.subpixels, context.subpixels)
-            y_jiggle = randint(-context.subpixels, context.subpixels)
+            x_jiggle = randint(-SUBPIXELS, SUBPIXELS)
+            y_jiggle = randint(-SUBPIXELS, SUBPIXELS)
             pos = (pos[0] + x_jiggle, pos[1] + y_jiggle)
 
-        dest = pygame.Rect(pos[0], pos[1], 24 *
-                           context.subpixels, 24 * context.subpixels)
+        dest = pygame.Rect(pos[0], pos[1], 24 * SUBPIXELS, 24 * SUBPIXELS)
 
         self.sprite.blit(batch,
                          dest,
@@ -134,7 +131,7 @@ class Player:
         """ Returns the bounds rect in pixels to check when moving in direction. """
         unscaled = self.get_raw_target_bounds(direction)
         return pygame.Rect(
-            self.x + unscaled.x * self.scale,
-            self.y + unscaled.y * self.scale,
-            unscaled.w * self.scale,
-            unscaled.h * self.scale)
+            self.x + unscaled.x * SUBPIXELS,
+            self.y + unscaled.y * SUBPIXELS,
+            unscaled.w * SUBPIXELS,
+            unscaled.h * SUBPIXELS)

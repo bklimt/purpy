@@ -4,6 +4,7 @@ import pygame
 from math import trunc
 from random import randint
 
+from constants import SUBPIXELS
 from render.rendercontext import RenderContext
 from tilemap import MapObject
 from tileset import TileSet
@@ -15,9 +16,12 @@ class Star:
     surface: pygame.Surface
     source: pygame.Rect
 
-    def __init__(self, obj: MapObject, tileset: TileSet, scale: int):
+    def __init__(self, obj: MapObject, tileset: TileSet):
         self.area = pygame.Rect(
-            obj.x*scale, obj.y*scale, obj.width*scale, obj.height*scale)
+            obj.x*SUBPIXELS,
+            obj.y*SUBPIXELS,
+            obj.width*SUBPIXELS,
+            obj.height*SUBPIXELS)
         self.surface = tileset.surface
         if not obj.gid:
             raise Exception('star must have gid')

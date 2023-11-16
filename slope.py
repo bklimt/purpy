@@ -1,6 +1,7 @@
 
 import pygame
 
+from constants import SUBPIXELS
 from utils import assert_int, Direction
 
 
@@ -9,21 +10,20 @@ class Slope:
     right_y: int
 
     def __init__(self, properties: dict[str, str | int | bool]):
-        self.left_y = assert_int(properties.get('left_y', 0))
-        self.right_y = assert_int(properties.get('right_y', 0))
+        self.left_y = assert_int(properties.get('left_y', 0)) * SUBPIXELS
+        self.right_y = assert_int(properties.get('right_y', 0)) * SUBPIXELS
 
     def try_move_to_bounds(
             self,
             actor: pygame.Rect,
             target: pygame.Rect,
-            subpixels: int,
             direction: Direction) -> int:
         """Try to move the actor rect in direction by delta and see if it intersects target.
 
         Returns the maximum distance the actor can move.
         """
-        left_y = self.left_y * subpixels
-        right_y = self.right_y * subpixels
+        left_y = self.left_y
+        right_y = self.right_y
 
         if actor.bottom <= target.top:
             return 0

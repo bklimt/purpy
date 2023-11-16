@@ -1,20 +1,20 @@
 
 import pygame
 
+from constants import SUBPIXELS
+
 
 class SpriteBatch:
     canvas: pygame.Surface
-    subpixels: int
 
-    def __init__(self, canvas: pygame.Surface, subpixels: int):
+    def __init__(self, canvas: pygame.Surface):
         self.canvas = canvas
-        self.subpixels = subpixels
 
     def draw(self,
              texture: pygame.Surface,
              dest: pygame.Rect,
              src: pygame.Rect | None = None):
-        s = self.subpixels
+        s = SUBPIXELS
         scaled = pygame.Rect(dest.x//s, dest.y//s, dest.w//s, dest.h//s)
         overlap = scaled.clip(self.canvas.get_rect())
         if overlap.w == 0:
@@ -26,6 +26,6 @@ class SpriteBatch:
             return
         if dest.y < 0:
             dest = pygame.Rect(dest.x, 0, dest.w, dest.h + dest.y)
-        s = self.subpixels
+        s = SUBPIXELS
         dest = pygame.Rect(dest.x//s, dest.y//s, dest.w//s, dest.h//s)
         self.canvas.fill(color, dest)

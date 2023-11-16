@@ -1,21 +1,20 @@
 
 import pygame
 
+from constants import SUBPIXELS
 from render.spritebatch import SpriteBatch
 from tileset import load_tileset, TileSet
 
 
 class Font:
     tileset: TileSet
-    scale: int
     char_width: int
     char_height: int
 
-    def __init__(self, path: str, scale: int = 1):
+    def __init__(self, path: str):
         self.tileset = load_tileset(path)
-        self.scale = scale
-        self.char_width = 8 * self.scale
-        self.char_height = 8 * self.scale
+        self.char_width = 8 * SUBPIXELS
+        self.char_height = 8 * SUBPIXELS
 
     def draw_string(self, batch: SpriteBatch, pos: tuple[int, int], s: str):
         for ch in s:

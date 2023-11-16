@@ -60,7 +60,7 @@ BAGEL_MAX_GRAVITY = 11 * SUBPIXELS//16
 BAGEL_GRAVITY_ACCELERATION = 1
 
 # Springs that bounce you.
-SPRING_STEPS = 4
+SPRING_STEPS = 4                   # This should match the spring animation.
 SPRING_STALL_FRAMES = 10           # How long the spring stays at the bottom.
 SPRING_SPEED = 16 * SUBPIXELS//16  # How fast the spring itself moves.
 SPRING_BOUNCE_DURATION = 30        # How long to jump when bouncing.
@@ -70,5 +70,5 @@ SPRING_JUMP_VELOCITY = 78 * SUBPIXELS//16
 
 # Doors.
 DOOR_SPEED = 3
-DOOR_CLOSING_FRAMES = 9
+DOOR_CLOSING_FRAMES = 9    # The should match the door animation frames.
 DOOR_UNLOCKING_FRAMES = 9
