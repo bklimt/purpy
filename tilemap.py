@@ -185,7 +185,7 @@ class TileMap:
                         context: RenderContext,
                         batch: SpriteBatch,
                         dest: pygame.Rect,
-                        offset: tuple[float, float],
+                        offset: tuple[int, int],
                         switches: SwitchState):
         if self.player_layer is None:
             return
@@ -201,7 +201,7 @@ class TileMap:
                    batch: SpriteBatch,
                    layer: TileLayer | ImageLayer,
                    dest: pygame.Rect,
-                   offset: tuple[float, float],
+                   offset: tuple[int, int],
                    switches: SwitchState):
         if isinstance(layer, ImageLayer):
             dest = pygame.Rect(
@@ -212,19 +212,21 @@ class TileMap:
             batch.draw(layer.surface, dest)
             return
 
-        offset_x = int(offset[0] // context.subpixels)
-        offset_y = int(offset[1] // context.subpixels)
-        row_count = math.ceil(dest.height / self.tileheight) + 1
-        col_count = math.ceil(dest.width / self.tilewidth) + 1
+        offset_x = offset[0]
+        offset_y = offset[1]
+        tileheight = self.tileheight * context.subpixels
+        tilewidth = self.tilewidth * context.subpixels
+        row_count = math.ceil(dest.height / tileheight) + 1
+        col_count = math.ceil(dest.width / tilewidth) + 1
 
-        start_row = offset_y // -self.tileheight
+        start_row = offset_y // -tileheight
         end_row = start_row + row_count
         if start_row < 0:
             start_row = 0
         if end_row > self.height:
             end_row = self.height
 
-        start_col = offset_x // -self.tilewidth
+        start_col = offset_x // -tilewidth
         end_col = start_col + col_count
         if start_col < 0:
             start_col = 0
@@ -246,17 +248,19 @@ class TileMap:
                     index = alt
 
                 source = self.tileset.get_source_rect(index)
-                pos_x = col * self.tilewidth + dest.left + offset_x
-                pos_y = row * self.tileheight + dest.top + offset_y
+                pos_x = col * tilewidth + dest.left + offset_x
+                pos_y = row * tileheight + dest.top + offset_y
 
                 # If it's off the top/left side, trim it.
                 if pos_x < dest.left:
-                    source.left = source.left + (dest.left - pos_x)
-                    source.width = source.width - (dest.left - pos_x)
+                    extra = (dest.left - pos_x) // context.subpixels
+                    source.left += extra
+                    source.width -= extra
                     pos_x = dest.left
                 if pos_y < dest.top:
-                    source.top = source.top + (dest.top - pos_y)
-                    source.height = source.height - (dest.top - pos_y)
+                    extra = (dest.top - pos_y) // context.subpixels
+                    source.top += extra
+                    source.height -= extra
                     pos_y = dest.top
                 if source.width <= 0 or source.height <= 0:
                     continue
@@ -275,12 +279,11 @@ class TileMap:
                     continue
 
                 # Draw the rest of the turtle.
-                pos = (pos_x, pos_y)
                 destination = pygame.Rect(
-                    pos[0]*context.subpixels,
-                    pos[1]*context.subpixels,
-                    source.w*context.subpixels,
-                    source.h*context.subpixels)
+                    pos_x,
+                    pos_y,
+                    tilewidth,
+                    tileheight)
                 if index in self.tileset.animations:
                     self.tileset.animations[index].blit(
                         batch, destination, reverse=False)

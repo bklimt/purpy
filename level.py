@@ -637,7 +637,8 @@ class Level:
                 attribs.append(f'platform={self.current_platform.id}')
             if len(self.current_slopes) > 0:
                 attribs.append(f'slopes={self.current_slopes}')
-            transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
+            transition = f'{start_state} x ({", ".join(
+                attribs)}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
                 print(transition)
@@ -665,12 +666,12 @@ class Level:
         player_y = self.player.y
         player_draw_x: int = dest.width // 2
         player_draw_y: int = dest.height // 2
+        # Don't waste space on the sides of the screen beyond the map.
         if player_draw_x > player_x:
             player_draw_x = player_x
-        # TODO: Why 4?
+        # The map is drawn 4 pixels from the top of the screen.
         if player_draw_y > player_y + 4:
             player_draw_y = player_y + 4
-        # TODO: What?
         right_limit = dest.width - \
             (self.map.width * self.map.tilewidth * context.subpixels)
         if player_draw_x < player_x + right_limit:
