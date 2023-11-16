@@ -17,7 +17,7 @@ from soundmanager import Sound, SoundManager
 from gameobject.star import Star
 from switchstate import SwitchState
 from tilemap import TileMap, load_map
-from utils import Direction, cmp_in_direction, opposite_direction, sign
+from utils import Direction, cmp_in_direction, opposite_direction
 
 # Horizontal speed.
 TARGET_WALK_SPEED = 24 * SUBPIXELS//16
@@ -56,7 +56,6 @@ TOAST_SPEED = 8 * SUBPIXELS//16
 class Level:
     parent: Scene | None
     map_path: str
-    scale: int
     name: str
     map: TileMap
     player: Player
