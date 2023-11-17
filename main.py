@@ -38,7 +38,7 @@ class Game:
         window = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
         print('initializing render context')
         render_area = pygame.Rect(0, 0, RENDER_WIDTH, RENDER_HEIGHT)
-        self.render_context = RenderContext((RENDER_WIDTH, RENDER_HEIGHT))
+        self.render_context = RenderContext(render_area.size)
         print('initializing renderer')
         if USE_OPENGL:
             self.renderer = OpenGLRenderer(render_area, destination, window)
@@ -51,9 +51,9 @@ class Game:
         self.sounds = SoundManager()
 
         if len(sys.argv) > 1:
-            self.scene = Level(None, sys.argv[1])
+            self.scene = Level(None, sys.argv[1], self.images)
         else:
-            self.scene = LevelSelect(None, 'assets/levels')
+            self.scene = LevelSelect(None, 'assets/levels', self.images)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = RENDER_WIDTH / RENDER_HEIGHT

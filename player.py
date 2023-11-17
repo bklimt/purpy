@@ -5,6 +5,7 @@ from enum import Enum
 from random import randint
 
 from constants import *
+from imagemanager import ImageManager
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
@@ -36,8 +37,8 @@ class Player:
     is_idle: bool = False
     is_dead: bool = False
 
-    def __init__(self):
-        self.texture = pygame.image.load('assets/sprites/skelly.png')
+    def __init__(self, images: ImageManager):
+        self.texture = images.load_image('assets/sprites/skelly.png')
         self.sprite = SpriteSheet(self.texture, 24, 24)
 
     def draw(self, context: RenderContext, batch: SpriteBatch, pos: tuple[int, int]):

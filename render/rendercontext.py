@@ -1,7 +1,7 @@
 
 import pygame
 
-from constants import MAX_LIGHTS, SUBPIXELS
+from constants import SUBPIXELS
 from render.spritebatch import SpriteBatch
 
 

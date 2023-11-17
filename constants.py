@@ -7,7 +7,7 @@ RENDER_HEIGHT = 180
 FRAME_RATE = 60
 
 # What rendering engine to use.
-USE_OPENGL = False
+USE_OPENGL = True
 
 # How many subpixels to use for game logic.
 SUBPIXELS = 16

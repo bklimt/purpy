@@ -40,8 +40,8 @@ class Door:
     state: DoorState
     frame: int = 0
 
-    def __init__(self, obj: MapObject):
-        surface = pygame.image.load('assets/sprites/door.png')
+    def __init__(self, obj: MapObject, images: ImageManager):
+        surface = images.load_image('assets/sprites/door.png')
         self.sprite = SpriteSheet(surface, 32, 32)
         self.x = obj.x * SUBPIXELS
         self.y = obj.y * SUBPIXELS

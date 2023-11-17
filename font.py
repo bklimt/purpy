@@ -3,7 +3,7 @@ import pygame
 
 from constants import SUBPIXELS
 from render.spritebatch import SpriteBatch
-from tileset import load_tileset, TileSet
+from tileset import ImageLoader, TileSet, load_tileset
 
 
 class Font:
@@ -11,8 +11,8 @@ class Font:
     char_width: int
     char_height: int
 
-    def __init__(self, path: str):
-        self.tileset = load_tileset(path)
+    def __init__(self, path: str, images: ImageLoader):
+        self.tileset = load_tileset(path, images)
         self.char_width = 8 * SUBPIXELS
         self.char_height = 8 * SUBPIXELS
 

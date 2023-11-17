@@ -3,6 +3,7 @@ import pygame
 import typing
 
 from constants import *
+from imagemanager import ImageManager
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
@@ -289,9 +290,9 @@ class Spring(PlatformBase):
     position: int = 0
     stall_counter = SPRING_STALL_FRAMES
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
+    def __init__(self, obj: MapObject, tileset: TileSet, images: ImageManager):
         super().__init__(obj, tileset)
-        surface = pygame.image.load('assets/sprites/spring.png')
+        surface = images.load_image('assets/sprites/spring.png')
         self.sprite = SpriteSheet(surface, 8, 8)
 
     @property

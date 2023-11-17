@@ -3,6 +3,7 @@ import pygame
 
 from constants import *
 from gameobject.platforms import PlatformBase
+from imagemanager import ImageManager
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from soundmanager import Sound, SoundManager
@@ -22,13 +23,13 @@ class Button(PlatformBase):
     was_occupied: bool
     color: str
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
+    def __init__(self, obj: MapObject, tileset: TileSet, images: ImageManager):
         super().__init__(obj, tileset)
         self.original_y = self.y
         # Move down by a whole pixel while on a button.
         self.dy = SUBPIXELS
         self.color = assert_str(obj.properties.get('color', 'red'))
-        surface = pygame.image.load(self.get_image_path(obj))
+        surface = images.load_image(self.get_image_path(obj))
         self.sprite = SpriteSheet(surface, 8, 8)
         self.button_type = assert_str(
             obj.properties.get('button_type', 'toggle'))

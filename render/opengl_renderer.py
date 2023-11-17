@@ -8,6 +8,7 @@ import pygame
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileShader
 
+from constants import SUBPIXELS
 from render.rendercontext import RenderContext
 
 
@@ -133,10 +134,10 @@ class OpenGLRenderer:
         if len(ls) > 20:
             ls = ls[:20]
         positions = [
-            (l.position[0] // context.subpixels,
-             l.position[1] // context.subpixels)
+            (l.position[0] // SUBPIXELS,
+             l.position[1] // SUBPIXELS)
             for l in ls]
-        radii = [l.radius // context.subpixels for l in ls]
+        radii = [l.radius // SUBPIXELS for l in ls]
 
         glUniform1i(glGetUniformLocation(
             self.program, 'iSpotlightCount'), len(ls))

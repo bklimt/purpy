@@ -22,10 +22,12 @@ from utils import Direction, cmp_in_direction, opposite_direction
 
 class Level:
     parent: Scene | None
-    map_path: str
     name: str
     map: TileMap
     player: Player
+
+    restart_func: typing.Callable[[], Scene]
+    next_func: typing.Callable[[str], Scene]
 
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
@@ -51,14 +53,16 @@ class Level:
     current_switch_tiles: set[int]
     current_door: Door | None
 
-    def __init__(self, parent: Scene | None, map_path: str):
+    def __init__(self, parent: Scene | None, map_path: str, images: ImageManager):
         self.parent = parent
-        self.map_path = map_path
+        self.restart_func = lambda: Level(parent, map_path, images)
+        self.next_func = lambda destination: Level(parent, destination, images)
+        # self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
         self.toast_text = self.name
         self.previous_map_offset = None
-        self.map = load_map(map_path)
-        self.player = Player()
+        self.map = load_map(map_path, images)
+        self.player = Player(images)
         self.player.x = 128
         self.player.y = 128
         self.transition: str = ''
@@ -77,11 +81,11 @@ class Level:
             if obj.properties.get('convey', '') != '':
                 self.platforms.append(Conveyor(obj, self.map.tileset))
             if obj.properties.get('spring', '') != '':
-                self.platforms.append(Spring(obj, self.map.tileset))
+                self.platforms.append(Spring(obj, self.map.tileset, images))
             if obj.properties.get('button', False):
-                self.platforms.append(Button(obj, self.map.tileset))
+                self.platforms.append(Button(obj, self.map.tileset, images))
             if obj.properties.get('door', False):
-                self.doors.append(Door(obj))
+                self.doors.append(Door(obj, images))
             if obj.properties.get('star', False):
                 self.stars.append(Star(obj, self.map.tileset))
 
@@ -541,7 +545,7 @@ class Level:
         if inputs.is_cancel_triggered():
             return self.parent
         if inputs.is_restart_down():
-            return Level(self.parent, self.map_path)
+            return self.restart_func()
 
         self.map.update_animations()
 
@@ -565,8 +569,8 @@ class Level:
             door.update(player_rect, self.star_count)
             if door.is_closed:
                 if door.destination is not None:
-                    return Level(self.parent, door.destination)
-                return Level(self.parent, self.map_path)
+                    return self.next_func(door.destination)
+                return self.restart_func()
             if door.active:
                 self.current_door = door
 
@@ -607,7 +611,7 @@ class Level:
                 print(transition)
 
         if self.player.is_dead:
-            return KillScreen(self, lambda: Level(self.parent, self.map_path))
+            return KillScreen(self, self.restart_func)
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:

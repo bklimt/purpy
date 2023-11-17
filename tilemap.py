@@ -5,6 +5,7 @@ import pygame
 import xml.etree.ElementTree
 
 from constants import SUBPIXELS
+from imagemanager import ImageManager
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from switchstate import SwitchState
@@ -16,11 +17,11 @@ class ImageLayer:
     path: str
     surface: pygame.Surface
 
-    def __init__(self, node: xml.etree.ElementTree.Element, path: str):
-        images = [img for img in node if img.tag == 'image']
-        source = images[0].attrib['source']
+    def __init__(self, node: xml.etree.ElementTree.Element, path: str, images: ImageManager):
+        image = [img for img in node if img.tag == 'image']
+        source = image[0].attrib['source']
         self.path = os.path.join(os.path.dirname(path), source)
-        self.surface = pygame.image.load(self.path)
+        self.surface = images.load_image(self.path)
 
 
 class TileLayer:
@@ -122,7 +123,7 @@ class TileMap:
     objects: list[MapObject]
     properties: dict[str, str | int | bool]
 
-    def __init__(self, root: xml.etree.ElementTree.Element, path: str):
+    def __init__(self, root: xml.etree.ElementTree.Element, path: str, images: ImageManager):
         self.width = int(root.attrib['width'])
         self.height = int(root.attrib['height'])
         self.tilewidth = int(root.attrib['tilewidth'])
@@ -130,8 +131,8 @@ class TileMap:
         self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
         self.tilesetsource = [
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
-        self.tileset = load_tileset(os.path.join(
-            os.path.dirname(path), self.tilesetsource))
+        tileset_path = os.path.join(os.path.dirname(path), self.tilesetsource)
+        self.tileset = load_tileset(tileset_path, images)
 
         self.properties = load_properties(root)
         print(f'map properties: {self.properties}')
@@ -141,7 +142,7 @@ class TileMap:
             if layer.tag == 'layer':
                 self.layers.append(TileLayer(layer))
             elif layer.tag == 'imagelayer':
-                self.layers.append(ImageLayer(layer, path))
+                self.layers.append(ImageLayer(layer, path, images))
 
         player_layers = [
             layer for layer
@@ -441,9 +442,9 @@ class TileMap:
         self.tileset.update_animations()
 
 
-def load_map(path: str):
+def load_map(path: str, images: ImageManager):
     print('loading map from ' + path)
     root = xml.etree.ElementTree.parse(path).getroot()
     if not isinstance(root, xml.etree.ElementTree.Element):
         raise Exception('root was not an element')
-    return TileMap(root, path)
+    return TileMap(root, path, images)
