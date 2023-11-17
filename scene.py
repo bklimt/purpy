@@ -4,7 +4,7 @@ import typing
 
 from imagemanager import ImageManager
 from inputmanager import InputManager
-from rendercontext import RenderContext
+from render.rendercontext import RenderContext
 from soundmanager import SoundManager
 
 

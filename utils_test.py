@@ -2,7 +2,11 @@
 import pygame
 import unittest
 
-from utils import cmp_in_direction, try_move_to_bounds, try_move_to_slope_bounds, Bounds, Direction
+from utils import cmp_in_direction, try_move_to_bounds, try_move_to_slope_bounds, Direction
+
+
+def Bounds(x: int, y: int, w: int, h: int):
+    return pygame.Rect(x, y, w, h)
 
 
 class TestIntersect(unittest.TestCase):
@@ -50,9 +54,9 @@ class TestIntersect(unittest.TestCase):
         # and the center x should be 3 pixels (48 sub-pixels) into the tile.
         # The player is at the very top of the tile.
         center_x = 640 + 48
-        player = Bounds(center_x - 142, tile.top_sub - 384 + 1, 24*16, 24*16)
-        self.assertEqual(897, player.top_sub)
-        self.assertEqual(1281, player.bottom_sub)
+        player = Bounds(center_x - 142, tile.top - 384 + 1, 24*16, 24*16)
+        self.assertEqual(897, player.top)
+        self.assertEqual(1281, player.bottom)
 
         # The slope goes from the top of the tile to the middle.
         # The slope in sub-pixels is (4 * 16) / (8 * 16) = 0.5.
@@ -64,17 +68,17 @@ class TestIntersect(unittest.TestCase):
         self.assertEqual(0, result)
 
         # Now try with the player at the bottom of the tile.
-        player.y_sub = tile.bottom_sub - 384 - 1
+        player.y = tile.bottom - 384 - 1
         result = try_move_to_slope_bounds(
             player, tile, left_y, right_y, Direction.DOWN)
-        self.assertEqual(-78, result)
+        self.assertEqual(-124, result)
 
         # Now try with a lower slope.
         left_y = 4
         right_y = 8
         result = try_move_to_slope_bounds(
             player, tile, left_y, right_y, Direction.DOWN)
-        self.assertEqual(-14, result)
+        self.assertEqual(-120, result)
 
 
 if __name__ == '__main__':

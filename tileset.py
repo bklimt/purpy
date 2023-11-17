@@ -2,6 +2,7 @@
 import math
 import os.path
 import pygame
+import typing
 import xml.etree.ElementTree
 
 from slope import Slope
@@ -20,6 +21,11 @@ class TileSetImage:
         self.height = int(node.attrib['height'])
 
 
+class ImageLoader(typing.Protocol):
+    def load_image(self, path: str) -> pygame.Surface:
+        raise Exception('abstract protocol')
+
+
 class TileSet:
     name: str
     tilewidth: int
@@ -33,7 +39,7 @@ class TileSet:
     properties: dict[str, str | bool | int]
     tile_properties: dict[int, dict[str, str | bool | int]]
 
-    def __init__(self, root: xml.etree.ElementTree.Element, path: str):
+    def __init__(self, root: xml.etree.ElementTree.Element, path: str, images: ImageLoader):
         self.name = root.attrib['name']
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
@@ -44,8 +50,7 @@ class TileSet:
 
         img_path = os.path.join(os.path.dirname(path), self.image.source)
         print('loading tileset texture from ' + img_path)
-        img = pygame.image.load(img_path)
-        self.surface = pygame.Surface.convert_alpha(img)
+        self.surface = images.load_image(img_path)
 
         self.properties = load_properties(root)
 
@@ -67,9 +72,9 @@ class TileSet:
                 raise Exception('animations property must be a string')
             tile_animations_path = os.path.join(
                 os.path.dirname(path), tile_animations_path)
-            self.load_tile_animations(tile_animations_path)
+            self.load_tile_animations(tile_animations_path, images)
 
-    def load_tile_animations(self, path: str):
+    def load_tile_animations(self, path: str, images: ImageLoader):
         """ Loads a directory of animations to replace tiles. """
         print(f'loading tile animations from {path}')
         filenames = os.listdir(path)
@@ -78,7 +83,7 @@ class TileSet:
                 tile_id = int(filename[:-4])
                 filepath = os.path.join(path, filename)
                 print(f'loading animation for tile {tile_id} from {filepath}')
-                surface = pygame.image.load(filepath)
+                surface = images.load_image(filepath)
                 animation = Animation(surface, 8, 8)
                 self.animations[tile_id] = animation
             else:
@@ -133,9 +138,9 @@ class TileSet:
         return val
 
 
-def load_tileset(path: str) -> TileSet:
+def load_tileset(path: str, images: ImageLoader) -> TileSet:
     print('loading tileset from ' + path)
     root = xml.etree.ElementTree.parse(path).getroot()
     if not isinstance(root, xml.etree.ElementTree.Element):
         raise Exception('root was not an element')
-    return TileSet(root, path)
+    return TileSet(root, path, images)

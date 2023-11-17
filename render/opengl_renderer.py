@@ -8,7 +8,8 @@ import pygame
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileShader
 
-from rendercontext import RenderContext
+from constants import SUBPIXELS
+from render.rendercontext import RenderContext
 
 
 class Texture:
@@ -125,28 +126,29 @@ class OpenGLRenderer:
         glUniform1f(glGetUniformLocation(self.program, 'iTime'),
                     pygame.time.get_ticks() / 1000.0)
         glUniform2f(glGetUniformLocation(self.program, 'iTextureSize'),
-                    context.logical_size[0], context.logical_size[1])
+                    context.render_size[0], context.render_size[1])
         glUniform1i(glGetUniformLocation(self.program, 'iDark'),
                     context.dark)
 
         ls = context.lights
         if len(ls) > 20:
             ls = ls[:20]
+        positions = [
+            (l.position[0] // SUBPIXELS,
+             l.position[1] // SUBPIXELS)
+            for l in ls]
+        radii = [l.radius // SUBPIXELS for l in ls]
 
         glUniform1i(glGetUniformLocation(
             self.program, 'iSpotlightCount'), len(ls))
 
         glUniform2fv(glGetUniformLocation(self.program, 'iSpotlightPosition'),
-                     len(ls),
-                     [l.position for l in ls])
+                     len(ls), positions)
 
         glUniform1fv(glGetUniformLocation(self.program, 'iSpotlightRadius'),
-                     len(ls),
-                     [l.radius for l in ls])
+                     len(ls), radii)
 
     def render(self, context: RenderContext):
-        surface = context.player_surface
-
         glClearColor(0, 0, 1, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
 

@@ -1,16 +1,17 @@
 
 import pygame
 
-from platforms import PlatformBase
+from constants import *
+from gameobject.platforms import PlatformBase
+from imagemanager import ImageManager
+from render.rendercontext import RenderContext
+from render.spritebatch import SpriteBatch
 from soundmanager import Sound, SoundManager
 from spritesheet import SpriteSheet
 from switchstate import SwitchState
 from tilemap import MapObject
 from tileset import TileSet
 from utils import assert_str
-
-BUTTON_DELAY = 2
-MAX_LEVEL = BUTTON_DELAY * 3
 
 
 class Button(PlatformBase):
@@ -22,11 +23,13 @@ class Button(PlatformBase):
     was_occupied: bool
     color: str
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
+    def __init__(self, obj: MapObject, tileset: TileSet, images: ImageManager):
         super().__init__(obj, tileset)
         self.original_y = self.y
+        # Move down by a whole pixel while on a button.
+        self.dy = SUBPIXELS
         self.color = assert_str(obj.properties.get('color', 'red'))
-        surface = pygame.image.load(self.get_image_path(obj))
+        surface = images.load_image(self.get_image_path(obj))
         self.sprite = SpriteSheet(surface, 8, 8)
         self.button_type = assert_str(
             obj.properties.get('button_type', 'toggle'))
@@ -37,10 +40,11 @@ class Button(PlatformBase):
             color = 'black'
         return f'assets/sprites/buttons/{color}.png'
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.original_y//16 + offset[1]
-        self.sprite.blit(surface, (x, y), self.level // BUTTON_DELAY)
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
+        x = self.x + offset[0]
+        y = self.original_y + offset[1]
+        dest = pygame.Rect(x, y, self.width, self.height)
+        self.sprite.blit(batch, dest, self.level // BUTTON_DELAY)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         was_clicked = self.clicked
@@ -62,13 +66,13 @@ class Button(PlatformBase):
             self.clicked = self.occupied
 
         if self.clicked:
-            if self.level < MAX_LEVEL:
+            if self.level < BUTTON_MAX_LEVEL:
                 self.level += 1
         else:
             if self.level > 0:
                 self.level -= 1
 
-        self.y = self.original_y + ((self.level * 16) // BUTTON_DELAY)
+        self.y = self.original_y + ((self.level * SUBPIXELS) // BUTTON_DELAY)
 
         if self.clicked != was_clicked:
             sounds.play(Sound.CLICK)

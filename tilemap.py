@@ -4,20 +4,24 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
+from constants import SUBPIXELS
+from imagemanager import ImageManager
+from render.rendercontext import RenderContext
+from render.spritebatch import SpriteBatch
 from switchstate import SwitchState
 from tileset import TileSet, load_tileset
-from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Bounds, Direction
+from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Direction
 
 
 class ImageLayer:
     path: str
     surface: pygame.Surface
 
-    def __init__(self, node: xml.etree.ElementTree.Element, path: str):
-        images = [img for img in node if img.tag == 'image']
-        source = images[0].attrib['source']
+    def __init__(self, node: xml.etree.ElementTree.Element, path: str, images: ImageManager):
+        image = [img for img in node if img.tag == 'image']
+        source = image[0].attrib['source']
         self.path = os.path.join(os.path.dirname(path), source)
-        self.surface = pygame.image.load(self.path)
+        self.surface = images.load_image(self.path)
 
 
 class TileLayer:
@@ -119,7 +123,7 @@ class TileMap:
     objects: list[MapObject]
     properties: dict[str, str | int | bool]
 
-    def __init__(self, root: xml.etree.ElementTree.Element, path: str):
+    def __init__(self, root: xml.etree.ElementTree.Element, path: str, images: ImageManager):
         self.width = int(root.attrib['width'])
         self.height = int(root.attrib['height'])
         self.tilewidth = int(root.attrib['tilewidth'])
@@ -127,8 +131,8 @@ class TileMap:
         self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
         self.tilesetsource = [
             ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
-        self.tileset = load_tileset(os.path.join(
-            os.path.dirname(path), self.tilesetsource))
+        tileset_path = os.path.join(os.path.dirname(path), self.tilesetsource)
+        self.tileset = load_tileset(tileset_path, images)
 
         self.properties = load_properties(root)
         print(f'map properties: {self.properties}')
@@ -138,7 +142,7 @@ class TileMap:
             if layer.tag == 'layer':
                 self.layers.append(TileLayer(layer))
             elif layer.tag == 'imagelayer':
-                self.layers.append(ImageLayer(layer, path))
+                self.layers.append(ImageLayer(layer, path, images))
 
         player_layers = [
             layer for layer
@@ -167,43 +171,64 @@ class TileMap:
             return True
         return switches.is_condition_true(condition)
 
-    def draw_background(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
-        surface.fill(self.backgroundcolor, dest)
+    def draw_background(self,
+                        context: RenderContext,
+                        batch: SpriteBatch,
+                        dest: pygame.Rect,
+                        offset: tuple[int, int],
+                        switches: SwitchState):
+        batch.draw_rect(dest, self.backgroundcolor)
         for layer in self.layers:
-            self.draw_layer(surface, layer, dest, offset, switches)
+            self.draw_layer(context, batch, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 return
 
-    def draw_foreground(self, surface: pygame.Surface, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
+    def draw_foreground(self,
+                        context: RenderContext,
+                        batch: SpriteBatch,
+                        dest: pygame.Rect,
+                        offset: tuple[int, int],
+                        switches: SwitchState):
         if self.player_layer is None:
             return
         drawing = False
         for layer in self.layers:
             if drawing:
-                self.draw_layer(surface, layer, dest, offset, switches)
+                self.draw_layer(context, batch, layer, dest, offset, switches)
             if isinstance(layer, TileLayer) and layer.player:
                 drawing = True
 
-    def draw_layer(self, surface: pygame.Surface, layer: TileLayer | ImageLayer, dest: pygame.Rect, offset: tuple[float, float], switches: SwitchState):
-        # pygame.draw.rect(surface, self.backgroundcolor, dest)
-
+    def draw_layer(self,
+                   context: RenderContext,
+                   batch: SpriteBatch,
+                   layer: TileLayer | ImageLayer,
+                   dest: pygame.Rect,
+                   offset: tuple[int, int],
+                   switches: SwitchState):
         if isinstance(layer, ImageLayer):
-            surface.blit(layer.surface, offset)
+            dest = pygame.Rect(
+                offset[0],
+                offset[1],
+                layer.surface.get_width() * SUBPIXELS,
+                layer.surface.get_height() * SUBPIXELS)
+            batch.draw(layer.surface, dest)
             return
 
-        offset_x = int(offset[0])
-        offset_y = int(offset[1])
-        row_count = math.ceil(dest.height / self.tileheight) + 1
-        col_count = math.ceil(dest.width / self.tilewidth) + 1
+        offset_x = offset[0]
+        offset_y = offset[1]
+        tileheight = self.tileheight * SUBPIXELS
+        tilewidth = self.tilewidth * SUBPIXELS
+        row_count = math.ceil(dest.height / tileheight) + 1
+        col_count = math.ceil(dest.width / tilewidth) + 1
 
-        start_row = offset_y // -self.tileheight
+        start_row = offset_y // -tileheight
         end_row = start_row + row_count
         if start_row < 0:
             start_row = 0
         if end_row > self.height:
             end_row = self.height
 
-        start_col = offset_x // -self.tilewidth
+        start_col = offset_x // -tilewidth
         end_col = start_col + col_count
         if start_col < 0:
             start_col = 0
@@ -225,17 +250,19 @@ class TileMap:
                     index = alt
 
                 source = self.tileset.get_source_rect(index)
-                pos_x = col * self.tilewidth + dest.left + offset_x
-                pos_y = row * self.tileheight + dest.top + offset_y
+                pos_x = col * tilewidth + dest.left + offset_x
+                pos_y = row * tileheight + dest.top + offset_y
 
                 # If it's off the top/left side, trim it.
                 if pos_x < dest.left:
-                    source.left = source.left + (dest.left - pos_x)
-                    source.width = source.width - (dest.left - pos_x)
+                    extra = (dest.left - pos_x) // SUBPIXELS
+                    source.left += extra
+                    source.width -= extra
                     pos_x = dest.left
                 if pos_y < dest.top:
-                    source.top = source.top + (dest.top - pos_y)
-                    source.height = source.height - (dest.top - pos_y)
+                    extra = (dest.top - pos_y) // SUBPIXELS
+                    source.top += extra
+                    source.height -= extra
                     pos_y = dest.top
                 if source.width <= 0 or source.height <= 0:
                     continue
@@ -254,11 +281,16 @@ class TileMap:
                     continue
 
                 # Draw the rest of the turtle.
-                pos = (pos_x, pos_y)
+                destination = pygame.Rect(
+                    pos_x,
+                    pos_y,
+                    tilewidth,
+                    tileheight)
                 if index in self.tileset.animations:
-                    self.tileset.animations[index].blit(surface, pos, False)
+                    self.tileset.animations[index].blit(
+                        batch, destination, reverse=False)
                 else:
-                    surface.blit(self.tileset.surface, pos, source)
+                    batch.draw(self.tileset.surface, destination, source)
 
     def get_rect(self, row: int, col: int) -> pygame.Rect:
         return pygame.Rect(
@@ -286,9 +318,9 @@ class TileMap:
 
     class MoveResult:
         # This is the offset that stops the player.
-        hard_offset_sub: int = 0
+        hard_offset: int = 0
         # This is the offset for being on a slope.
-        soft_offset_sub: int = 0
+        soft_offset: int = 0
         tile_ids: set[int]
 
         def __init__(self):
@@ -296,64 +328,63 @@ class TileMap:
 
         def consider_tile(self,
                           index: int,
-                          hard_offset_sub: int,
-                          soft_offset_sub: int,
+                          hard_offset: int,
+                          soft_offset: int,
                           direction: Direction):
             cmp = cmp_in_direction(
-                hard_offset_sub, self.hard_offset_sub, direction)
+                hard_offset, self.hard_offset, direction)
             if cmp < 0:
-                self.hard_offset_sub = hard_offset_sub
+                self.hard_offset = hard_offset
 
             cmp = cmp_in_direction(
-                soft_offset_sub, self.soft_offset_sub, direction)
+                soft_offset, self.soft_offset, direction)
             if cmp < 0:
-                self.soft_offset_sub = soft_offset_sub
+                self.soft_offset = soft_offset
                 self.tile_ids = set([index])
             elif cmp == 0:
                 self.tile_ids.add(index)
 
     def try_move_to(self,
-                    bounds: Bounds,
+                    player_rect: pygame.Rect,
                     direction: Direction,
                     switches: SwitchState,
                     is_backwards: bool) -> MoveResult:
         """ Returns the offset needed to account for the closest one. """
         result = TileMap.MoveResult()
-        player_rect = bounds.rect
 
-        right_edge_sub = self.width * self.tilewidth * 16
-        bottom_edge_sub = self.height * self.tileheight * 16
+        right_edge = self.width * self.tilewidth * SUBPIXELS
+        bottom_edge = self.height * self.tileheight * SUBPIXELS
 
-        if direction == Direction.LEFT and bounds.x_sub < 0:
-            result.hard_offset_sub = -bounds.x_sub
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.LEFT and player_rect.x < 0:
+            result.hard_offset = -player_rect.x
+            result.soft_offset = result.hard_offset
             return result
-        if direction == Direction.UP and bounds.y_sub < 0:
-            result.hard_offset_sub = -bounds.y_sub
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.UP and player_rect.y < 0:
+            result.hard_offset = -player_rect.y
+            result.soft_offset = result.hard_offset
             return result
-        if direction == Direction.RIGHT and bounds.right_sub >= right_edge_sub:
-            result.hard_offset_sub = (right_edge_sub - bounds.right_sub) - 1
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.RIGHT and player_rect.right >= right_edge:
+            result.hard_offset = (right_edge - player_rect.right) - 1
+            result.soft_offset = result.hard_offset
             return result
-        if direction == Direction.DOWN and bounds.bottom_sub >= bottom_edge_sub:
-            result.hard_offset_sub = (bottom_edge_sub - bounds.bottom_sub) - 1
-            result.soft_offset_sub = result.hard_offset_sub
+        if direction == Direction.DOWN and player_rect.bottom >= bottom_edge:
+            result.hard_offset = (bottom_edge - player_rect.bottom) - 1
+            result.soft_offset = result.hard_offset
             return result
 
-        row1 = player_rect.top // self.tileheight
-        col1 = player_rect.left // self.tilewidth
-        row2 = player_rect.bottom // self.tileheight
-        col2 = player_rect.right // self.tilewidth
+        row1 = player_rect.top // (self.tileheight * SUBPIXELS)
+        col1 = player_rect.left // (self.tilewidth * SUBPIXELS)
+        row2 = player_rect.bottom // (self.tileheight * SUBPIXELS)
+        col2 = player_rect.right // (self.tilewidth * SUBPIXELS)
 
         for row in range(row1, row2+1):
             for col in range(col1, col2+1):
                 tile_rect = self.get_rect(row, col)
-                tile_bounds = Bounds(
-                    tile_rect.x * 16,
-                    tile_rect.y * 16,
-                    tile_rect.w * 16,
-                    tile_rect.h * 16)
+                tile_bounds = pygame.Rect(
+                    tile_rect.x * SUBPIXELS,
+                    tile_rect.y * SUBPIXELS,
+                    tile_rect.w * SUBPIXELS,
+                    tile_rect.h * SUBPIXELS)
                 for layer in self.layers:
                     if not isinstance(layer, TileLayer):
                         continue
@@ -374,59 +405,22 @@ class TileMap:
                         if not self.is_solid_in_direction(index, direction, is_backwards):
                             continue
 
-                        soft_offset_sub = try_move_to_bounds(
-                            bounds,
+                        soft_offset = try_move_to_bounds(
+                            player_rect,
                             tile_bounds,
                             direction)
-                        hard_offset_sub = soft_offset_sub
+                        hard_offset = soft_offset
 
                         if self.tileset.is_slope(index):
                             slope = self.tileset.get_slope(index)
-                            hard_offset_sub = slope.try_move_to_bounds(
-                                bounds,
+                            hard_offset = slope.try_move_to_bounds(
+                                player_rect,
                                 tile_bounds,
                                 direction)
 
                         result.consider_tile(
-                            index, hard_offset_sub, soft_offset_sub, direction)
+                            index, hard_offset, soft_offset, direction)
         return result
-
-    def intersect(self, bounds: Bounds, switches: SwitchState) -> list[int]:
-        ans = []
-        rect = bounds.rect
-        row1 = rect.top // self.tileheight
-        col1 = rect.left // self.tilewidth
-        row2 = rect.bottom // self.tileheight
-        col2 = rect.right // self.tilewidth
-        if row1 < 0:
-            row1 = 0
-        if col1 < 0:
-            col1 = 0
-        if row2 < 0:
-            row2 = 0
-        if col2 < 0:
-            col2 = 0
-        for row in range(row1, row2+1):
-            for col in range(col1, col2+1):
-                for layer in self.layers:
-                    if not isinstance(layer, TileLayer):
-                        continue
-                    if layer.player or self.player_layer is None:
-                        index = layer.data[row][col]
-                        if index == 0:
-                            continue
-                        index -= 1
-                        if not self.is_condition_met(index, switches):
-                            alt = self.tileset.get_int_property(
-                                index, 'alternate')
-                            if alt is None:
-                                continue
-                            # Use an alt tile instead of the original.
-                            index = alt
-                        if not self.tileset.get_bool_property(index, 'solid', True):
-                            continue
-                        ans.append(index)
-        return ans
 
     def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:
         preferred_x: int | None = None
@@ -448,9 +442,9 @@ class TileMap:
         self.tileset.update_animations()
 
 
-def load_map(path: str):
+def load_map(path: str, images: ImageManager):
     print('loading map from ' + path)
     root = xml.etree.ElementTree.parse(path).getroot()
     if not isinstance(root, xml.etree.ElementTree.Element):
         raise Exception('root was not an element')
-    return TileMap(root, path)
+    return TileMap(root, path, images)
