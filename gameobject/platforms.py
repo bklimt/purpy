@@ -117,10 +117,10 @@ class MovingPlatform(PlatformBase):
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
         self.distance = assert_int(
-            obj.properties.get('distance', '0')) * SUBPIXELS
+            obj.properties.get('distance', 0)) * SUBPIXELS
         # This is 16 for historical reasons, just because that's what the speed is tuned for.
         self.speed = (assert_int(
-            obj.properties.get('speed', '1')) * SUBPIXELS) // 16
+            obj.properties.get('speed', 1)) * SUBPIXELS) // 16
         self.start_x = self.x
         self.start_y = self.y
         self.moving_forward = True

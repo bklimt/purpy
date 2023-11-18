@@ -10,7 +10,7 @@ FRAME_RATE = 60
 USE_OPENGL = True
 
 # How many subpixels to use for game logic.
-SUBPIXELS = 16
+SUBPIXELS = 256
 
 # Rendering details.
 MAX_LIGHTS = 20
