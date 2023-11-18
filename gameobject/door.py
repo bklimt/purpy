@@ -9,7 +9,7 @@ from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from tilemap import MapObject
-from utils import intersect
+from utils import assert_str, intersect
 
 
 class DoorLayer(IntEnum):
@@ -41,7 +41,10 @@ class Door:
     frame: int = 0
 
     def __init__(self, obj: MapObject, images: ImageManager):
-        surface = images.load_image('assets/sprites/door.png')
+        sprite_path = assert_str(obj.properties.get(
+            'sprite', 'assets/sprites/door.png'))
+
+        surface = images.load_image(sprite_path)
         self.sprite = SpriteSheet(surface, 32, 32)
         self.x = obj.x * SUBPIXELS
         self.y = obj.y * SUBPIXELS

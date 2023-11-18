@@ -54,6 +54,7 @@
  <tile id="240">
   <properties>
    <property name="door" type="bool" value="true"/>
+   <property name="sprite" value="assets/sprites/door_pastel.png"/>
    <property name="stars_needed" type="int" value="1"/>
   </properties>
  </tile>
