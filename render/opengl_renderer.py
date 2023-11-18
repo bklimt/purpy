@@ -57,14 +57,15 @@ class OpenGLRenderer:
         self.init_static()
         self.init_shader()
 
-    def set_texture_data(self, texture: Texture, surface: pygame.Surface):
+    def set_texture_data(self, texture: Texture, surface: pygame.Surface, repeat: bool = False):
+        wrap = GL_REPEAT if repeat else GL_CLAMP
         texture_data = pygame.image.tobytes(surface, 'RGBA', True)
         glActiveTexture(texture.constant)
         glBindTexture(GL_TEXTURE_2D, texture.name)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                      self.logical_rect.w,
                      self.logical_rect.h,
@@ -82,7 +83,7 @@ class OpenGLRenderer:
                 color = pygame.Color(r, g, b)
                 self.static.set_at((x, y), color)
 
-        self.set_texture_data(self.static_texture, self.static)
+        self.set_texture_data(self.static_texture, self.static, repeat=True)
 
     def set_constant_inputs(self):
         res = glGetUniformLocation(self.program, 'iResolution')
