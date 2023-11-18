@@ -8,6 +8,11 @@
    <property name="slope" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="17">
+  <properties>
+   <property name="solid" type="bool" value="false"/>
+  </properties>
+ </tile>
  <tile id="20">
   <properties>
    <property name="left_y" type="int" value="8"/>

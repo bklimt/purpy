@@ -317,6 +317,11 @@ class TileMap:
         raise Exception('unexpection direction')
 
     class MoveResult:
+        # We keep track of two different offsets so that you can be "on" a
+        # slope even if there's a higher block next to it. That way, if you're
+        # at the top of a slope, you can be down the slope a little, and not
+        # wait until you're completely clear of the flat area before falling.
+
         # This is the offset that stops the player.
         hard_offset: int = 0
         # This is the offset for being on a slope.

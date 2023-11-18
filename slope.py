@@ -50,11 +50,15 @@ class Slope:
             target_y = int(target.y + slope * x_offset + left_y)
 
             if False:
+                print('')
+                print(f'direction = {direction}')
                 print(f'center_x = {actor_center_x}')
-                print(f'x_offset = {x_offset}')
+                print(f'x_offset = {x_offset/16.0}')
                 print(f'slope = {slope}')
-                print(f'target_y_sub = {target_y}')
-                print(f'actor_bottom = {actor.bottom}')
+                print(f'target_y = {target_y/16.0}')
+                print(f'actor_bottom = {actor.bottom/16.0}')
+                if target_y < actor.bottom:
+                    print(f'pushing actor by {target_y - actor.bottom}')
 
         if target_y < actor.bottom:
             return target_y - actor.bottom
