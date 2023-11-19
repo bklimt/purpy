@@ -136,3 +136,11 @@ class Player:
             self.y + unscaled.y * SUBPIXELS,
             unscaled.w * SUBPIXELS,
             unscaled.h * SUBPIXELS)
+
+
+class Player2(Player):
+    def __init__(self, images: ImageManager):
+        super().__init__(images)
+
+    def next_frame(self):
+        frame = self.frame
