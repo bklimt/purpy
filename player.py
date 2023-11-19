@@ -8,7 +8,7 @@ from constants import *
 from imagemanager import ImageManager
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
-from spritesheet import SpriteSheet
+from spritesheet import SpriteSheet, AnimationStateMachine
 from utils import Direction
 
 
@@ -139,8 +139,72 @@ class Player:
 
 
 class Player2(Player):
+    animation_state_machine: AnimationStateMachine
+
     def __init__(self, images: ImageManager):
         super().__init__(images)
 
-    def next_frame(self):
-        frame = self.frame
+        self.texture = images.load_image('assets/sprites/skelly2.png')
+        self.sprite = SpriteSheet(self.texture, 24, 24)
+
+        f = open('assets/sprites/skelly2_states.txt')
+        self.animation_state_machine = AnimationStateMachine(f.read())
+
+    def draw(self, context: RenderContext, batch: SpriteBatch, pos: tuple[int, int]):
+        if self.dx < 0:
+            self.facing_right = False
+        if self.dx > 0:
+            self.facing_right = True
+
+        # STANDING
+        # IDLE
+        # RUNNING
+        # JUMPING
+        # FALLING
+        # CROUCHING
+        # WALL_SLIDING
+        # DEAD
+
+        state: str = 'STANDING'
+
+        if self.state == PlayerState.FALLING:
+            state = 'FALLING'
+        elif self.state == PlayerState.JUMPING:
+            state = 'JUMPING'
+        elif self.state == PlayerState.WALL_SLIDING:
+            state = 'WALL_SLIDING'
+        elif self.dx != 0 and self.state == PlayerState.STANDING:
+            state = 'RUNNING'
+        elif self.state == PlayerState.STANDING or self.state == PlayerState.STOPPED:
+            if self.idle_counter > 0:
+                self.idle_counter -= 1
+                state = 'STANDING'
+            else:
+                self.is_idle = True
+                state = 'IDLE'
+        elif self.state == PlayerState.CROUCHING:
+            state = 'CROUCHING'
+
+        if self.state != PlayerState.STANDING or self.dx != 0:
+            self.is_idle = False
+            self.idle_counter = IDLE_TIME
+
+        if self.is_dead:
+            state = 'DEAD'
+            x_jiggle = randint(-SUBPIXELS, SUBPIXELS)
+            y_jiggle = randint(-SUBPIXELS, SUBPIXELS)
+            pos = (pos[0] + x_jiggle, pos[1] + y_jiggle)
+
+        if self.frames_to_next_frame == 0:
+            self.frame = self.animation_state_machine.next_frame(
+                self.frame+1, state) - 1
+            self.frames_to_next_frame = PLAYER_FRAMES_PER_FRAME
+        else:
+            self.frames_to_next_frame -= 1
+
+        dest = pygame.Rect(pos[0], pos[1], 24 * SUBPIXELS, 24 * SUBPIXELS)
+
+        self.sprite.blit(batch,
+                         dest,
+                         index=self.frame,
+                         reverse=not self.facing_right)

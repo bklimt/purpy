@@ -13,6 +13,14 @@ class TestRules(unittest.TestCase):
         self.assertFalse(rule.matches(1, 'END'))
         self.assertEqual(3, rule.apply(1))
 
+    def test_range_of_one(self):
+        rule = AnimationStateMachineRule('1, START: 3', set(['START']))
+        self.assertTrue(rule.matches(1, 'START'))
+        self.assertFalse(rule.matches(2, 'START'))
+        self.assertFalse(rule.matches(3, 'START'))
+        self.assertFalse(rule.matches(1, 'END'))
+        self.assertEqual(3, rule.apply(1))
+
     def test_wildcard_range(self):
         rule = AnimationStateMachineRule('*, START: 3', set(['START']))
         self.assertTrue(rule.matches(1, 'START'))
@@ -50,8 +58,8 @@ START
 END
 
 [TRANSITIONS]
-1-1, START: +
-2-2, START: 1
+1, START: +
+2, START: 1
 1-1, END: 2
 2-2, END: 3
 3-3, END: 3

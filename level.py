@@ -9,7 +9,7 @@ from gameobject.door import Door
 from imagemanager import ImageManager
 from inputmanager import InputManager
 from kill import KillScreen
-from player import Player, PlayerState
+from player import Player2, PlayerState
 from gameobject.platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
 from render.rendercontext import RenderContext
 from scene import Scene
@@ -24,7 +24,7 @@ class Level:
     parent: Scene | None
     name: str
     map: TileMap
-    player: Player
+    player: Player2
 
     restart_func: typing.Callable[[], Scene]
     next_func: typing.Callable[[str], Scene]
@@ -62,7 +62,7 @@ class Level:
         self.toast_text = self.name
         self.previous_map_offset = None
         self.map = load_map(map_path, images)
-        self.player = Player(images)
+        self.player = Player2(images)
         self.player.x = 128
         self.player.y = 128
         self.transition: str = ''

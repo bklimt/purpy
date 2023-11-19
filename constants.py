@@ -42,7 +42,7 @@ WALL_SLIDE_TIME = 60
 
 # Player appearance.
 IDLE_TIME = 240              # How long before showing idle animation.
-PLAYER_FRAMES_PER_FRAME = 8  # How fast to animate the player.
+PLAYER_FRAMES_PER_FRAME = 4  # How fast to animate the player.
 
 # How the "toast" text pops up at the top of the screen.
 TOAST_TIME = 150

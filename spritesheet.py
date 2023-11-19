@@ -92,13 +92,17 @@ class AnimationStateMachineRule:
         if range_text == '*':
             self.current_range = None
         else:
-            range_parts = range_text.split('-')
-            if len(range_parts) != 2:
-                raise Exception(
-                    f'invalid animation state machine rule (missing dash): {text}')
-            range_start_text = range_parts[0].strip()
-            range_end_text = range_parts[1].strip()
-            self.current_range = (int(range_start_text), int(range_end_text))
+            if range_text.find('-') < 0:
+                self.current_range = (int(range_text), int(range_text))
+            else:
+                range_parts = range_text.split('-')
+                if len(range_parts) != 2:
+                    raise Exception(
+                        f'invalid animation state machine rule (missing dash): {text}')
+                range_start_text = range_parts[0].strip()
+                range_end_text = range_parts[1].strip()
+                self.current_range = (
+                    int(range_start_text), int(range_end_text))
 
         if current_state_text == '*':
             self.current_state = None
