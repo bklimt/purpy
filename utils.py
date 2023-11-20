@@ -41,105 +41,37 @@ def cmp_in_direction(a: int, b: int, direction: Direction):
         return sign(a - b)
 
 
-class Bounds:
-    x_sub: int
-    y_sub: int
-    w_sub: int
-    h_sub: int
-
-    def __init__(self, x_sub: int, y_sub: int, w_sub: int, h_sub: int):
-        self.x_sub = x_sub
-        self.y_sub = y_sub
-        self.w_sub = w_sub
-        self.h_sub = h_sub
-
-    @property
-    def rect(self) -> pygame.Rect:
-        return pygame.Rect(self.x, self.y, self.w, self.h)
-
-    @property
-    def x(self) -> int:
-        return self.x_sub // 16
-
-    @property
-    def y(self) -> int:
-        return self.y_sub // 16
-
-    @property
-    def w(self) -> int:
-        return self.w_sub // 16
-
-    @property
-    def h(self) -> int:
-        return self.h_sub // 16
-
-    @property
-    def top(self) -> int:
-        return self.y
-
-    @property
-    def left(self) -> int:
-        return self.x
-
-    @property
-    def bottom(self) -> int:
-        return self.bottom_sub // 16
-
-    @property
-    def right(self) -> int:
-        return self.right_sub // 16
-
-    @property
-    def top_sub(self) -> int:
-        return self.y_sub
-
-    @property
-    def left_sub(self) -> int:
-        return self.x_sub
-
-    @property
-    def right_sub(self) -> int:
-        return self.x_sub + self.w_sub
-
-    @property
-    def bottom_sub(self) -> int:
-        return self.y_sub + self.h_sub
-
-    def __str__(self) -> str:
-        return f'Bounds({self.x_sub}, {self.y_sub}, {self.w_sub}, {self.h_sub})'
-
-
-def try_move_to_bounds(actor: Bounds, target: Bounds, direction: Direction) -> int:
+def try_move_to_bounds(actor: pygame.Rect, target: pygame.Rect, direction: Direction) -> int:
     """Try to move the actor rect in direction by delta and see if it intersects target.
 
     Returns the maximum distance the actor can move.
     """
-    if actor.bottom_sub <= target.top_sub:
+    if actor.bottom <= target.top:
         return 0
-    if actor.top_sub >= target.bottom_sub:
+    if actor.top >= target.bottom:
         return 0
-    if actor.right_sub <= target.left_sub:
+    if actor.right <= target.left:
         return 0
-    if actor.left_sub >= target.right_sub:
+    if actor.left >= target.right:
         return 0
 
     match direction:
         case Direction.NONE:
             raise Exception('cannot try_move_to in no direction')
         case Direction.UP:
-            return target.bottom_sub - actor.top_sub
+            return target.bottom - actor.top
         case Direction.DOWN:
-            return target.top_sub - actor.bottom_sub
+            return target.top - actor.bottom
         case Direction.RIGHT:
-            return target.left_sub - actor.right_sub
+            return target.left - actor.right
         case Direction.LEFT:
-            return target.right_sub - actor.left_sub
+            return target.right - actor.left
     raise Exception('unimplemented')
 
 
 def try_move_to_slope_bounds(
-        actor: Bounds,
-        target: Bounds,
+        actor: pygame.Rect,
+        target: pygame.Rect,
         left_y: int,
         right_y: int,
         direction: Direction) -> int:
@@ -148,43 +80,39 @@ def try_move_to_slope_bounds(
     Returns the maximum distance the actor can move.
     """
 
-    if actor.bottom_sub <= target.top_sub:
+    if actor.bottom <= target.top:
         return 0
-    if actor.top_sub >= target.bottom_sub:
+    if actor.top >= target.bottom:
         return 0
-    if actor.right_sub <= target.left_sub:
+    if actor.right <= target.left:
         return 0
-    if actor.left_sub >= target.right_sub:
+    if actor.left >= target.right:
         return 0
 
     if direction != Direction.DOWN:
         return 0
 
-    left_y_sub = left_y * 16
-    right_y_sub = right_y * 16
+    target_y: int = actor.bottom
+    actor_center_x = (actor.left + actor.right) // 2
 
-    target_y_sub: int = actor.bottom_sub
-    actor_center_x_sub = (actor.left_sub + actor.right_sub) // 2
-
-    if actor_center_x_sub < target.left_sub:
-        target_y_sub = target.top_sub + left_y_sub
-    elif actor_center_x_sub > target.right_sub:
-        target_y_sub = target.top_sub + right_y_sub
+    if actor_center_x < target.left:
+        target_y = target.top + left_y
+    elif actor_center_x > target.right:
+        target_y = target.top + right_y
     else:
-        x_sub_offset = actor_center_x_sub - target.x_sub
-        slope_sub = (right_y_sub - left_y_sub) / target.w_sub
-        target_y_sub = int(target.y_sub + slope_sub *
-                           x_sub_offset + left_y_sub)
+        x_offset = actor_center_x - target.x
+        slope = (right_y - left_y) / target.w
+        target_y = int(target.y + slope * x_offset + left_y)
 
         if False:
-            print(f'center_x = {actor_center_x_sub}')
-            print(f'x_offset = {x_sub_offset}')
-            print(f'slope = {slope_sub}')
-            print(f'target_y_sub = {target_y_sub}')
-            print(f'actor_bottom = {actor.bottom_sub}')
+            print(f'center_x = {actor_center_x}')
+            print(f'x_offset = {x_offset}')
+            print(f'slope = {slope}')
+            print(f'target_y = {target_y}')
+            print(f'actor_bottom = {actor.bottom}')
 
-    if target_y_sub < actor.bottom_sub:
-        return target_y_sub - actor.bottom_sub
+    if target_y < actor.bottom:
+        return target_y - actor.bottom
     else:
         return 0
 

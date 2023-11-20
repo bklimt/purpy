@@ -3,14 +3,13 @@ import pygame
 
 from enum import Enum, IntEnum
 
+from constants import *
 from imagemanager import ImageManager
+from render.rendercontext import RenderContext
+from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from tilemap import MapObject
-from utils import intersect
-
-DOOR_SPEED = 3
-CLOSING_FRAMES = 9
-UNLOCKING_FRAMES = 9
+from utils import assert_str, intersect
 
 
 class DoorLayer(IntEnum):
@@ -41,11 +40,14 @@ class Door:
     state: DoorState
     frame: int = 0
 
-    def __init__(self, obj: MapObject):
-        surface = pygame.image.load('assets/sprites/door.png')
+    def __init__(self, obj: MapObject, images: ImageManager):
+        sprite_path = assert_str(obj.properties.get(
+            'sprite', 'assets/sprites/door.png'))
+
+        surface = images.load_image(sprite_path)
         self.sprite = SpriteSheet(surface, 32, 32)
-        self.x = obj.x
-        self.y = obj.y
+        self.x = obj.x * SUBPIXELS
+        self.y = obj.y * SUBPIXELS
         self.active = False
 
         dest = obj.properties.get('destination', None)
@@ -61,42 +63,50 @@ class Door:
 
         self.state = DoorState.LOCKED if self.stars_needed > 0 else DoorState.OPEN
 
-    def draw_background(self, surface: pygame.Surface, offset: tuple[int, int], images: ImageManager):
+    def draw_background(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int], images: ImageManager):
         pos = (self.x + offset[0], self.y + offset[1])
+        dest = pygame.Rect(pos[0], pos[1], 32*SUBPIXELS, 32*SUBPIXELS)
         layer = DoorLayer.ACTIVE if self.active else DoorLayer.INACTIVE
-        self.sprite.blit(surface, pos, 0, layer=layer)
+        self.sprite.blit(batch, dest, 0, layer=layer)
         if self.state == DoorState.LOCKED:
-            self.sprite.blit(surface,
-                             pos,
+            self.sprite.blit(batch,
+                             dest,
                              index=0,
                              layer=DoorLayer.LOCKED)
         if self.state == DoorState.UNLOCKING:
-            self.sprite.blit(surface,
-                             pos,
+            self.sprite.blit(batch,
+                             dest,
                              index=(self.frame // DOOR_SPEED),
                              layer=DoorLayer.LOCKED)
         if self.stars_remaining > 0:
             s = str(self.stars_remaining)
             if len(s) == 1:
                 s = '0' + s
-            images.font.draw_string(surface, (pos[0] + 8, pos[1] + 12), s)
+            images.font.draw_string(batch,
+                                    (pos[0] + 8*SUBPIXELS,
+                                     pos[1] + 12*SUBPIXELS),
+                                    s)
 
-    def draw_foreground(self, surface: pygame.Surface, offset: tuple[int, int]):
+    def draw_foreground(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         pos = (self.x + offset[0], self.y + offset[1])
+        dest = pygame.Rect(pos[0], pos[1], 32*SUBPIXELS, 32*SUBPIXELS)
         if self.state == DoorState.CLOSING:
-            self.sprite.blit(surface,
-                             pos,
+            self.sprite.blit(batch,
+                             dest,
                              index=(self.frame // DOOR_SPEED),
                              layer=DoorLayer.DOORS)
         if self.state == DoorState.CLOSED:
-            self.sprite.blit(surface,
-                             pos,
-                             index=CLOSING_FRAMES - 1,
+            self.sprite.blit(batch,
+                             dest,
+                             index=DOOR_CLOSING_FRAMES - 1,
                              layer=DoorLayer.DOORS)
-        self.sprite.blit(surface, pos, layer=DoorLayer.FRAME)
+        self.sprite.blit(batch, dest, layer=DoorLayer.FRAME)
 
     def is_inside(self, player_rect: pygame.Rect) -> bool:
-        door_rect = pygame.Rect(self.x+8, self.y, 24, 32)
+        door_rect = pygame.Rect(self.x + 8*SUBPIXELS,
+                                self.y,
+                                24*SUBPIXELS,
+                                32*SUBPIXELS)
         return intersect(player_rect, door_rect)
 
     def update(self, player_rect: pygame.Rect, star_count: int):
@@ -104,13 +114,13 @@ class Door:
         self.stars_remaining = max(0, self.stars_needed - star_count)
 
         if self.state == DoorState.UNLOCKING:
-            max_frame = UNLOCKING_FRAMES * DOOR_SPEED
+            max_frame = DOOR_UNLOCKING_FRAMES * DOOR_SPEED
             if self.frame == max_frame:
                 self.state = DoorState.OPEN
             self.frame = min(self.frame + 1, max_frame)
 
         if self.state == DoorState.CLOSING:
-            max_frame = CLOSING_FRAMES * DOOR_SPEED
+            max_frame = DOOR_CLOSING_FRAMES * DOOR_SPEED
             if self.frame == max_frame:
                 self.state = DoorState.CLOSED
             self.frame = min(self.frame + 1, max_frame)

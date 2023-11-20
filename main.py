@@ -2,27 +2,20 @@
 import pygame
 import sys
 
+from constants import *
 from soundmanager import SoundManager
 from scene import Scene
 from levelselect import LevelSelect
 from level import Level
 from inputmanager import InputManager
 from imagemanager import ImageManager
-from renderer import Renderer
-from rendercontext import RenderContext
-
-USE_OPENGL = True
+from render.renderer import Renderer
+from render.rendercontext import RenderContext
 
 if USE_OPENGL:
-    from opengl_renderer import OpenGLRenderer
+    from render.opengl_renderer import OpenGLRenderer
 else:
-    from pygame_renderer import PygameRenderer
-
-WINDOW_WIDTH = 1600
-WINDOW_HEIGHT = 900
-LOGICAL_WIDTH = 320
-LOGICAL_HEIGHT = 180
-FRAME_RATE = 60
+    from render.pygame_renderer import PygameRenderer
 
 
 class Game:
@@ -41,16 +34,16 @@ class Game:
         pygame.init()
         pygame.display.set_caption('purpy')
 
-        logical = pygame.Rect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT)
         destination = self.compute_scaled_buffer_dest()
         window = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
         print('initializing render context')
-        self.render_context = RenderContext((LOGICAL_WIDTH, LOGICAL_HEIGHT))
+        render_area = pygame.Rect(0, 0, RENDER_WIDTH, RENDER_HEIGHT)
+        self.render_context = RenderContext(render_area.size)
         print('initializing renderer')
         if USE_OPENGL:
-            self.renderer = OpenGLRenderer(logical, destination, window)
+            self.renderer = OpenGLRenderer(render_area, destination, window)
         else:
-            self.renderer = PygameRenderer(logical, destination, window)
+            self.renderer = PygameRenderer(render_area, destination, window)
 
         print('loading game content')
         self.images = ImageManager()
@@ -58,12 +51,12 @@ class Game:
         self.sounds = SoundManager()
 
         if len(sys.argv) > 1:
-            self.scene = Level(None, sys.argv[1])
+            self.scene = Level(None, sys.argv[1], self.images)
         else:
-            self.scene = LevelSelect(None, 'assets/levels')
+            self.scene = LevelSelect(None, 'assets/levels', self.images)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
-        target_aspect_ratio = LOGICAL_WIDTH / LOGICAL_HEIGHT
+        target_aspect_ratio = RENDER_WIDTH / RENDER_HEIGHT
         needed_width = target_aspect_ratio * WINDOW_HEIGHT
         if needed_width <= WINDOW_WIDTH:
             # The window is wider than needed.

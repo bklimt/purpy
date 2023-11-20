@@ -2,19 +2,17 @@
 import pygame
 import typing
 
-from player import Player
+from constants import *
+from imagemanager import ImageManager
 from tilemap import MapObject
 from tileset import TileSet
 from random import randint
 from soundmanager import SoundManager
+from render.rendercontext import RenderContext
+from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from switchstate import SwitchState
-from utils import assert_int, assert_str, try_move_to_bounds, Bounds, Direction
-
-BAGEL_WAIT_TIME = 30
-BAGEL_FALL_TIME = 150
-BAGEL_MAX_GRAVITY = 11
-BAGEL_GRAVITY_ACCELERATION = 1
+from utils import assert_int, assert_str, try_move_to_bounds, Direction
 
 
 def sign(n: int) -> int:
@@ -37,10 +35,10 @@ class Platform(typing.Protocol):
     def update(self, switches: SwitchState, sounds: SoundManager) -> None:
         raise Exception('abstract protocol')
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]) -> None:
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]) -> None:
         raise Exception('abstract protocol')
 
-    def try_move_to(self, player_rect: Bounds, direction: Direction, is_backwards: bool) -> int:
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
         raise Exception('abstract protocol')
 
 
@@ -50,6 +48,8 @@ class PlatformBase:
     tile_id: int
     x: int
     y: int
+    width: int
+    height: int
     dx: int
     dy: int
     occupied: bool
@@ -62,43 +62,44 @@ class PlatformBase:
         self.id = obj.id
         self.tileset = tileset
         self.tile_id = obj.gid - 1
-        self.x = obj.x * 16
-        self.y = obj.y * 16
+        self.x = obj.x * SUBPIXELS
+        self.y = obj.y * SUBPIXELS
+        self.width = obj.width * SUBPIXELS
+        self.height = obj.height * SUBPIXELS
         self.dx = 0
         self.dy = 0
         self.occupied = False
         self.is_solid = bool(obj.properties.get('solid', False))
 
-        pass
-
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.y//16 + offset[1]
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
+        x = self.x + offset[0]
+        y = self.y + offset[1]
+        dest = pygame.Rect(x, y, self.width, self.height)
         if self.tile_id in self.tileset.animations:
             anim = self.tileset.animations[self.tile_id]
-            anim.blit(surface, (x, y), False)
+            anim.blit(batch, dest, False)
         else:
             area = self.tileset.get_source_rect(self.tile_id)
-            surface.blit(self.tileset.surface, (x, y), area)
+            batch.draw(self.tileset.surface, dest, area)
 
-    def try_move_to(self, player_rect: Bounds, direction: Direction, is_backwards: bool) -> int:
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
         if self.is_solid:
-            area = Bounds(
+            area = pygame.Rect(
                 self.x,
                 self.y,
-                self.tileset.tilewidth * 16,
-                self.tileset.tileheight * 16)
+                self.width,
+                self.height)
             return try_move_to_bounds(player_rect, area, direction)
         else:
             if direction != Direction.DOWN:
                 return 0
             if is_backwards:
                 return 0
-            area = Bounds(
+            area = pygame.Rect(
                 self.x,
                 self.y,
-                self.tileset.tilewidth * 16,
-                4 * 16)
+                self.width,
+                self.height//2)
             return try_move_to_bounds(player_rect, area, direction)
 
 
@@ -115,8 +116,11 @@ class MovingPlatform(PlatformBase):
 
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
-        self.distance = assert_int(obj.properties.get('distance', '0')) * 16
-        self.speed = assert_int(obj.properties.get('speed', '1'))
+        self.distance = assert_int(
+            obj.properties.get('distance', 0)) * SUBPIXELS
+        # This is 16 for historical reasons, just because that's what the speed is tuned for.
+        self.speed = (assert_int(
+            obj.properties.get('speed', 1)) * SUBPIXELS) // 16
         self.start_x = self.x
         self.start_y = self.y
         self.moving_forward = True
@@ -229,14 +233,19 @@ class Bagel(PlatformBase):
         super().__init__(obj, tileset)
         self.original_y = self.y
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.y//16 + offset[1]
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
+        x = self.x + offset[0]
+        y = self.y + offset[1]
         area = self.tileset.get_source_rect(self.tile_id)
         if self.occupied:
             x += randint(-1, 1)
             y += randint(-1, 1)
-        surface.blit(self.tileset.surface, (x, y), area)
+        rect = pygame.Rect(x, y, area.w * SUBPIXELS, area.h * SUBPIXELS)
+        if rect.bottom < 0 or rect.right < 0:
+            return
+        if rect.top >= context.logical_area.h or rect.right >= context.logical_area.w:
+            return
+        batch.draw(self.tileset.surface, rect, area)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         if self.falling:
@@ -264,7 +273,8 @@ class Bagel(PlatformBase):
 class Conveyor(PlatformBase):
     def __init__(self, obj: MapObject, tileset: TileSet):
         super().__init__(obj, tileset)
-        speed = int(obj.properties.get('speed', 24))
+        # This is hand-tuned.
+        speed = int(obj.properties.get('speed', 24)) * SUBPIXELS//16
         if obj.properties.get('convey', 'E') == 'E':
             self.dx = speed
         else:
@@ -274,55 +284,76 @@ class Conveyor(PlatformBase):
         pass
 
 
-SPRING_FRAMES = 4
-STALL_FRAMES = 10
-
-
 class Spring(PlatformBase):
     sprite: SpriteSheet
     up: bool = False
     position: int = 0
-    stall_counter = STALL_FRAMES
+    stall_counter = SPRING_STALL_FRAMES
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
+    def __init__(self, obj: MapObject, tileset: TileSet, images: ImageManager):
         super().__init__(obj, tileset)
-        surface = pygame.image.load('assets/sprites/spring.png')
+        surface = images.load_image('assets/sprites/spring.png')
         self.sprite = SpriteSheet(surface, 8, 8)
 
-    def draw(self, surface: pygame.Surface, offset: tuple[int, int]):
-        x = self.x//16 + offset[0]
-        y = self.y//16 + offset[1]
-        self.sprite.blit(surface, (x, y), self.position)
+    @property
+    def frame(self):
+        return self.position // SUBPIXELS
+
+    def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
+        x = self.x + offset[0]
+        y = self.y + offset[1]
+        dest = pygame.Rect(x, y, self.width, self.height)
+        self.sprite.blit(batch, dest, self.frame)
 
     def should_boost(self):
-        return self.up or (self.position == SPRING_FRAMES - 1)
+        return self.up or (self.frame == SPRING_STEPS - 1)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         self.dx = 0
         self.dy = 0
         self.launch = False
         if not self.occupied:
-            self.stall_counter = STALL_FRAMES
+            self.stall_counter = SPRING_STALL_FRAMES
             self.up = False
             if self.position > 0:
-                self.position -= 1
-                self.dy = -1
+                self.position -= SPRING_SPEED
+                self.dy = -SPRING_SPEED
         else:
             if self.up:
-                self.stall_counter = STALL_FRAMES
+                self.stall_counter = SPRING_STALL_FRAMES
                 if self.position > 0:
-                    self.position -= 1
-                    self.dy = -1
+                    self.position -= SPRING_SPEED
+                    self.dy = -SPRING_SPEED
                 else:
                     self.launch = True
             else:
-                if self.position < SPRING_FRAMES - 1:
-                    self.stall_counter = STALL_FRAMES
-                    self.position += 1
-                    self.dy = 1
+                if self.position < (SPRING_STEPS * SUBPIXELS) - SPRING_SPEED:
+                    self.stall_counter = SPRING_STALL_FRAMES
+                    self.position += SPRING_SPEED
+                    self.dy = SPRING_SPEED
                 else:
                     if self.stall_counter > 0:
                         self.stall_counter -= 1
                     else:
-                        self.stall_counter = STALL_FRAMES
+                        self.stall_counter = SPRING_STALL_FRAMES
                         self.up = True
+
+    def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
+        if self.is_solid:
+            area = pygame.Rect(
+                self.x,
+                self.y + self.position,
+                self.width,
+                self.height - self.position)
+            return try_move_to_bounds(player_rect, area, direction)
+        else:
+            if direction != Direction.DOWN:
+                return 0
+            if is_backwards:
+                return 0
+            area = pygame.Rect(
+                self.x,
+                self.y + self.position,
+                self.width,
+                self.height//2)
+            return try_move_to_bounds(player_rect, area, direction)

@@ -3,60 +3,31 @@ import os.path
 import pygame
 import typing
 
-from button import Button
-from door import Door
+from constants import *
+from gameobject.button import Button
+from gameobject.door import Door
 from imagemanager import ImageManager
 from inputmanager import InputManager
 from kill import KillScreen
-from player import Player, PlayerState
-from platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
-from rendercontext import RenderContext
+from player import Player2, PlayerState
+from gameobject.platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
+from render.rendercontext import RenderContext
 from scene import Scene
 from soundmanager import Sound, SoundManager
-from star import Star
+from gameobject.star import Star
 from switchstate import SwitchState
 from tilemap import TileMap, load_map
-from utils import Bounds, Direction, cmp_in_direction, opposite_direction, sign
-
-# Horizontal speed.
-TARGET_WALK_SPEED = 24
-WALK_SPEED_ACCELERATION = 1
-WALK_SPEED_DECELERATION = 3
-SLIDE_SPEED_DECELERATION = 1
-
-# Vertical speed.
-COYOTE_TIME = 6  # How long to hover in the air before officially falling.
-JUMP_GRACE_TIME = 12  # How long to remember jump was pressed while falling.
-JUMP_INITIAL_SPEED = 48
-JUMP_ACCELERATION = 2
-JUMP_MAX_GRAVITY = 32
-FALL_ACCELERATION = 5
-FALL_MAX_GRAVITY = 32
-
-SPRING_BOUNCE_DURATION = 30
-SPRING_BOUNCE_VELOCITY = JUMP_INITIAL_SPEED
-SPRING_JUMP_DURATION = 10
-SPRING_JUMP_VELOCITY = 78
-
-# Wall sliding.
-WALL_SLIDE_SPEED = 4
-WALL_JUMP_HORIZONTAL_SPEED = 48
-WALL_JUMP_VERTICAL_SPEED = 48
-WALL_STICK_TIME = 30
-WALL_SLIDE_TIME = 60
-
-VIEWPORT_PAN_SPEED = 5
-
-TOAST_TIME = 100
-TOAST_HEIGHT = 12
+from utils import Direction, cmp_in_direction, opposite_direction
 
 
 class Level:
     parent: Scene | None
-    map_path: str
     name: str
     map: TileMap
-    player: Player
+    player: Player2
+
+    restart_func: typing.Callable[[], Scene]
+    next_func: typing.Callable[[str], Scene]
 
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
@@ -82,16 +53,18 @@ class Level:
     current_switch_tiles: set[int]
     current_door: Door | None
 
-    def __init__(self, parent: Scene | None, map_path: str):
+    def __init__(self, parent: Scene | None, map_path: str, images: ImageManager):
         self.parent = parent
-        self.map_path = map_path
+        self.restart_func = lambda: Level(parent, map_path, images)
+        self.next_func = lambda destination: Level(parent, destination, images)
+        # self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
         self.toast_text = self.name
         self.previous_map_offset = None
-        self.map = load_map(map_path)
-        self.player = Player()
-        self.player.x = self.map.tilewidth * 16
-        self.player.y = self.map.tileheight * 16
+        self.map = load_map(map_path, images)
+        self.player = Player2(images)
+        self.player.x = 128
+        self.player.y = 128
         self.transition: str = ''
         self.platforms = []
         self.stars = []
@@ -108,11 +81,11 @@ class Level:
             if obj.properties.get('convey', '') != '':
                 self.platforms.append(Conveyor(obj, self.map.tileset))
             if obj.properties.get('spring', '') != '':
-                self.platforms.append(Spring(obj, self.map.tileset))
+                self.platforms.append(Spring(obj, self.map.tileset, images))
             if obj.properties.get('button', False):
-                self.platforms.append(Button(obj, self.map.tileset))
+                self.platforms.append(Button(obj, self.map.tileset, images))
             if obj.properties.get('door', False):
-                self.doors.append(Door(obj))
+                self.doors.append(Door(obj, images))
             if obj.properties.get('star', False):
                 self.stars.append(Star(obj, self.map.tileset))
 
@@ -167,7 +140,7 @@ class Level:
         if (self.player.state == PlayerState.STANDING or
                 self.player.state == PlayerState.CROUCHING):
             # Fall at least one pixel so that we hit the ground again.
-            self.player.dy = max(self.player.dy, 16)
+            self.player.dy = max(self.player.dy, 1)
         elif self.player.state == PlayerState.JUMPING:
             # Apply gravity.
             if self.player.dy < JUMP_MAX_GRAVITY:
@@ -187,15 +160,15 @@ class Level:
                 self.player.dy = WALL_SLIDE_SPEED
 
     class PlatformIntersectionResult:
-        offset_sub: int
+        offset: int
         platforms: set[Platform]
 
         def __init__(self):
-            self.offset_sub = 0
+            self.offset = 0
             self.platforms = set()
 
     def find_platform_intersections(self,
-                                    player_rect: Bounds,
+                                    player_rect: pygame.Rect,
                                     direction: Direction,
                                     is_backwards: bool = False
                                     ) -> PlatformIntersectionResult:
@@ -206,9 +179,9 @@ class Level:
             if distance == 0:
                 continue
 
-            cmp = cmp_in_direction(distance, result.offset_sub, direction)
+            cmp = cmp_in_direction(distance, result.offset, direction)
             if cmp < 0:
-                result.offset_sub = distance
+                result.offset = distance
                 result.platforms = set([platform])
             elif cmp == 0:
                 result.platforms.add(platform)
@@ -216,12 +189,12 @@ class Level:
 
     class TryMovePlayerResult:
         """ The results of trying to move. """
-        offset_sub: int
+        offset: int
         tile_ids: set[int]
         platforms: set[Platform]
 
         def __init__(self):
-            self.offset_sub = 0
+            self.offset = 0
             self.tile_ids = set()
             self.platforms = set()
 
@@ -235,11 +208,11 @@ class Level:
             player_rect, direction, is_backwards)
 
         result = Level.TryMovePlayerResult()
-        if cmp_in_direction(platform_result.offset_sub, map_result.hard_offset_sub, direction) <= 0:
-            result.offset_sub = platform_result.offset_sub
+        if cmp_in_direction(platform_result.offset, map_result.hard_offset, direction) <= 0:
+            result.offset = platform_result.offset
             result.platforms = platform_result.platforms
         else:
-            result.offset_sub = map_result.hard_offset_sub
+            result.offset = map_result.hard_offset
             result.tile_ids = map_result.tile_ids
 
         return result
@@ -259,17 +232,17 @@ class Level:
                        ) -> MoveAndCheckResult:
         """ Returns whether the first move hit a wall or platform. """
         move_result1 = self.try_move_player(forward)
-        apply_offset(move_result1.offset_sub)
+        apply_offset(move_result1.offset)
 
         # Try the opposite direction.
         move_result2 = self.try_move_player(
             opposite_direction(forward), is_backwards=True)
-        offset_sub = move_result2.offset_sub
-        apply_offset(offset_sub)
+        offset = move_result2.offset
+        apply_offset(offset)
 
         result = Level.MoveAndCheckResult()
         if forward == Direction.DOWN:
-            result.on_ground = move_result1.offset_sub != 0
+            result.on_ground = move_result1.offset != 0
             result.on_tile_ids = set(move_result1.tile_ids)
             result.on_platforms = set(move_result1.platforms)
         if forward == Direction.UP:
@@ -277,17 +250,17 @@ class Level:
             # unless we're standing on a platform.
             if (self.player.state != PlayerState.JUMPING and
                     self.player.state != PlayerState.FALLING):
-                result.on_ground = move_result2.offset_sub != 0
-            result.hit_ceiling = move_result1.offset_sub != 0
+                result.on_ground = move_result2.offset != 0
+            result.hit_ceiling = move_result1.offset != 0
             result.on_tile_ids = set(move_result2.tile_ids)
             result.on_platforms = set(move_result2.platforms)
         if forward == Direction.LEFT or forward == Direction.RIGHT:
-            result.against_wall = move_result1.offset_sub != 0
+            result.against_wall = move_result1.offset != 0
 
         # See if we're crushed.
-        if offset_sub != 0:
+        if offset != 0:
             crush_check = self.try_move_player(forward)
-            if crush_check.offset_sub != 0:
+            if crush_check.offset != 0:
                 crushed = False
                 for platform in move_result1.platforms:
                     if platform.is_solid:
@@ -356,11 +329,11 @@ class Level:
             if self.player.dx > 0 or (self.player.dx == 0 and self.player.facing_right):
                 # The player is facing right.
                 if right_y > left_y:
-                    fall = (right_y - left_y) * 16
+                    fall = right_y - left_y
             else:
                 # The player is facing left.
                 if left_y > right_y:
-                    fall = (left_y - right_y) * 16
+                    fall = left_y - right_y
             slope_fall = max(fall, slope_fall)
         return slope_fall
 
@@ -514,8 +487,8 @@ class Level:
                         self.spring_counter = SPRING_JUMP_DURATION
                         self.player.dy = -1 * SPRING_JUMP_VELOCITY
                     else:
-                        self.spring_counter = SPRING_BOUNCE_DURATION
-                        self.player.dy = -1 * SPRING_BOUNCE_VELOCITY
+                        self.spring_counter = 0
+                        self.player.dy = -1 * JUMP_INITIAL_SPEED
                     if self.current_platform is not None:
                         self.player.dx += self.current_platform.dx
         elif self.player.state == PlayerState.FALLING:
@@ -572,7 +545,7 @@ class Level:
         if inputs.is_cancel_triggered():
             return self.parent
         if inputs.is_restart_down():
-            return Level(self.parent, self.map_path)
+            return self.restart_func()
 
         self.map.update_animations()
 
@@ -593,16 +566,16 @@ class Level:
 
         self.current_door = None
         for door in self.doors:
-            door.update(player_rect.rect, self.star_count)
+            door.update(player_rect, self.star_count)
             if door.is_closed:
                 if door.destination is not None:
-                    return Level(self.parent, door.destination)
-                return Level(self.parent, self.map_path)
+                    return self.next_func(door.destination)
+                return self.restart_func()
             if door.active:
                 self.current_door = door
 
         for star in self.stars:
-            if star.intersects(player_rect.rect):
+            if star.intersects(player_rect):
                 sounds.play(Sound.STAR)
                 self.stars.remove(star)
                 self.star_count += 1
@@ -631,21 +604,22 @@ class Level:
                 attribs.append(f'platform={self.current_platform.id}')
             if len(self.current_slopes) > 0:
                 attribs.append(f'slopes={self.current_slopes}')
-            transition = f'{start_state} x ({", ".join(attribs)}) -> {self.player.state}'
+            attrib_list = ", ".join(attribs)
+            transition = f'{start_state} x ({attrib_list}) -> {self.player.state}'
             if transition != self.transition:
                 self.transition = transition
                 print(transition)
 
         if self.player.is_dead:
-            return KillScreen(self, lambda: Level(self.parent, self.map_path))
+            return KillScreen(self, self.restart_func)
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:
-                self.toast_position -= 1
+                self.toast_position -= TOAST_SPEED
         else:
             self.toast_counter -= 1
             if self.toast_position < 0:
-                self.toast_position += 1
+                self.toast_position += TOAST_SPEED
 
         return self
 
@@ -654,24 +628,25 @@ class Level:
 
         # Make sure the player is on the screen, and then center them if possible.
         player_rect = self.player.get_target_bounds_rect(Direction.NONE)
-        preferred_x, preferred_y = self.map.get_preferred_view(
-            player_rect.rect)
-        player_x = self.player.x // 16
-        player_y = self.player.y // 16
+        preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
+        player_x = self.player.x
+        player_y = self.player.y
         player_draw_x: int = dest.width // 2
         player_draw_y: int = dest.height // 2
+        # Don't waste space on the sides of the screen beyond the map.
         if player_draw_x > player_x:
             player_draw_x = player_x
+        # The map is drawn 4 pixels from the top of the screen.
         if player_draw_y > player_y + 4:
             player_draw_y = player_y + 4
-        if player_draw_x < player_x + dest.width - (self.map.width * self.map.tilewidth):
-            player_draw_x = (
-                player_x + dest.width -
-                (self.map.width * self.map.tilewidth))
-        if player_draw_y < player_y + dest.height - (self.map.height * self.map.tileheight):
-            player_draw_y = (
-                player_y + dest.height -
-                (self.map.height * self.map.tileheight))
+        right_limit = dest.width - \
+            (self.map.width * self.map.tilewidth * SUBPIXELS)
+        if player_draw_x < player_x + right_limit:
+            player_draw_x = player_x + right_limit
+        bottom_limit = dest.height - \
+            (self.map.height * self.map.tileheight * SUBPIXELS)
+        if player_draw_y < player_y + bottom_limit:
+            player_draw_y = player_y + bottom_limit
         map_offset: tuple[int, int] = (
             player_draw_x - player_x,
             player_draw_y - player_y)
@@ -701,30 +676,38 @@ class Level:
         self.previous_map_offset = map_offset
 
         # Do the actual drawing.
-        surface = context.player_surface
-        self.map.draw_background(surface, dest, map_offset, self.switches)
+        self.map.draw_background(context, context.player_batch,
+                                 dest, map_offset, self.switches)
         for door in self.doors:
-            door.draw_background(surface, map_offset, images)
+            door.draw_background(
+                context, context.player_batch, map_offset, images)
         for platform in self.platforms:
-            platform.draw(surface, map_offset)
+            platform.draw(context, context.player_batch, map_offset)
         for star in self.stars:
             star.draw(context, map_offset)
-        self.player.draw(surface, (player_draw_x, player_draw_y))
+        self.player.draw(context, context.player_batch,
+                         (player_draw_x, player_draw_y))
         for door in self.doors:
-            door.draw_foreground(surface, map_offset)
-        self.map.draw_foreground(surface, dest, map_offset, self.switches)
+            door.draw_foreground(context, context.player_batch, map_offset)
+        self.map.draw_foreground(context, context.player_batch,
+                                 dest, map_offset, self.switches)
 
         # Draw the text overlay.
         top_bar_bgcolor = pygame.Color(0, 0, 0, 127)
         top_bar_area = pygame.Rect(
             dest.left, dest.top + self.toast_position, dest.width, TOAST_HEIGHT)
-        top_bar = pygame.Surface(top_bar_area.size, pygame.SRCALPHA)
-        top_bar.fill(top_bar_bgcolor)
-        images.font.draw_string(top_bar, (2, 2), self.toast_text)
-        context.hud_surface.blit(top_bar, top_bar_area)
+        if top_bar_area.bottom > 0:
+            context.hud_batch.draw_rect(top_bar_area, top_bar_bgcolor)
+            images.font.draw_string(
+                context.hud_batch,
+                (top_bar_area.x + 2*SUBPIXELS,
+                 top_bar_area.y + 2*SUBPIXELS),
+                self.toast_text)
 
         context.dark = self.map.is_dark
 
-        spotlight_pos = (player_draw_x + 12, player_draw_y + 12)
-        spotlight_radius = 120.0
+        spotlight_pos = (
+            player_draw_x + 12 * SUBPIXELS,
+            player_draw_y + 12 * SUBPIXELS)
+        spotlight_radius = 120.0 * SUBPIXELS
         context.add_light(spotlight_pos, spotlight_radius)

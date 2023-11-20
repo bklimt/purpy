@@ -8,7 +8,8 @@ import pygame
 from OpenGL.GL import *
 from OpenGL.GL.shaders import compileShader
 
-from rendercontext import RenderContext
+from constants import SUBPIXELS
+from render.rendercontext import RenderContext
 
 
 class Texture:
@@ -56,14 +57,15 @@ class OpenGLRenderer:
         self.init_static()
         self.init_shader()
 
-    def set_texture_data(self, texture: Texture, surface: pygame.Surface):
+    def set_texture_data(self, texture: Texture, surface: pygame.Surface, repeat: bool = False):
+        wrap = GL_REPEAT if repeat else GL_CLAMP
         texture_data = pygame.image.tobytes(surface, 'RGBA', True)
         glActiveTexture(texture.constant)
         glBindTexture(GL_TEXTURE_2D, texture.name)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap)
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
                      self.logical_rect.w,
                      self.logical_rect.h,
@@ -81,7 +83,7 @@ class OpenGLRenderer:
                 color = pygame.Color(r, g, b)
                 self.static.set_at((x, y), color)
 
-        self.set_texture_data(self.static_texture, self.static)
+        self.set_texture_data(self.static_texture, self.static, repeat=True)
 
     def set_constant_inputs(self):
         res = glGetUniformLocation(self.program, 'iResolution')
@@ -125,28 +127,29 @@ class OpenGLRenderer:
         glUniform1f(glGetUniformLocation(self.program, 'iTime'),
                     pygame.time.get_ticks() / 1000.0)
         glUniform2f(glGetUniformLocation(self.program, 'iTextureSize'),
-                    context.logical_size[0], context.logical_size[1])
+                    context.render_size[0], context.render_size[1])
         glUniform1i(glGetUniformLocation(self.program, 'iDark'),
                     context.dark)
 
         ls = context.lights
         if len(ls) > 20:
             ls = ls[:20]
+        positions = [
+            (l.position[0] // SUBPIXELS,
+             l.position[1] // SUBPIXELS)
+            for l in ls]
+        radii = [l.radius // SUBPIXELS for l in ls]
 
         glUniform1i(glGetUniformLocation(
             self.program, 'iSpotlightCount'), len(ls))
 
         glUniform2fv(glGetUniformLocation(self.program, 'iSpotlightPosition'),
-                     len(ls),
-                     [l.position for l in ls])
+                     len(ls), positions)
 
         glUniform1fv(glGetUniformLocation(self.program, 'iSpotlightRadius'),
-                     len(ls),
-                     [l.radius for l in ls])
+                     len(ls), radii)
 
     def render(self, context: RenderContext):
-        surface = context.player_surface
-
         glClearColor(0, 0, 1, 1)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)  # type: ignore
 
