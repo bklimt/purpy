@@ -2,9 +2,34 @@
 import pygame
 
 
+class EdgeSpacing:
+    left: int
+    right: int
+    top: int
+    bottom: int
+
+    def __init__(self, n: int = 0):
+        self.left = n
+        self.right = n
+        self.top = n
+        self.bottom = n
+
+    @property
+    def h(self) -> int:
+        return self.left + self.right
+
+    @property
+    def v(self) -> int:
+        return self.top + self.bottom
+
+
 class Component:
     area: pygame.Rect = pygame.Rect(0, 0, 8, 8)
     background_color: pygame.Color = pygame.Color(204, 204, 204)
+
+    margin: EdgeSpacing = EdgeSpacing()
+    border: EdgeSpacing = EdgeSpacing()
+    padding: EdgeSpacing = EdgeSpacing()
 
     def __init__(self):
         pass
@@ -23,3 +48,11 @@ class Component:
 
     def draw(self, surface: pygame.Surface) -> None:
         surface.fill(self.background_color, self.area)
+
+    def edge_spacing(self) -> EdgeSpacing:
+        edge = EdgeSpacing()
+        edge.top = self.margin.top + self.border.top + self.padding.top
+        edge.bottom = self.margin.bottom + self.border.top + self.padding.top
+        edge.left = self.margin.left + self.border.left + self.padding.left
+        edge.right = self.margin.right + self.border.right + self.padding.right
+        return edge

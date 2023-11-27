@@ -42,9 +42,14 @@ class BorderContainer(Component):
         width = max(width, 8)
         height = max(height, 8)
 
-        return (width, height)
+        edge = self.edge_spacing()
+
+        return (width + edge.h, height + edge.v)
 
     def get_preferred_width(self, height: int) -> int:
+        edge = self.edge_spacing()
+        height -= edge.v
+
         top: tuple[int, int]
         bottom: tuple[int, int]
 
@@ -75,12 +80,14 @@ class BorderContainer(Component):
         if self.bottom:
             bottom_width = self.bottom.get_preferred_width(bottom_height)
 
-        return max(top_width, center_width, bottom_width)
+        return max(top_width, center_width, bottom_width) + edge.h
 
     def get_preferred_height(self, width: int) -> int:
+        edge = self.edge_spacing()
+        width -= edge.h
+
         left: tuple[int, int]
         right: tuple[int, int]
-        center: tuple[int, int]
 
         left = self.left.get_preferred_size() if self.left else (0, 0)
         right = self.right.get_preferred_size() if self.right else (0, 0)
@@ -111,10 +118,16 @@ class BorderContainer(Component):
         if self.bottom:
             bottom_height = self.bottom.get_preferred_height(width)
 
-        return top_height + center_height + bottom_height
+        return top_height + center_height + bottom_height + edge.v
 
     def set_area(self, area: pygame.Rect):
         super().set_area(area)
+
+        edge = self.edge_spacing()
+        area.x += edge.left
+        area.w -= edge.h
+        area.y += edge.top
+        area.h -= edge.v
 
         top_height = 0
         if self.top:
