@@ -5,14 +5,14 @@ from component import Component
 
 
 class BorderContainer(Component):
-    top: Component | None
-    bottom: Component | None
-    left: Component | None
-    right: Component | None
-    center: Component | None
+    top: Component | None = None
+    bottom: Component | None = None
+    left: Component | None = None
+    right: Component | None = None
+    center: Component | None = None
 
     def __init__(self):
-        self.children = []
+        super().__init__()
 
     def get_preferred_size(self) -> tuple[int, int]:
         top: tuple[int, int]

@@ -47,7 +47,23 @@ class Component:
         self.area = area.copy()
 
     def draw(self, surface: pygame.Surface) -> None:
-        surface.fill(self.background_color, self.area)
+        area = self.area.copy()
+
+        area.width -= self.margin.left
+        area.width -= self.margin.right
+        area.height -= self.margin.top
+        area.height -= self.margin.bottom
+        area.top += self.margin.top
+        area.left += self.margin.left
+        pygame.draw.rect(surface, '#000000', area)
+
+        area.width -= self.border.left
+        area.width -= self.border.right
+        area.height -= self.border.top
+        area.height -= self.border.bottom
+        area.top += self.border.top
+        area.left += self.border.left
+        surface.fill(self.background_color, area)
 
     def edge_spacing(self) -> EdgeSpacing:
         edge = EdgeSpacing()
