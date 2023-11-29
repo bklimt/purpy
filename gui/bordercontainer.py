@@ -1,7 +1,7 @@
 
 import pygame
 
-from component import Component
+from gui.component import Component
 
 
 class BorderContainer(Component):

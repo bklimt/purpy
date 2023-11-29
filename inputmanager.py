@@ -235,12 +235,15 @@ class InputManager:
         for hook in self.binary_hooks.keys():
             self.binary_hooks[hook].update(self.state)
 
-    def handle_event(self, event: pygame.event.Event):
+    def handle_keyboard_event(self, event: pygame.event.Event):
         match event.type:
             case pygame.KEYDOWN:
                 self.state.set_key_down(event.key)
             case pygame.KEYUP:
                 self.state.set_key_up(event.key)
+
+    def handle_joystick_event(self, event: pygame.event.Event):
+        match event.type:
             case pygame.JOYBUTTONDOWN:
                 print(f'button {event.button}')
                 self.state.set_button_down(event.button)
@@ -254,6 +257,15 @@ class InputManager:
                 pass
             case pygame.JOYHATMOTION:
                 pass
+
+    def handle_mouse_event(self, event: pygame.event.Event):
+        match event.type:
+            case pygame.MOUSEMOTION:
+                print(f'mouse motion {event.pos}')
+            case pygame.MOUSEBUTTONDOWN:
+                print(f'mouse button {event.button} down {event.pos}')
+            case pygame.MOUSEBUTTONUP:
+                print(f'mouse button {event.button} up {event.pos}')
 
     def is_ok_triggered(self) -> bool:
         return self.binary_hooks[BinaryInput.OK].is_on()

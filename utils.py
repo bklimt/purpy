@@ -129,6 +129,14 @@ def intersect(rect1: pygame.Rect, rect2: pygame.Rect) -> bool:
     return True
 
 
+def inside(rect: pygame.Rect, point: tuple[int, int]) -> bool:
+    if point[0] < rect.left or point[0] > rect.right:
+        return False
+    if point[1] < rect.top or point[1] > rect.bottom:
+        return False
+    return True
+
+
 def load_properties(
         node: xml.etree.ElementTree.Element,
         properties: dict[str, str | int | bool] | None = None

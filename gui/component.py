@@ -1,6 +1,8 @@
 
 import pygame
 
+from inputmanager import InputManager
+
 
 class EdgeSpacing:
     left: int
@@ -45,6 +47,9 @@ class Component:
 
     def set_area(self, area: pygame.Rect) -> None:
         self.area = area.copy()
+
+    def update(self, inputs: InputManager) -> None:
+        pass
 
     def draw(self, surface: pygame.Surface) -> None:
         area = self.area.copy()

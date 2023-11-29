@@ -1,8 +1,9 @@
 
 import pygame
 
-from bordercontainer import BorderContainer
-from component import Component
+from gui.bordercontainer import BorderContainer
+from gui.component import Component
+from inputmanager import InputManager
 
 
 class Window(BorderContainer):
@@ -19,3 +20,6 @@ class Window(BorderContainer):
         top_bar.right = close_button
 
         self.top = top_bar
+
+    def update(self, inputs: InputManager) -> None:
+        pass
