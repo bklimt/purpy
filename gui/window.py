@@ -20,6 +20,3 @@ class Window(BorderContainer):
         top_bar.right = close_button
 
         self.top = top_bar
-
-    def update(self, inputs: InputManager) -> None:
-        pass

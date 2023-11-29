@@ -170,13 +170,34 @@ class BinaryInput(Enum):
     RESTART = 10
 
 
+class MouseState:
+    position: tuple[int, int]
+    buttons_down: set[int]
+
+    def __init__(self):
+        self.position = (0, 0)
+        self.buttons_down = set()
+
+    def is_button_down(self, n: int) -> bool:
+        return n in self.buttons_down
+
+    def set_button_down(self, n: int):
+        self.buttons_down.add(n)
+
+    def set_button_up(self, n: int):
+        if n in self.buttons_down:
+            self.buttons_down.remove(n)
+
+
 class InputManager:
     state: InputState
+    mouse: MouseState
     binary_hooks: dict[BinaryInput, BinaryInputType]
 
     def __init__(self):
         pygame.joystick.init()
         self.state = InputState()
+        self.mouse = MouseState()
         self.state.reset_joystick()
 
         self.binary_hooks = {
@@ -262,10 +283,13 @@ class InputManager:
         match event.type:
             case pygame.MOUSEMOTION:
                 print(f'mouse motion {event.pos}')
+                self.mouse.position = event.pos
             case pygame.MOUSEBUTTONDOWN:
                 print(f'mouse button {event.button} down {event.pos}')
+                self.mouse.set_button_down(event.button)
             case pygame.MOUSEBUTTONUP:
                 print(f'mouse button {event.button} up {event.pos}')
+                self.mouse.set_button_up(event.button)
 
     def is_ok_triggered(self) -> bool:
         return self.binary_hooks[BinaryInput.OK].is_on()

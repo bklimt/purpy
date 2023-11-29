@@ -23,7 +23,6 @@ class Desktop:
         self.window.set_area(pygame.Rect(50, 50, 1200, 1000))
 
     def update(self, inputs: InputManager) -> bool:
-        self.window.update(inputs)
         self.surface.fill('#007f7f')
         self.window.draw(self.surface)
         pygame.display.flip()
