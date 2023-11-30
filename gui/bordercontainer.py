@@ -175,13 +175,18 @@ class BorderContainer(Component):
 
     def draw(self, surface: pygame.Surface):
         super().draw(surface)
-        if self.center:
-            self.center.draw(surface)
-        if self.right:
-            self.right.draw(surface)
-        if self.left:
-            self.left.draw(surface)
-        if self.bottom:
-            self.bottom.draw(surface)
-        if self.top:
-            self.top.draw(surface)
+        children = [self.top, self.bottom, self.left, self.right, self.center]
+        children.reverse()
+        for child in children:
+            if child:
+                child.draw(surface)
+
+    def get_component_at(self, pos: tuple[int, int]) -> Component | None:
+        children = [self.top, self.bottom, self.left, self.right, self.center]
+        for child in children:
+            if not child:
+                continue
+            target = child.get_component_at(pos)
+            if target is not None:
+                return target
+        return super().get_component_at(pos)

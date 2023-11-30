@@ -1,7 +1,7 @@
 
 import pygame
 
-from gui.component import EdgeSpacing
+from gui.component import Component, EdgeSpacing
 from gui.window import Window
 from inputmanager import InputManager
 
@@ -12,6 +12,7 @@ class Desktop:
     clock = pygame.time.Clock()
     surface: pygame.Surface
     window: Window
+    mouse_component: Component | None
 
     def __init__(self):
         pygame.init()
@@ -23,6 +24,11 @@ class Desktop:
         self.window.set_area(pygame.Rect(50, 50, 1200, 1000))
 
     def update(self, inputs: InputManager) -> bool:
+        inputs.update()
+        if inputs.is_mouse_pressed():
+            self.mouse_component = self.window.get_component_at(
+                inputs.mouse_position)
+            print(f'mouse pressed on {self.mouse_component}')
         self.surface.fill('#007f7f')
         self.window.draw(self.surface)
         pygame.display.flip()

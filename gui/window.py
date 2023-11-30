@@ -20,3 +20,6 @@ class Window(BorderContainer):
         top_bar.right = close_button
 
         self.top = top_bar
+
+    def get_component_at(self, pos: tuple[int, int]) -> Component | None:
+        return super().get_component_at(pos)

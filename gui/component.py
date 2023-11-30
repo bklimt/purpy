@@ -2,6 +2,7 @@
 import pygame
 
 from inputmanager import InputManager
+from utils import inside
 
 
 class EdgeSpacing:
@@ -74,3 +75,8 @@ class Component:
         edge.left = self.margin.left + self.border.left + self.padding.left
         edge.right = self.margin.right + self.border.right + self.padding.right
         return edge
+
+    def get_component_at(self, pos: tuple[int, int]) -> 'Component | None':
+        if inside(self.area, pos):
+            return self
+        return None

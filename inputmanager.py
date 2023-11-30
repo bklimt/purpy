@@ -253,7 +253,8 @@ class InputManager:
                 TriggerInput(KeyInput(pygame.K_2)),
             ]),
             BinaryInput.MOUSE_PRESS: AnyOfInput([
-                TriggerInput(MouseButtonInput(0)),
+                TriggerInput(MouseButtonInput(1)),
+                TriggerInput(KeyInput(pygame.K_p)),
             ]),
         }
 
@@ -296,6 +297,10 @@ class InputManager:
                 print(f'mouse button {event.button} up {event.pos}')
                 self.state.set_mouse_button_up(event.button)
 
+    @property
+    def mouse_position(self) -> tuple[int, int]:
+        return self.state.mouse_position
+
     def is_ok_triggered(self) -> bool:
         return self.binary_hooks[BinaryInput.OK].is_on()
 
@@ -325,3 +330,6 @@ class InputManager:
 
     def is_restart_down(self) -> bool:
         return self.binary_hooks[BinaryInput.RESTART].is_on()
+
+    def is_mouse_pressed(self) -> bool:
+        return self.binary_hooks[BinaryInput.MOUSE_PRESS].is_on()
