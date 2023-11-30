@@ -23,12 +23,27 @@ class Desktop:
         self.window.border = EdgeSpacing(1)
         self.window.set_area(pygame.Rect(50, 50, 1200, 1000))
 
-    def update(self, inputs: InputManager) -> bool:
-        inputs.update()
+        self.mouse_component = None
+
+    def update_mouse(self, inputs: InputManager):
         if inputs.is_mouse_pressed():
             self.mouse_component = self.window.get_component_at(
                 inputs.mouse_position)
-            print(f'mouse pressed on {self.mouse_component}')
+            if self.mouse_component:
+                self.mouse_component.mouse_pressed(inputs.mouse_position)
+        if self.mouse_component:
+            if inputs.state.is_mouse_button_down(1):
+                self.mouse_component.mouse_dragged(inputs.mouse_position)
+            else:
+                self.mouse_component.mouse_released(inputs.mouse_position)
+                current = self.window.get_component_at(inputs.mouse_position)
+                if self.mouse_component == current:
+                    self.mouse_component.mouse_clicked(inputs.mouse_position)
+                self.mouse_component = None
+
+    def update(self, inputs: InputManager) -> bool:
+        inputs.update()
+        self.update_mouse(inputs)
         self.surface.fill('#007f7f')
         self.window.draw(self.surface)
         pygame.display.flip()

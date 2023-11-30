@@ -1,19 +1,15 @@
 
-import pygame
+import typing
 
-from component import Component
+from gui.component import Component
 
 
 class Button(Component):
-    text: str
-    width: int
-    height: int
+    onclick: typing.Callable[[tuple[int, int]], None] = lambda _: None
 
-    def __init__(self, text: str, width: int, height: int):
+    def __init__(self):
         super().__init__()
-        self.text = text
-        self.width = width
-        self.height = height
 
-    def get_preferred_size(self) -> tuple[int, int]:
-        return (self.width, self.height)
+    def mouse_clicked(self, pos: tuple[int, int]) -> None:
+        super().mouse_clicked(pos)
+        self.onclick(pos)

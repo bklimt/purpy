@@ -66,7 +66,7 @@ class Component:
         area.height -= self.border.bottom
         area.top += self.border.top
         area.left += self.border.left
-        surface.fill(self.background_color, area)
+        pygame.draw.rect(surface, self.background_color, area)
 
     def edge_spacing(self) -> EdgeSpacing:
         edge = EdgeSpacing()
@@ -80,3 +80,15 @@ class Component:
         if inside(self.area, pos):
             return self
         return None
+
+    def mouse_pressed(self, pos: tuple[int, int]) -> None:
+        pass
+
+    def mouse_released(self, pos: tuple[int, int]) -> None:
+        pass
+
+    def mouse_clicked(self, pos: tuple[int, int]) -> None:
+        pass
+
+    def mouse_dragged(self, pos: tuple[int, int]) -> None:
+        pass
