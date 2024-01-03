@@ -92,11 +92,12 @@ class Game:
                 match event.type:
                     case pygame.QUIT:
                         game_running = False
-                    case (pygame.KEYDOWN | pygame.KEYUP |
-                          pygame.JOYBUTTONDOWN | pygame.JOYBUTTONUP |
+                    case (pygame.KEYDOWN | pygame.KEYUP):
+                        self.inputs.handle_keyboard_event(event)
+                    case (pygame.JOYBUTTONDOWN | pygame.JOYBUTTONUP |
                           pygame.JOYAXISMOTION | pygame.JOYHATMOTION |
                           pygame.JOYDEVICEADDED | pygame.JOYDEVICEREMOVED):
-                        self.inputs.handle_event(event)
+                        self.inputs.handle_joystick_event(event)
 
             if not self.update():
                 game_running = False

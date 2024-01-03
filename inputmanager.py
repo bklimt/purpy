@@ -7,7 +7,9 @@ from enum import Enum
 
 class InputState:
     keys_down: dict[int, bool] = {}
-    buttons_down: dict[int, bool] = {}
+    joystick_buttons_down: dict[int, bool] = {}
+    mouse_buttons_down: dict[int, bool] = {}
+    mouse_position: tuple[int, int] = (0, 0)
     joystick: pygame.joystick.JoystickType | None
 
     def reset_joystick(self):
@@ -24,14 +26,23 @@ class InputState:
     def is_key_down(self, key: int) -> bool:
         return self.keys_down.get(key, False)
 
-    def set_button_down(self, button: int):
-        self.buttons_down[button] = True
+    def set_joystick_button_down(self, button: int):
+        self.joystick_buttons_down[button] = True
 
-    def set_button_up(self, button: int):
-        self.buttons_down[button] = False
+    def set_joystick_button_up(self, button: int):
+        self.joystick_buttons_down[button] = False
 
-    def is_button_down(self, button: int) -> bool:
-        return self.buttons_down.get(button, False)
+    def is_joystick_button_down(self, button: int) -> bool:
+        return self.joystick_buttons_down.get(button, False)
+
+    def set_mouse_button_down(self, button: int):
+        self.mouse_buttons_down[button] = True
+
+    def set_mouse_button_up(self, button: int):
+        self.mouse_buttons_down[button] = False
+
+    def is_mouse_button_down(self, button: int) -> bool:
+        return self.mouse_buttons_down.get(button, False)
 
 
 class BinaryInputType(typing.Protocol):
@@ -59,22 +70,33 @@ class KeyInput(CachedBinaryInput):
     """ Returns True as long as a key is down. """
     key: int
 
-    def __init__(self, key):
+    def __init__(self, key: int):
         self.key = key
 
     def update_on(self, state: InputState) -> bool:
         return state.is_key_down(self.key)
 
 
-class ButtonInput(CachedBinaryInput):
+class JoystickButtonInput(CachedBinaryInput):
     """ Returns True as long as a button is down. """
     button: int
 
-    def __init__(self, button):
+    def __init__(self, button: int):
         self.button = button
 
     def update_on(self, state: InputState) -> bool:
-        return state.is_button_down(self.button)
+        return state.is_joystick_button_down(self.button)
+
+
+class MouseButtonInput(CachedBinaryInput):
+    """ Returns True as long as a button is down. """
+    button: int
+
+    def __init__(self, button: int):
+        self.button = button
+
+    def update_on(self, state: InputState) -> bool:
+        return state.is_mouse_button_down(self.button)
 
 
 class JoystickThresholdInput(CachedBinaryInput):
@@ -168,6 +190,7 @@ class BinaryInput(Enum):
     MENU_DOWN = 8
     MENU_UP = 9
     RESTART = 10
+    MOUSE_PRESS = 11
 
 
 class InputManager:
@@ -182,12 +205,12 @@ class InputManager:
         self.binary_hooks = {
             BinaryInput.OK: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_RETURN)),
-                TriggerInput(ButtonInput(0)),
+                TriggerInput(JoystickButtonInput(0)),
             ]),
             BinaryInput.CANCEL: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_ESCAPE)),
                 TriggerInput(KeyInput(pygame.K_1)),
-                TriggerInput(ButtonInput(2)),
+                TriggerInput(JoystickButtonInput(2)),
             ]),
             BinaryInput.PLAYER_LEFT: AnyOfInput([
                 KeyInput(pygame.K_LEFT),
@@ -208,13 +231,13 @@ class InputManager:
                 TriggerInput(KeyInput(pygame.K_SPACE)),
                 TriggerInput(KeyInput(pygame.K_w)),
                 TriggerInput(KeyInput(pygame.K_UP)),
-                TriggerInput(ButtonInput(0)),
+                TriggerInput(JoystickButtonInput(0)),
             ]),
             BinaryInput.PLAYER_JUMP_DOWN: AnyOfInput([
                 KeyInput(pygame.K_SPACE),
                 KeyInput(pygame.K_w),
                 KeyInput(pygame.K_UP),
-                ButtonInput(0),
+                JoystickButtonInput(0),
             ]),
             BinaryInput.MENU_DOWN: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_DOWN)),
@@ -229,23 +252,30 @@ class InputManager:
             BinaryInput.RESTART: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_2)),
             ]),
+            BinaryInput.MOUSE_PRESS: AnyOfInput([
+                TriggerInput(MouseButtonInput(1)),
+                TriggerInput(KeyInput(pygame.K_p)),
+            ]),
         }
 
     def update(self):
         for hook in self.binary_hooks.keys():
             self.binary_hooks[hook].update(self.state)
 
-    def handle_event(self, event: pygame.event.Event):
+    def handle_keyboard_event(self, event: pygame.event.Event):
         match event.type:
             case pygame.KEYDOWN:
                 self.state.set_key_down(event.key)
             case pygame.KEYUP:
                 self.state.set_key_up(event.key)
+
+    def handle_joystick_event(self, event: pygame.event.Event):
+        match event.type:
             case pygame.JOYBUTTONDOWN:
                 print(f'button {event.button}')
-                self.state.set_button_down(event.button)
+                self.state.set_joystick_button_down(event.button)
             case pygame.JOYBUTTONUP:
-                self.state.set_button_up(event.button)
+                self.state.set_joystick_button_up(event.button)
             case pygame.JOYDEVICEADDED:
                 self.state.reset_joystick()
             case pygame.JOYDEVICEREMOVED:
@@ -254,6 +284,22 @@ class InputManager:
                 pass
             case pygame.JOYHATMOTION:
                 pass
+
+    def handle_mouse_event(self, event: pygame.event.Event):
+        match event.type:
+            case pygame.MOUSEMOTION:
+                print(f'mouse motion {event.pos}')
+                self.state.mouse_position = event.pos
+            case pygame.MOUSEBUTTONDOWN:
+                print(f'mouse button {event.button} down {event.pos}')
+                self.state.set_mouse_button_down(event.button)
+            case pygame.MOUSEBUTTONUP:
+                print(f'mouse button {event.button} up {event.pos}')
+                self.state.set_mouse_button_up(event.button)
+
+    @property
+    def mouse_position(self) -> tuple[int, int]:
+        return self.state.mouse_position
 
     def is_ok_triggered(self) -> bool:
         return self.binary_hooks[BinaryInput.OK].is_on()
@@ -284,3 +330,6 @@ class InputManager:
 
     def is_restart_down(self) -> bool:
         return self.binary_hooks[BinaryInput.RESTART].is_on()
+
+    def is_mouse_pressed(self) -> bool:
+        return self.binary_hooks[BinaryInput.MOUSE_PRESS].is_on()
