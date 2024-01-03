@@ -21,6 +21,15 @@
             "args": [],
             "console": "integratedTerminal",
             "justMyCode": true
+        },
+        {
+            "name": "Python: gui/window.py",
+            "type": "python",
+            "request": "launch",
+            "program": "gui/window.py",
+            "args": [],
+            "console": "integratedTerminal",
+            "justMyCode": true
         }
     ]
 }
