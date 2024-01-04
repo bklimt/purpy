@@ -440,7 +440,6 @@ class TileMap:
             rect.h *= SUBPIXELS
             if not intersect(player_rect, rect):
                 continue
-            print(f'player is in {rect}')
             p_x = obj.properties.get('preferred_x', None)
             p_y = obj.properties.get('preferred_y', None)
             if isinstance(p_x, int):
