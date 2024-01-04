@@ -28,7 +28,11 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="4" gid="193" x="8" y="144" width="8" height="8"/>
+  <object id="4" gid="193" x="8" y="144" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W3/20.tmx"/>
+   </properties>
+  </object>
   <object id="5" gid="150" x="360" y="72" width="8" height="8">
    <properties>
     <property name="direction" value="E"/>

@@ -394,6 +394,10 @@
   <object id="259" gid="129" x="864" y="480" width="8" height="8"/>
   <object id="273" gid="131" x="816" y="472" width="8" height="8"/>
   <object id="274" gid="131" x="888" y="472" width="8" height="8"/>
-  <object id="278" gid="193" x="888" y="288" width="8" height="8"/>
+  <object id="278" gid="193" x="888" y="288" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W2/10.tmx"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

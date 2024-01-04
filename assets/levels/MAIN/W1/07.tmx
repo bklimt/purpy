@@ -31,6 +31,10 @@
   <object id="1" gid="145" x="848" y="48" width="8" height="8"/>
   <object id="2" gid="133" x="904" y="56" width="8" height="8"/>
   <object id="3" gid="134" x="912" y="56" width="8" height="8"/>
-  <object id="4" gid="193" x="832" y="136" width="8" height="8"/>
+  <object id="4" gid="193" x="832" y="136" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W1/08.tmx"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

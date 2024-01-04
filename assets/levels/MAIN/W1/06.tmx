@@ -136,7 +136,11 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="1" gid="193" x="152" y="376" width="8" height="8"/>
+  <object id="1" gid="193" x="152" y="376" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W1/07.tmx"/>
+   </properties>
+  </object>
   <object id="2" gid="145" x="216" y="248" width="8" height="8"/>
   <object id="3" gid="145" x="288" y="992" width="8" height="8"/>
   <object id="12" gid="175" x="288" y="1032" width="8" height="8"/>

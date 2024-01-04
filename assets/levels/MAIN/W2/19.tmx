@@ -31,7 +31,11 @@
 </data>
  </layer>
  <objectgroup id="5" name="hm">
-  <object id="144" gid="193" x="584" y="48" width="8" height="8"/>
+  <object id="144" gid="193" x="584" y="48" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W2/World2boss.tmx"/>
+   </properties>
+  </object>
   <object id="145" gid="129" x="344" y="32" width="8" height="8"/>
   <object id="146" gid="129" x="328" y="32" width="8" height="8"/>
   <object id="147" gid="129" x="336" y="32" width="8" height="8"/>

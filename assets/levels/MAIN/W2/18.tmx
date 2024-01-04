@@ -75,7 +75,11 @@
   </object>
   <object id="141" gid="218" x="128" y="168" width="8" height="8"/>
   <object id="142" gid="201" x="24" y="168" width="8" height="8"/>
-  <object id="143" gid="193" x="576" y="144" width="8" height="8"/>
+  <object id="143" gid="193" x="576" y="144" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W2/19.tmx"/>
+   </properties>
+  </object>
   <object id="145" gid="204" x="280" y="56" width="8" height="8"/>
  </objectgroup>
 </map>

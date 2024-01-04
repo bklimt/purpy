@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="94">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="4" nextobjectid="95">
  <tileset firstgid="1" source="../../../purple.tsx"/>
- <imagelayer id="2" name="coool" offsetx="-0.343366" offsety="0">
+ <imagelayer id="2" name="coool" offsetx="1.43191" offsety="1.18352">
   <image source="../../../space2.png" width="320" height="176"/>
  </imagelayer>
  <layer id="1" name="Tile Layer 1" width="40" height="22">
@@ -17,7 +17,7 @@
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
-19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,0,0,17,
+19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
 19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,
@@ -285,6 +285,11 @@
    <properties>
     <property name="direction" value="S"/>
     <property name="distance" type="int" value="18"/>
+   </properties>
+  </object>
+  <object id="94" gid="193" x="272" y="56" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W2/11.tmx"/>
    </properties>
   </object>
  </objectgroup>

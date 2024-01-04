@@ -295,6 +295,10 @@
     <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="263" gid="193" x="568" y="96" width="8" height="8"/>
+  <object id="263" gid="193" x="568" y="96" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W1/world1boss.tmx"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

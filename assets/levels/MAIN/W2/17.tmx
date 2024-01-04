@@ -186,6 +186,7 @@
   <object id="33" gid="218" x="568" y="80" width="8" height="8"/>
   <object id="89" gid="193" x="24" y="144" width="8" height="8">
    <properties>
+    <property name="destination" value="assets/levels/MAIN/W2/18.tmx"/>
     <property name="stars_needed" type="int" value="2"/>
    </properties>
   </object>
