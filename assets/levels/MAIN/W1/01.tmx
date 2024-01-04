@@ -28,6 +28,10 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="1" gid="193" x="136" y="16" width="8" height="8"/>
+  <object id="1" gid="193" x="136" y="16" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W1/02.tmx"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>

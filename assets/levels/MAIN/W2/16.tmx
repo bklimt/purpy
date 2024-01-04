@@ -28,7 +28,11 @@
 </data>
  </layer>
  <objectgroup id="3" name="Object Layer 1">
-  <object id="86" gid="193" x="16" y="24" width="8" height="8"/>
+  <object id="86" gid="193" x="16" y="24" width="8" height="8">
+   <properties>
+    <property name="destination" value="assets/levels/MAIN/W2/17.tmx"/>
+   </properties>
+  </object>
   <object id="87" gid="129" x="352" y="128" width="8" height="8"/>
   <object id="88" gid="129" x="320" y="152" width="8" height="8"/>
   <object id="89" gid="129" x="520" y="72" width="8" height="8"/>
