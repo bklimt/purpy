@@ -433,14 +433,20 @@ class TileMap:
         for obj in self.objects:
             if obj.gid is not None:
                 continue
-            if not intersect(player_rect, obj.rect()):
+            rect = obj.rect().copy()
+            rect.x *= SUBPIXELS
+            rect.y *= SUBPIXELS
+            rect.w *= SUBPIXELS
+            rect.h *= SUBPIXELS
+            if not intersect(player_rect, rect):
                 continue
+            print(f'player is in {rect}')
             p_x = obj.properties.get('preferred_x', None)
             p_y = obj.properties.get('preferred_y', None)
             if isinstance(p_x, int):
-                preferred_x = p_x
+                preferred_x = p_x * SUBPIXELS
             if isinstance(p_y, int):
-                preferred_y = p_y
+                preferred_y = p_y * SUBPIXELS
         return (preferred_x, preferred_y)
 
     def update_animations(self):
