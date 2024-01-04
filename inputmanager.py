@@ -246,7 +246,7 @@ class InputManager:
             ]),
             BinaryInput.MENU_UP: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_UP)),
-                TriggerInput(KeyInput(pygame.K_s)),
+                TriggerInput(KeyInput(pygame.K_w)),
                 TriggerInput(JoystickThresholdInput(1, -0.5, None)),
             ]),
             BinaryInput.RESTART: AnyOfInput([
