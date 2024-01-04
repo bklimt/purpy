@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="80" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="263">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="80" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="3" nextobjectid="264">
  <tileset firstgid="1" source="../../../purple.tsx"/>
  <layer id="1" name="Tile Layer 1" width="80" height="22">
   <data encoding="csv">
@@ -295,7 +295,7 @@
     <property name="speed" type="int" value="6"/>
    </properties>
   </object>
-  <object id="261" gid="145" x="608" y="104" width="8" height="8"/>
   <object id="262" gid="145" x="24" y="96" width="8" height="8"/>
+  <object id="263" gid="193" x="568" y="96" width="8" height="8"/>
  </objectgroup>
 </map>
