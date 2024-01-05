@@ -26,7 +26,11 @@
   <object id="809" gid="193" x="904" y="64" width="8" height="8"/>
   <object id="810" gid="193" x="888" y="64" width="8" height="8"/>
   <object id="811" gid="193" x="880" y="64" width="8" height="8"/>
-  <object id="812" gid="241" x="1512" y="96" width="8" height="8"/>
+  <object id="812" gid="241" x="1512" y="96" width="8" height="8">
+   <properties>
+    <property name="stars_needed" type="int" value="0"/>
+   </properties>
+  </object>
  </objectgroup>
  <layer id="1" name="Tile Layer 1" width="200" height="22">
   <data encoding="csv">
