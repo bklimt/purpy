@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#241f31" nextlayerid="3" nextobjectid="3">
+<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#241f31" nextlayerid="3" nextobjectid="4">
  <tileset firstgid="1" source="../../../pastel.tsx"/>
  <layer id="1" name="Tile Layer 1" width="40" height="22">
   <data encoding="csv">
@@ -28,6 +28,10 @@
 </data>
  </layer>
  <objectgroup id="2" name="Object Layer 1">
-  <object id="2" gid="241" x="136" y="16" width="8" height="8"/>
+  <object id="3" gid="241" x="136" y="16" width="8" height="8">
+   <properties>
+    <property name="stars_needed" type="int" value="0"/>
+   </properties>
+  </object>
  </objectgroup>
 </map>
