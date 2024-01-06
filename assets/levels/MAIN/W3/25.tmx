@@ -30,6 +30,7 @@
  <objectgroup id="2" name="Object Layer 1">
   <object id="3" gid="241" x="136" y="16" width="8" height="8">
    <properties>
+    <property name="destination" value="assets/levels/main/W3/26.tmx"/>
     <property name="stars_needed" type="int" value="0"/>
    </properties>
   </object>
