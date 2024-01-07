@@ -20,6 +20,118 @@
    <property name="slope" type="bool" value="true"/>
   </properties>
  </tile>
+ <tile id="52">
+  <properties>
+   <property name="left_y" type="int" value="8"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="53">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="0"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="54">
+  <properties>
+   <property name="left_y" type="int" value="0"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="55">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="8"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="68">
+  <properties>
+   <property name="left_y" type="int" value="0"/>
+   <property name="right_y" type="int" value="8"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="76">
+  <properties>
+   <property name="left_y" type="int" value="0"/>
+   <property name="right_y" type="int" value="8"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="84">
+  <properties>
+   <property name="left_y" type="int" value="8"/>
+   <property name="right_y" type="int" value="0"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="92">
+  <properties>
+   <property name="left_y" type="int" value="8"/>
+   <property name="right_y" type="int" value="0"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="116">
+  <properties>
+   <property name="left_y" type="int" value="8"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="117">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="0"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="118">
+  <properties>
+   <property name="left_y" type="int" value="0"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="119">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="8"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="124">
+  <properties>
+   <property name="left_y" type="int" value="8"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="125">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="0"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="126">
+  <properties>
+   <property name="left_y" type="int" value="0"/>
+   <property name="right_y" type="int" value="4"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
+ <tile id="127">
+  <properties>
+   <property name="left_y" type="int" value="4"/>
+   <property name="right_y" type="int" value="8"/>
+   <property name="slope" type="bool" value="true"/>
+  </properties>
+ </tile>
  <tile id="128">
   <properties>
    <property name="deadly" type="bool" value="true"/>
