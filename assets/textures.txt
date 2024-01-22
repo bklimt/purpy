@@ -29,3 +29,4 @@ tiles/168.png
 tiles/171.png
 purple.png
 space.png
+space2.png
