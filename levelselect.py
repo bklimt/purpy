@@ -2,7 +2,7 @@
 import os
 
 from imagemanager import ImageManager
-from inputmanager import InputManager
+from inputmanager import InputSnapshot
 from level import Level
 from render.rendercontext import RenderContext
 from scene import Scene
@@ -24,14 +24,14 @@ class LevelSelect:
         self.files = sorted(os.listdir(directory))
         self.images = images
 
-    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
-        if inputs.is_cancel_triggered():
+    def update(self, inputs: InputSnapshot, sounds: SoundManager) -> Scene | None:
+        if inputs.cancel:
             return self.parent
-        if inputs.is_up_triggered():
+        if inputs.menu_up:
             self.current = (self.current - 1) % len(self.files)
-        if inputs.is_down_triggered():
+        if inputs.menu_down:
             self.current = (self.current + 1) % len(self.files)
-        if inputs.is_ok_triggered():
+        if inputs.ok:
             new_path = os.path.join(self.directory, self.files[self.current])
             if os.path.isdir(new_path):
                 return LevelSelect(self, new_path, self.images)

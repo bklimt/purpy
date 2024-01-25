@@ -72,3 +72,7 @@ SPRING_JUMP_VELOCITY = 78 * SUBPIXELS//16
 DOOR_SPEED = 3
 DOOR_CLOSING_FRAMES = 9    # The should match the door animation frames.
 DOOR_UNLOCKING_FRAMES = 9
+
+# Speed Tests.
+PLAYBACK_PATH: str | None = None
+SPEED_TEST: bool = False

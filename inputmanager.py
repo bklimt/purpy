@@ -193,11 +193,68 @@ class BinaryInput(Enum):
     MOUSE_PRESS = 11
 
 
+class InputSnapshot:
+    ok: bool
+    cancel: bool
+    player_left: bool
+    player_right: bool
+    player_crouch: bool
+    player_jump_trigger: bool
+    player_jump_down: bool
+    menu_down: bool
+    menu_up: bool
+
+    def __init__(self, encoded=0):
+        self.ok = (encoded & (1 << 0)) != 0
+        self.cancel = (encoded & (1 << 1)) != 0
+        self.player_left = (encoded & (1 << 2)) != 0
+        self.player_right = (encoded & (1 << 3)) != 0
+        self.player_crouch = (encoded & (1 << 4)) != 0
+        self.player_jump_trigger = (encoded & (1 << 5)) != 0
+        self.player_jump_down = (encoded & (1 << 6)) != 0
+        self.menu_down = (encoded & (1 << 7)) != 0
+        self.menu_up = (encoded & (1 << 8)) != 0
+
+
+class RecorderEntry(typing.NamedTuple):
+    frame: int
+    snapshot: int
+
+
+class InputRecorder:
+    previous: int
+    queue: list[RecorderEntry]
+
+    def __init__(self):
+        self.previous = 0
+        self.queue = []
+
+    def playback(self, frame: int) -> InputSnapshot:
+        if len(self.queue) > 0:
+            if self.queue[0].frame == frame:
+                self.previous = self.queue[0].snapshot
+                self.queue = self.queue[1:]
+        return InputSnapshot(self.previous)
+
+    def load(self, path):
+        f = open(path)
+        text = f.read()
+        lines = [line.strip()
+                 for line in text.split('\n') if len(line.strip()) != 0]
+        for line in lines:
+            frame, snapshot = line.split(',')
+            frame = int(frame)
+            snapshot = int(snapshot)
+            self.queue.append(RecorderEntry(frame, snapshot))
+
+
 class InputManager:
     state: InputState
     binary_hooks: dict[BinaryInput, BinaryInputType]
+    playback: bool = False
+    recorder: InputRecorder
 
-    def __init__(self):
+    def __init__(self, playback_path: str | None):
         pygame.joystick.init()
         self.state = InputState()
         self.state.reset_joystick()
@@ -258,9 +315,36 @@ class InputManager:
             ]),
         }
 
-    def update(self):
+        self.recorder = InputRecorder()
+        if playback_path is not None:
+            self.playback = True
+            self.recorder.load(playback_path)
+
+    def update(self, frame: int) -> InputSnapshot:
+        if self.playback:
+            return self.recorder.playback(frame)
+
         for hook in self.binary_hooks.keys():
             self.binary_hooks[hook].update(self.state)
+        return self.take_snapshot()
+
+    def take_snapshot(self) -> InputSnapshot:
+        snapshot = InputSnapshot()
+        snapshot.ok = self.binary_hooks[BinaryInput.OK].is_on()
+        snapshot.cancel = self.binary_hooks[BinaryInput.CANCEL].is_on()
+        snapshot.player_left = self.binary_hooks[BinaryInput.PLAYER_LEFT].is_on(
+        )
+        snapshot.player_right = self.binary_hooks[BinaryInput.PLAYER_RIGHT].is_on(
+        )
+        snapshot.player_crouch = self.binary_hooks[BinaryInput.PLAYER_CROUCH].is_on(
+        )
+        snapshot.player_jump_trigger = self.binary_hooks[BinaryInput.PLAYER_JUMP_TRIGGER].is_on(
+        )
+        snapshot.player_jump_down = self.binary_hooks[BinaryInput.PLAYER_JUMP_DOWN].is_on(
+        )
+        snapshot.menu_down = self.binary_hooks[BinaryInput.MENU_DOWN].is_on()
+        snapshot.menu_up = self.binary_hooks[BinaryInput.MENU_UP].is_on()
+        return snapshot
 
     def handle_keyboard_event(self, event: pygame.event.Event):
         match event.type:
@@ -300,36 +384,6 @@ class InputManager:
     @property
     def mouse_position(self) -> tuple[int, int]:
         return self.state.mouse_position
-
-    def is_ok_triggered(self) -> bool:
-        return self.binary_hooks[BinaryInput.OK].is_on()
-
-    def is_cancel_triggered(self) -> bool:
-        return self.binary_hooks[BinaryInput.CANCEL].is_on()
-
-    def is_left_down(self) -> bool:
-        return self.binary_hooks[BinaryInput.PLAYER_LEFT].is_on()
-
-    def is_right_down(self) -> bool:
-        return self.binary_hooks[BinaryInput.PLAYER_RIGHT].is_on()
-
-    def is_jump_triggered(self) -> bool:
-        return self.binary_hooks[BinaryInput.PLAYER_JUMP_TRIGGER].is_on()
-
-    def is_jump_down(self) -> bool:
-        return self.binary_hooks[BinaryInput.PLAYER_JUMP_DOWN].is_on()
-
-    def is_crouch_down(self) -> bool:
-        return self.binary_hooks[BinaryInput.PLAYER_CROUCH].is_on()
-
-    def is_down_triggered(self) -> bool:
-        return self.binary_hooks[BinaryInput.MENU_DOWN].is_on()
-
-    def is_up_triggered(self) -> bool:
-        return self.binary_hooks[BinaryInput.MENU_UP].is_on()
-
-    def is_restart_down(self) -> bool:
-        return self.binary_hooks[BinaryInput.RESTART].is_on()
 
     def is_mouse_pressed(self) -> bool:
         return self.binary_hooks[BinaryInput.MOUSE_PRESS].is_on()

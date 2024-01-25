@@ -7,7 +7,7 @@ from constants import *
 from gameobject.button import Button
 from gameobject.door import Door
 from imagemanager import ImageManager
-from inputmanager import InputManager
+from inputmanager import InputSnapshot
 from kill import KillScreen
 from player import Player2, PlayerState
 from gameobject.platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
@@ -93,7 +93,7 @@ class Level:
     # Movement.
     #
 
-    def update_player_trajectory_x(self, inputs: InputManager):
+    def update_player_trajectory_x(self, inputs: InputSnapshot):
         if self.player.state == PlayerState.CROUCHING:
             if self.player.dx > 0:
                 self.player.dx = max(0, self.player.dx -
@@ -105,9 +105,9 @@ class Level:
 
         # Apply controller input.
         target_dx = 0
-        if inputs.is_left_down() and not inputs.is_right_down():
+        if inputs.player_left and not inputs.player_right:
             target_dx = -1 * TARGET_WALK_SPEED
-        elif inputs.is_right_down() and not inputs.is_left_down():
+        elif inputs.player_right and not inputs.player_left:
             target_dx = TARGET_WALK_SPEED
 
         # Change the velocity toward the target velocity.
@@ -136,7 +136,7 @@ class Level:
                 self.player.dx -= WALK_SPEED_ACCELERATION
                 self.player.dx = max(target_dx, self.player.dx)
 
-    def update_player_trajectory_y(self, inputs: InputManager):
+    def update_player_trajectory_y(self, inputs: InputSnapshot):
         if (self.player.state == PlayerState.STANDING or
                 self.player.state == PlayerState.CROUCHING):
             # Fall at least one pixel so that we hit the ground again.
@@ -280,7 +280,7 @@ class Level:
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
 
-    def move_player_x(self, inputs: InputManager) -> MovePlayerXResult:
+    def move_player_x(self, inputs: InputSnapshot) -> MovePlayerXResult:
         result = Level.MovePlayerXResult()
 
         dx = self.player.dx
@@ -296,11 +296,11 @@ class Level:
         if dx < 0 or (dx == 0 and not self.player.facing_right):
             # Moving left.
             move_result = self.move_and_check(Direction.LEFT, inc_x)
-            pushing = inputs.is_left_down()
+            pushing = inputs.player_left
         else:
             # Moving right.
             move_result = self.move_and_check(Direction.RIGHT, inc_x)
-            pushing = inputs.is_right_down()
+            pushing = inputs.player_right
 
         result.pushing_against_wall = pushing and move_result.against_wall
         result.crushed_by_platform = move_result.crushed_by_platform
@@ -425,7 +425,7 @@ class Level:
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
 
-    def update_player_movement(self, inputs: InputManager, sounds: SoundManager) -> PlayerMovementResult:
+    def update_player_movement(self, inputs: InputSnapshot, sounds: SoundManager) -> PlayerMovementResult:
         self.update_player_trajectory_x(inputs)
         self.update_player_trajectory_y(inputs)
 
@@ -435,9 +435,9 @@ class Level:
 
         result.on_ground = y_result.on_ground
         result.pushing_against_wall = x_result.pushing_against_wall
-        result.jump_down = inputs.is_jump_down()
-        result.jump_triggered = inputs.is_jump_triggered()
-        result.crouch_down = inputs.is_crouch_down()
+        result.jump_down = inputs.player_jump_down
+        result.jump_triggered = inputs.player_jump_trigger
+        result.crouch_down = inputs.player_crouch
         result.stuck_in_wall = x_result.stuck_in_wall or y_result.stuck_in_wall
         result.crushed_by_platform = x_result.crushed_by_platform or y_result.crushed_by_platform
 
@@ -541,11 +541,11 @@ class Level:
             elif not movement.crouch_down:
                 self.player.state = PlayerState.STANDING
 
-    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
-        if inputs.is_cancel_triggered():
+    def update(self, inputs: InputSnapshot, sounds: SoundManager) -> Scene | None:
+        if inputs.cancel:
             return self.parent
-        if inputs.is_restart_down():
-            return self.restart_func()
+        # if inputs.is_restart_down():
+        #    return self.restart_func()
 
         self.map.update_animations()
 

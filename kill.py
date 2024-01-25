@@ -3,7 +3,7 @@ import pygame
 import typing
 
 from imagemanager import ImageManager
-from inputmanager import InputManager
+from inputmanager import InputSnapshot
 from render.rendercontext import RenderContext
 from scene import Scene
 from soundmanager import SoundManager
@@ -17,8 +17,8 @@ class KillScreen:
         self.previous = previous
         self.next = next
 
-    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene:
-        if inputs.is_ok_triggered():
+    def update(self, inputs: InputSnapshot, sounds: SoundManager) -> Scene:
+        if inputs.ok:
             return self.next()
         return self
 
