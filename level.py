@@ -69,6 +69,7 @@ class Level:
         self.platforms = []
         self.stars = []
         self.doors = []
+        self.current_door = None
         self.switches = SwitchState()
         self.current_switch_tiles = set()
         self.star_count = 0
