@@ -74,7 +74,7 @@ class MapObject:
     height: int
     properties: dict[str, str | int | bool]
 
-    def __init__(self, node: xml.etree.ElementTree.Element, tileset: TileSet):
+    def __init__(self, node: xml.etree.ElementTree.Element, tilemap: 'TileMap'):
         self.id = int(node.attrib['id'])
         self.x = int(node.attrib['x'])
         self.y = int(node.attrib['y'])
@@ -84,7 +84,7 @@ class MapObject:
         self.gid = int(gid_str) if gid_str is not None else None
         self.properties = {}
         if self.gid is not None:
-            for k, v in tileset.tile_properties.get(self.gid - 1, {}).items():
+            for k, v in tilemap.get_tile_properties(self.gid).items():
                 self.properties[k] = v
         for props in [child for child in node if child.tag == 'properties']:
             for prop in [child for child in props if child.tag == 'property']:
@@ -110,14 +110,31 @@ class MapObject:
         return f'MapObject(id={self.id}, gid={self.gid}, x={self.x}, y={self.y}, w={self.width}, h={self.height}, properties={self.properties}'
 
 
+class TileSetList:
+    tilesets: list[tuple[int, TileSet]]
+
+    def __init__(self):
+        self.tilesets = []
+
+    def add(self, firstgid: int, tileset: TileSet):
+        self.tilesets.append((firstgid, tileset))
+        self.tilesets.sort(key=lambda pair: pair[0])
+        self.tilesets.reverse()
+
+    def lookup(self, tile_id) -> tuple[TileSet, int]:
+        for firstgid, tileset in self.tilesets:
+            if tile_id >= firstgid:
+                return (tileset, tile_id - firstgid)
+        raise Exception(f"invalid tile_id {tile_id}")
+
+
 class TileMap:
     width: int
     height: int
     tilewidth: int
     tileheight: int
     backgroundcolor: str
-    tilesetsource: str
-    tileset: TileSet
+    tilesets: TileSetList
     layers: list[ImageLayer | TileLayer]
     player_layer: int | None
     objects: list[MapObject]
@@ -129,10 +146,17 @@ class TileMap:
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
         self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
-        self.tilesetsource = [
-            ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
-        tileset_path = os.path.join(os.path.dirname(path), self.tilesetsource)
-        self.tileset = load_tileset(tileset_path, images)
+
+        self.tilesets = TileSetList()
+        for ts in root:
+            if ts.tag != 'tileset':
+                continue
+            source = ts.attrib['source']
+            firstgid = ts.attrib['firstgid']
+            tileset_path = os.path.join(os.path.dirname(path), source)
+            firstgid = int(firstgid)
+            tileset = load_tileset(tileset_path, images)
+            self.tilesets.add(firstgid, tileset)
 
         self.properties = load_properties(root)
         print(f'map properties: {self.properties}')
@@ -157,7 +181,7 @@ class TileMap:
         self.objects = []
         for object_group in [node for node in root if node.tag == 'objectgroup']:
             for obj in [obj for obj in object_group if obj.tag == 'object']:
-                self.objects.append(MapObject(obj, self.tileset))
+                self.objects.append(MapObject(obj, self))
         for obj in self.objects:
             print(f'loaded object {obj}')
 
@@ -316,7 +340,35 @@ class TileMap:
                 return oneway == 'E'
         raise Exception('unexpection direction')
 
-    class MoveResult:
+    def draw_tile(
+        self,
+        context: RenderContext,
+        tile_gid: int,
+        layer: RenderContext,
+        dest: Rect,
+    ):
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        src = tileset.get_source_rect(tile_id)
+        #tileset.sprite.draw(
+        #context.draw(tileset.sprite, layer, dest, src);
+
+    def get_animation(self, tile_gid: int) -> Animation|None:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        return tileset.animations.get(tile_id)
+
+    def get_tile_properties(self, tile_gid: int) -> TileProperties|None:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        tileset.get_tile_properties(tile_id)
+
+    def get_slope(self, tile_gid: int) -> Slope|None:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        tileset.get_slope(tile_id)
+
+    def update_animations(self):
+        self.tileset.update_animations()
+
+
+class MoveResult:
         # We keep track of two different offsets so that you can be "on" a
         # slope even if there's a higher block next to it. That way, if you're
         # at the top of a slope, you can be down the slope a little, and not
@@ -447,9 +499,6 @@ class TileMap:
             if isinstance(p_y, int):
                 preferred_y = p_y * SUBPIXELS
         return (preferred_x, preferred_y)
-
-    def update_animations(self):
-        self.tileset.update_animations()
 
 
 def load_map(path: str, images: ImageManager):
