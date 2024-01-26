@@ -115,6 +115,8 @@ class Player:
 
     def get_raw_target_bounds(self, direction: Direction) -> pygame.Rect:
         if self.state == PlayerState.CROUCHING:
+            if direction == Direction.DOWN:
+                return pygame.Rect(8, 19, 8, 4)
             return pygame.Rect(8, 14, 8, 9)
         match direction:
             case Direction.NONE:
