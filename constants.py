@@ -19,10 +19,10 @@ MAX_LIGHTS = 20
 VIEWPORT_PAN_SPEED = 5 * SUBPIXELS
 
 # Horizontal speed.
-TARGET_WALK_SPEED = 24 * SUBPIXELS//16
+TARGET_WALK_SPEED = 32 * SUBPIXELS//16
 WALK_SPEED_ACCELERATION = 1 * SUBPIXELS//16
 WALK_SPEED_DECELERATION = 3 * SUBPIXELS//16
-SLIDE_SPEED_DECELERATION = 1 * SUBPIXELS//16
+SLIDE_SPEED_DECELERATION = 1
 
 # Vertical speed.
 COYOTE_TIME = 6       # How long to hover in the air before officially falling.
@@ -74,5 +74,5 @@ DOOR_CLOSING_FRAMES = 9    # The should match the door animation frames.
 DOOR_UNLOCKING_FRAMES = 9
 
 # Speed Tests.
-PLAYBACK_PATH: str | None = None
+PLAYBACK_PATH: str | None = None #'/home/bklimt/Desktop/purpy_input.txt'
 SPEED_TEST: bool = False
