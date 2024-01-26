@@ -116,7 +116,7 @@
   <object id="1" gid="177" x="760" y="376" width="8" height="8"/>
   <object id="2" gid="241" x="1528" y="360" width="8" height="8">
    <properties>
-    <property name="destination" value="assets/levels/main/W3/27.tmx"/>
+    <property name="destination" value="assets/levels/MAIN/W3/27.tmx"/>
     <property name="stars_needed" type="int" value="0"/>
    </properties>
   </object>
