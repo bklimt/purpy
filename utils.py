@@ -5,7 +5,6 @@ import xml.etree.ElementTree
 
 
 class Direction(Enum):
-    NONE = 0
     UP = 1
     DOWN = 2
     LEFT = 3
@@ -14,8 +13,6 @@ class Direction(Enum):
 
 def opposite_direction(d: Direction) -> Direction:
     match d:
-        case Direction.NONE:
-            raise Exception('cannot take the opposite of no direction')
         case Direction.UP:
             return Direction.DOWN
         case Direction.DOWN:
@@ -56,8 +53,6 @@ def try_move_to_bounds(actor: pygame.Rect, target: pygame.Rect, direction: Direc
         return 0
 
     match direction:
-        case Direction.NONE:
-            raise Exception('cannot try_move_to in no direction')
         case Direction.UP:
             return target.bottom - actor.top
         case Direction.DOWN:

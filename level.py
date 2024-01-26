@@ -63,8 +63,8 @@ class Level:
         self.previous_map_offset = None
         self.map = load_map(map_path, images)
         self.player = Player2(images)
-        self.player.x = 128
-        self.player.y = 128
+        self.player.x = (128 * SUBPIXELS) // 16
+        self.player.y = (128 * SUBPIXELS) // 16
         self.transition: str = ''
         self.platforms = []
         self.stars = []
@@ -561,7 +561,7 @@ class Level:
         self.update_player_state(movement)
 
         # Make sure you aren't stuck in a wall.
-        player_rect = self.player.get_target_bounds_rect(Direction.NONE)
+        player_rect = self.player.get_target_bounds_rect(None)
         in_wall = movement.stuck_in_wall
         crushed = movement.crushed_by_platform
 
@@ -628,7 +628,7 @@ class Level:
         dest = context.logical_area
 
         # Make sure the player is on the screen, and then center them if possible.
-        player_rect = self.player.get_target_bounds_rect(Direction.NONE)
+        player_rect = self.player.get_target_bounds_rect(None)
         preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
         player_x = self.player.x
         player_y = self.player.y
