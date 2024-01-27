@@ -461,9 +461,17 @@ class TileMap:
                         if not self.is_solid_in_direction(tileset, tile_id, direction, is_backwards):
                             continue
 
+                        props = tileset.get_tile_properties(tile_id)
+                        adjusted_tile_bounds = pygame.Rect(
+                            tile_bounds.x + props.hitbox_left * SUBPIXELS,
+                            tile_bounds.y + props.hitbox_top * SUBPIXELS,
+                            tile_bounds.w +
+                            (props.hitbox_left+props.hitbox_right) * SUBPIXELS,
+                            tile_bounds.h + (props.hitbox_top+props.hitbox_bottom) * SUBPIXELS)
+
                         soft_offset = try_move_to_bounds(
                             player_rect,
-                            tile_bounds,
+                            adjusted_tile_bounds,
                             direction)
                         hard_offset = soft_offset
 
@@ -471,7 +479,7 @@ class TileMap:
                             slope = tileset.get_slope(tile_id)
                             hard_offset = slope.try_move_to_bounds(
                                 player_rect,
-                                tile_bounds,
+                                adjusted_tile_bounds,
                                 direction)
 
                         result.consider_tile(
