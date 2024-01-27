@@ -6,13 +6,14 @@ import xml.etree.ElementTree
 
 from constants import SUBPIXELS
 from imagemanager import ImageManager
+from properties import get_bool, load_properties, TileProperties
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from slope import Slope
 from spritesheet import Animation
 from switchstate import SwitchState
 from tileset import TileSet, load_tileset
-from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Direction
+from utils import cmp_in_direction, intersect, try_move_to_bounds, Direction
 
 
 class ImageLayer:
@@ -86,21 +87,9 @@ class MapObject:
         self.gid = int(gid_str) if gid_str is not None else None
         self.properties = {}
         if self.gid is not None:
-            for k, v in tilemap.get_tile_properties(self.gid).items():
+            for k, v in tilemap.get_tile_properties(self.gid).raw.items():
                 self.properties[k] = v
-        for props in [child for child in node if child.tag == 'properties']:
-            for prop in [child for child in props if child.tag == 'property']:
-                name = prop.attrib['name']
-                typ = prop.get('type', 'string')
-                val = prop.attrib['value']
-                if typ == 'string':
-                    self.properties[name] = val
-                elif typ == 'int':
-                    self.properties[name] = int(val)
-                elif typ == 'bool':
-                    self.properties[name] = (val == 'true')
-                else:
-                    raise Exception(f'invalid type {typ}')
+        self.properties = load_properties(node, self.properties)
         # For some reason, the position is the bottom left sometimes?
         if self.gid is not None:
             self.y -= self.height
@@ -189,10 +178,10 @@ class TileMap:
 
     @property
     def is_dark(self) -> bool:
-        return assert_bool(self.properties.get('dark', False))
+        return get_bool(self.properties, 'dark', False)
 
     def is_condition_met(self, tileset: TileSet, tile_id: int, switches: SwitchState):
-        condition = tileset.get_str_property(tile_id, 'condition')
+        condition = tileset.get_tile_properties(tile_id).condition
         if condition is None:
             return True
         return switches.is_condition_true(condition)
@@ -271,7 +260,7 @@ class TileMap:
                 tileset, tile_id = self.tilesets.lookup(tile_gid)
 
                 if not self.is_condition_met(tileset, tile_id, switches):
-                    alt = tileset.get_int_property(tile_id, 'alternate')
+                    alt = tileset.get_tile_properties(tile_id).alternate
                     if alt is None:
                         continue
                     tile_id = alt
@@ -327,7 +316,7 @@ class TileMap:
             self.tileheight)
 
     def is_solid_in_direction(self, tileset: TileSet, tile_id: int, direction: Direction, is_backwards: bool) -> bool:
-        oneway = tileset.get_str_property(tile_id, 'oneway')
+        oneway = tileset.get_tile_properties(tile_id).oneway
         if oneway is None:
             return True
         if is_backwards:
@@ -357,9 +346,9 @@ class TileMap:
         tileset, tile_id = self.tilesets.lookup(tile_gid)
         return tileset.animations.get(tile_id)
 
-    def get_tile_properties(self, tile_gid: int) -> dict[str, str | bool | int]:
+    def get_tile_properties(self, tile_gid: int) -> TileProperties:
         tileset, tile_id = self.tilesets.lookup(tile_gid)
-        return tileset.tile_properties.get(tile_id, {})
+        return tileset.get_tile_properties(tile_id)
 
     def is_slope(self, tile_gid: int) -> bool:
         tileset, tile_id = self.tilesets.lookup(tile_gid)
@@ -460,14 +449,14 @@ class TileMap:
                         tileset, tile_id = self.tilesets.lookup(tile_gid)
 
                         if not self.is_condition_met(tileset, tile_id, switches):
-                            alt = tileset.get_int_property(
-                                tile_id, 'alternate')
+                            alt = tileset.get_tile_properties(
+                                tile_id).alternate
                             if alt is None:
                                 continue
                             # Use an alt tile instead of the original.
                             tile_id = alt
                             tile_gid = tileset.get_global_index(tile_id)
-                        if not tileset.get_bool_property(tile_id, 'solid', True):
+                        if not tileset.get_tile_properties(tile_id).solid:
                             continue
                         if not self.is_solid_in_direction(tileset, tile_id, direction, is_backwards):
                             continue

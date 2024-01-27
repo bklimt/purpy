@@ -394,7 +394,7 @@ class Level:
     def handle_spikes(self, tiles: set[int]):
         for tile_id in tiles:
             props = self.map.get_tile_properties(tile_id)
-            if props.get('deadly', False):
+            if props.deadly:
                 self.player.is_dead = True
 
     def handle_current_platforms(self, platforms: set[Platform]):
@@ -412,7 +412,7 @@ class Level:
         self.current_switch_tiles = set()
         for t in tiles:
             props = self.map.get_tile_properties(t)
-            switch = props.get('switch', None)
+            switch = props.switch
             if switch is None:
                 continue
             self.current_switch_tiles.add(t)

@@ -4,6 +4,7 @@ import typing
 
 from constants import *
 from imagemanager import ImageManager
+from properties import get_int, get_str
 from tilemap import MapObject, TileMap
 from random import randint
 from soundmanager import SoundManager
@@ -11,7 +12,7 @@ from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from switchstate import SwitchState
-from utils import assert_int, assert_str, try_move_to_bounds, Direction
+from utils import try_move_to_bounds, Direction
 
 
 def sign(n: int) -> int:
@@ -114,18 +115,15 @@ class MovingPlatform(PlatformBase):
 
     def __init__(self, obj: MapObject, tilemap: TileMap):
         super().__init__(obj, tilemap)
-        self.distance = assert_int(
-            obj.properties.get('distance', 0)) * SUBPIXELS
+        self.distance = get_int(obj.properties, 'distance', 0) * SUBPIXELS
         # This is 16 for historical reasons, just because that's what the speed is tuned for.
-        self.speed = (assert_int(
-            obj.properties.get('speed', 1)) * SUBPIXELS) // 16
+        self.speed = (get_int(obj.properties, 'speed', 1) * SUBPIXELS) // 16
         self.start_x = self.x
         self.start_y = self.y
         self.moving_forward = True
-        cond = obj.properties.get('condition')
-        self.condition = assert_str(cond) if cond is not None else None
-        self.overflow = assert_str(obj.properties.get('overflow', 'oscillate'))
-        d = str(obj.properties.get('direction', 'N')).upper()
+        self.condition = get_str(obj.properties, 'condition')
+        self.overflow = get_str(obj.properties, 'overflow', 'oscillate')
+        d = get_str(obj.properties, 'direction', 'N').upper()
         if d == 'N':
             self.direction = Direction.UP
             self.distance *= self.tilemap.tileheight

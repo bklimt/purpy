@@ -5,11 +5,12 @@ from enum import Enum, IntEnum
 
 from constants import *
 from imagemanager import ImageManager
+from properties import get_int, get_str
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
 from tilemap import MapObject
-from utils import assert_str, intersect
+from utils import intersect
 
 
 class DoorLayer(IntEnum):
@@ -41,8 +42,8 @@ class Door:
     frame: int = 0
 
     def __init__(self, obj: MapObject, images: ImageManager):
-        sprite_path = assert_str(obj.properties.get(
-            'sprite', 'assets/sprites/door.png'))
+        sprite_path = get_str(obj.properties, 'sprite',
+                              'assets/sprites/door.png')
 
         surface = images.load_image(sprite_path)
         self.sprite = SpriteSheet(surface, 32, 32)
@@ -50,16 +51,9 @@ class Door:
         self.y = obj.y * SUBPIXELS
         self.active = False
 
-        dest = obj.properties.get('destination', None)
-        if dest is not None and not isinstance(dest, str):
-            raise Exception('door destination must be a string')
-        self.destination = dest
-
-        stars_needed = obj.properties.get('stars_needed', 0)
-        if not isinstance(stars_needed, int):
-            raise Exception(f'stars_needed was not an int: {stars_needed}')
-        self.stars_needed = stars_needed
-        self.stars_remaining = stars_needed
+        self.destination = get_str(obj.properties, 'destination')
+        self.stars_needed = get_int(obj.properties, 'stars_needed', 0)
+        self.stars_remaining = self.stars_needed
 
         self.state = DoorState.LOCKED if self.stars_needed > 0 else DoorState.OPEN
 

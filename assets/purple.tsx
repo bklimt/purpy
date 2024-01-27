@@ -59,6 +59,9 @@
  <tile id="130">
   <properties>
    <property name="deadly" type="bool" value="true"/>
+   <property name="hitbox_left" type="int" value="2"/>
+   <property name="hitbox_right" type="int" value="2"/>
+   <property name="hitbox_top" type="int" value="2"/>
   </properties>
  </tile>
  <tile id="131">

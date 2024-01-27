@@ -1,7 +1,7 @@
 
 from enum import Enum
+
 import pygame
-import xml.etree.ElementTree
 
 
 class Direction(Enum):
@@ -130,48 +130,3 @@ def inside(rect: pygame.Rect, point: tuple[int, int]) -> bool:
     if point[1] < rect.top or point[1] > rect.bottom:
         return False
     return True
-
-
-def load_properties(
-        node: xml.etree.ElementTree.Element,
-        properties: dict[str, str | int | bool] | None = None
-) -> dict[str, str | int | bool]:
-    if properties is None:
-        properties = {}
-
-    for pnode in node:
-        if pnode.tag == 'properties' or pnode.tag == 'property':
-            load_properties(pnode, properties)
-
-    if node.tag == 'property':
-        name = node.attrib['name']
-        typ = node.attrib.get('type', 'str')
-        val = node.attrib['value']
-        if typ == "str":
-            properties[name] = val
-        elif typ == "int":
-            properties[name] = int(val)
-        elif typ == "bool":
-            properties[name] = (val == 'true')
-        else:
-            raise Exception(f'unsupported property type {typ}')
-
-    return properties
-
-
-def assert_bool(val: bool | int | str) -> bool:
-    if not isinstance(val, bool):
-        raise Exception(f'expected bool, got {val}')
-    return val
-
-
-def assert_int(val: bool | int | str) -> int:
-    if not isinstance(val, int):
-        raise Exception(f'expected int, got {val}')
-    return val
-
-
-def assert_str(val: bool | int | str) -> str:
-    if not isinstance(val, str):
-        raise Exception(f'expected str, got {val}')
-    return val

@@ -2,16 +2,17 @@
 import pygame
 
 from constants import SUBPIXELS
-from utils import assert_int, Direction
+from properties import TileProperties
+from utils import Direction
 
 
 class Slope:
     left_y: int
     right_y: int
 
-    def __init__(self, properties: dict[str, str | int | bool]):
-        self.left_y = assert_int(properties.get('left_y', 0)) * SUBPIXELS
-        self.right_y = assert_int(properties.get('right_y', 0)) * SUBPIXELS
+    def __init__(self, properties: TileProperties):
+        self.left_y = properties.left_y * SUBPIXELS
+        self.right_y = properties.right_y * SUBPIXELS
 
     def try_move_to_bounds(
             self,
