@@ -6,26 +6,26 @@ from random import randint
 
 from constants import SUBPIXELS
 from render.rendercontext import RenderContext
-from tilemap import MapObject
+from tilemap import MapObject, TileMap
 from tileset import TileSet
 from utils import intersect
 
 
 class Star:
     area: pygame.Rect
-    surface: pygame.Surface
-    source: pygame.Rect
+    tilemap: TileMap
+    tile_gid: int
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
+    def __init__(self, obj: MapObject, tilemap: TileMap):
         self.area = pygame.Rect(
             obj.x*SUBPIXELS,
             obj.y*SUBPIXELS,
             obj.width*SUBPIXELS,
             obj.height*SUBPIXELS)
-        self.surface = tileset.surface
         if not obj.gid:
             raise Exception('star must have gid')
-        self.source = tileset.get_source_rect(obj.gid - 1)
+        self.tile_gid = obj.gid
+        self.tilemap = tilemap
 
     def intersects(self, player_rect: pygame.Rect):
         return intersect(self.area, player_rect)
@@ -36,7 +36,8 @@ class Star:
         x += trunc(randint(-20, 20) / 20) * SUBPIXELS
         y += trunc(randint(-20, 20) / 20) * SUBPIXELS
         rect = pygame.Rect(x, y, self.area.w, self.area.h)
-        context.player_batch.draw(self.surface, rect, self.source)
+
+        self.tilemap.draw_tile(context.player_batch, self.tile_gid, rect)
         # These constants were hand-tuned to make the stars look nice.
         context.add_light((x + 3 * SUBPIXELS,
                            y + 5 * SUBPIXELS),

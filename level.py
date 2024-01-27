@@ -76,19 +76,19 @@ class Level:
         self.current_slopes = set()
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
-                self.platforms.append(MovingPlatform(obj, self.map.tileset))
+                self.platforms.append(MovingPlatform(obj, self.map))
             if obj.properties.get('bagel', False):
-                self.platforms.append(Bagel(obj, self.map.tileset))
+                self.platforms.append(Bagel(obj, self.map))
             if obj.properties.get('convey', '') != '':
-                self.platforms.append(Conveyor(obj, self.map.tileset))
+                self.platforms.append(Conveyor(obj, self.map))
             if obj.properties.get('spring', '') != '':
-                self.platforms.append(Spring(obj, self.map.tileset, images))
+                self.platforms.append(Spring(obj, self.map, images))
             if obj.properties.get('button', False):
-                self.platforms.append(Button(obj, self.map.tileset, images))
+                self.platforms.append(Button(obj, self.map, images))
             if obj.properties.get('door', False):
                 self.doors.append(Door(obj, images))
             if obj.properties.get('star', False):
-                self.stars.append(Star(obj, self.map.tileset))
+                self.stars.append(Star(obj, self.map))
 
     #
     # Movement.
@@ -323,7 +323,9 @@ class Level:
     def get_slope_dy(self):
         slope_fall = 0
         for slope_id in self.current_slopes:
-            slope = self.map.tileset.get_slope(slope_id)
+            slope = self.map.get_slope(slope_id)
+            if slope is None:
+                raise Exception("slope is not a slope")
             left_y = slope.left_y
             right_y = slope.right_y
             fall: int = 0
@@ -386,12 +388,13 @@ class Level:
     def handle_slopes(self, tiles: set[int]) -> None:
         self.current_slopes.clear()
         for tile_id in tiles:
-            if self.map.tileset.get_bool_property(tile_id, 'slope', False):
+            if self.map.get_slope(tile_id) is not None:
                 self.current_slopes.add(tile_id)
 
     def handle_spikes(self, tiles: set[int]):
         for tile_id in tiles:
-            if self.map.tileset.get_bool_property(tile_id, 'deadly', False):
+            props = self.map.get_tile_properties(tile_id)
+            if props.get('deadly', False):
                 self.player.is_dead = True
 
     def handle_current_platforms(self, platforms: set[Platform]):
@@ -408,7 +411,8 @@ class Level:
         previous = self.current_switch_tiles
         self.current_switch_tiles = set()
         for t in tiles:
-            switch = self.map.tileset.get_str_property(t, 'switch')
+            props = self.map.get_tile_properties(t)
+            switch = props.get('switch', None)
             if switch is None:
                 continue
             self.current_switch_tiles.add(t)

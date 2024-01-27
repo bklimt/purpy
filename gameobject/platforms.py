@@ -4,8 +4,7 @@ import typing
 
 from constants import *
 from imagemanager import ImageManager
-from tilemap import MapObject
-from tileset import TileSet
+from tilemap import MapObject, TileMap
 from random import randint
 from soundmanager import SoundManager
 from render.rendercontext import RenderContext
@@ -44,7 +43,7 @@ class Platform(typing.Protocol):
 
 class PlatformBase:
     id: int
-    tileset: TileSet
+    tilemap: TileMap
     tile_id: int
     x: int
     y: int
@@ -55,12 +54,12 @@ class PlatformBase:
     occupied: bool
     is_solid: bool
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
+    def __init__(self, obj: MapObject, tilemap: TileMap):
         if obj.gid is None:
             raise Exception('platforms must have tile ids')
 
         self.id = obj.id
-        self.tileset = tileset
+        self.tilemap = tilemap
         self.tile_id = obj.gid - 1
         self.x = obj.x * SUBPIXELS
         self.y = obj.y * SUBPIXELS
@@ -75,12 +74,11 @@ class PlatformBase:
         x = self.x + offset[0]
         y = self.y + offset[1]
         dest = pygame.Rect(x, y, self.width, self.height)
-        if self.tile_id in self.tileset.animations:
-            anim = self.tileset.animations[self.tile_id]
+        anim = self.tilemap.get_animation(self.tile_id)
+        if anim is not None:
             anim.blit(batch, dest, False)
         else:
-            area = self.tileset.get_source_rect(self.tile_id)
-            batch.draw(self.tileset.surface, dest, area)
+            self.tilemap.draw_tile(batch, self.tile_id, dest)
 
     def try_move_to(self, player_rect: pygame.Rect, direction: Direction, is_backwards: bool) -> int:
         if self.is_solid:
@@ -114,8 +112,8 @@ class MovingPlatform(PlatformBase):
     condition: str | None
     overflow: str
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tilemap: TileMap):
+        super().__init__(obj, tilemap)
         self.distance = assert_int(
             obj.properties.get('distance', 0)) * SUBPIXELS
         # This is 16 for historical reasons, just because that's what the speed is tuned for.
@@ -130,22 +128,22 @@ class MovingPlatform(PlatformBase):
         d = str(obj.properties.get('direction', 'N')).upper()
         if d == 'N':
             self.direction = Direction.UP
-            self.distance *= self.tileset.tileheight
+            self.distance *= self.tilemap.tileheight
             self.end_x = self.start_x
             self.end_y = self.start_y - self.distance
         elif d == 'S':
             self.direction = Direction.DOWN
-            self.distance *= self.tileset.tileheight
+            self.distance *= self.tilemap.tileheight
             self.end_x = self.start_x
             self.end_y = self.start_y + self.distance
         elif d == 'E':
             self.direction = Direction.RIGHT
-            self.distance *= self.tileset.tilewidth
+            self.distance *= self.tilemap.tilewidth
             self.end_x = self.start_x + self.distance
             self.end_y = self.start_y
         elif d == 'W':
             self.direction = Direction.LEFT
-            self.distance *= self.tileset.tilewidth
+            self.distance *= self.tilemap.tilewidth
             self.end_x = self.start_x - self.distance
             self.end_y = self.start_y
         else:
@@ -229,23 +227,23 @@ class Bagel(PlatformBase):
     falling: bool = False
     remaining: int = BAGEL_WAIT_TIME
 
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tilemap: TileMap):
+        super().__init__(obj, tilemap)
         self.original_y = self.y
 
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
         y = self.y + offset[1]
-        area = self.tileset.get_source_rect(self.tile_id)
         if self.occupied:
             x += randint(-1, 1)
             y += randint(-1, 1)
-        rect = pygame.Rect(x, y, area.w * SUBPIXELS, area.h * SUBPIXELS)
+        rect = pygame.Rect(x, y, self.tilemap.tilewidth *
+                           SUBPIXELS, self.tilemap.height * SUBPIXELS)
         if rect.bottom < 0 or rect.right < 0:
             return
         if rect.top >= context.logical_area.h or rect.right >= context.logical_area.w:
             return
-        batch.draw(self.tileset.surface, rect, area)
+        self.tilemap.draw_tile(batch, self.tile_id, rect)
 
     def update(self, switches: SwitchState, sounds: SoundManager):
         if self.falling:
@@ -271,8 +269,8 @@ class Bagel(PlatformBase):
 
 
 class Conveyor(PlatformBase):
-    def __init__(self, obj: MapObject, tileset: TileSet):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tilemap: TileMap):
+        super().__init__(obj, tilemap)
         # This is hand-tuned.
         speed = int(obj.properties.get('speed', 24)) * SUBPIXELS//16
         if obj.properties.get('convey', 'E') == 'E':
@@ -290,8 +288,8 @@ class Spring(PlatformBase):
     position: int = 0
     stall_counter = SPRING_STALL_FRAMES
 
-    def __init__(self, obj: MapObject, tileset: TileSet, images: ImageManager):
-        super().__init__(obj, tileset)
+    def __init__(self, obj: MapObject, tilemap: TileMap, images: ImageManager):
+        super().__init__(obj, tilemap)
         surface = images.load_image('assets/sprites/spring.png')
         self.sprite = SpriteSheet(surface, 8, 8)
 

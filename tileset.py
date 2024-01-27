@@ -28,6 +28,7 @@ class ImageLoader(typing.Protocol):
 
 class TileSet:
     name: str
+    firstgid: int
     tilewidth: int
     tileheight: int
     tilecount: int
@@ -39,8 +40,9 @@ class TileSet:
     properties: dict[str, str | bool | int]
     tile_properties: dict[int, dict[str, str | bool | int]]
 
-    def __init__(self, root: xml.etree.ElementTree.Element, path: str, images: ImageLoader):
+    def __init__(self, root: xml.etree.ElementTree.Element, path: str, firstgid: int, images: ImageLoader):
         self.name = root.attrib['name']
+        self.firstgid = firstgid
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
         self.tilecount = int(root.attrib['tilecount'])
@@ -88,6 +90,17 @@ class TileSet:
                 self.animations[tile_id] = animation
             else:
                 print(f'skipping file {filename}')
+
+    def get_local_index(self, tile_gid: int) -> int | None:
+        if tile_gid < self.firstgid:
+            return None
+        return tile_gid - self.firstgid
+
+    def get_global_index(self, tile_id: int) -> int:
+        return tile_id + self.firstgid
+
+    def gid_sort_key(self) -> int:
+        return -self.firstgid
 
     def is_slope(self, tile_id: int) -> bool:
         return tile_id in self.slopes
@@ -138,9 +151,9 @@ class TileSet:
         return val
 
 
-def load_tileset(path: str, images: ImageLoader) -> TileSet:
+def load_tileset(path: str, firstgid: int, images: ImageLoader) -> TileSet:
     print('loading tileset from ' + path)
     root = xml.etree.ElementTree.parse(path).getroot()
     if not isinstance(root, xml.etree.ElementTree.Element):
         raise Exception('root was not an element')
-    return TileSet(root, path, images)
+    return TileSet(root, path, firstgid, images)
