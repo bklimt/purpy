@@ -60,7 +60,7 @@ class PlatformBase:
 
         self.id = obj.id
         self.tilemap = tilemap
-        self.tile_id = obj.gid - 1
+        self.tile_id = obj.gid
         self.x = obj.x * SUBPIXELS
         self.y = obj.y * SUBPIXELS
         self.width = obj.width * SUBPIXELS
