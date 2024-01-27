@@ -388,7 +388,7 @@ class Level:
     def handle_slopes(self, tiles: set[int]) -> None:
         self.current_slopes.clear()
         for tile_id in tiles:
-            if self.map.get_slope(tile_id) is not None:
+            if self.map.is_slope(tile_id):
                 self.current_slopes.add(tile_id)
 
     def handle_spikes(self, tiles: set[int]):

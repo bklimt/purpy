@@ -361,8 +361,14 @@ class TileMap:
         tileset, tile_id = self.tilesets.lookup(tile_gid)
         return tileset.tile_properties.get(tile_id, {})
 
+    def is_slope(self, tile_gid: int) -> bool:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        return tileset.is_slope(tile_id)
+
     def get_slope(self, tile_gid: int) -> Slope | None:
         tileset, tile_id = self.tilesets.lookup(tile_gid)
+        if not tileset.is_slope(tile_id):
+            return None
         return tileset.get_slope(tile_id)
 
     def update_animations(self):
