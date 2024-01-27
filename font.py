@@ -12,7 +12,8 @@ class Font:
     char_height: int
 
     def __init__(self, path: str, images: ImageLoader):
-        self.tileset = load_tileset(path, images)
+        # The firstgid doesn't matter, since there's no map.
+        self.tileset = load_tileset(path, 0, images)
         self.char_width = 8 * SUBPIXELS
         self.char_height = 8 * SUBPIXELS
 

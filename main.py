@@ -1,4 +1,5 @@
 
+import datetime
 import pygame
 import sys
 
@@ -29,6 +30,7 @@ class Game:
     sounds: SoundManager
 
     scene: Scene | None
+    frame: int
 
     def __init__(self):
         pygame.init()
@@ -47,8 +49,9 @@ class Game:
 
         print('loading game content')
         self.images = ImageManager()
-        self.inputs = InputManager()
+        self.inputs = InputManager(PLAYBACK_PATH)
         self.sounds = SoundManager()
+        self.frame = 0
 
         if len(sys.argv) > 1:
             self.scene = Level(None, sys.argv[1], self.images)
@@ -72,11 +75,12 @@ class Game:
             return False
 
         # Update the actual game logic.
-        self.scene = self.scene.update(self.inputs, self.sounds)
+        snapshot = self.inputs.update(self.frame)
+        self.scene = self.scene.update(snapshot, self.sounds)
+        self.frame += 1
+
         if self.scene is None:
             return False
-
-        self.inputs.update()
 
         # Draw the scene.
         self.render_context.clear()
@@ -86,6 +90,7 @@ class Game:
         return True
 
     def main(self):
+        start_time = datetime.datetime.now()
         game_running = True
         while game_running:
             for event in pygame.event.get():
@@ -102,7 +107,15 @@ class Game:
             if not self.update():
                 game_running = False
 
-            self.clock.tick(FRAME_RATE)
+            if SPEED_TEST:
+                self.clock.tick(0)
+            else:
+                self.clock.tick(FRAME_RATE)
+        end_time = datetime.datetime.now()
+        duration = end_time - start_time
+        fps = self.frame / duration.total_seconds()
+        if SPEED_TEST:
+            print(f"{fps} fps, {self.frame} frames in {duration.total_seconds()}s")
         pygame.quit()
 
 

@@ -7,7 +7,7 @@ import xml.etree.ElementTree
 
 from slope import Slope
 from spritesheet import Animation
-from utils import assert_bool, load_properties
+from properties import load_properties, TileProperties
 
 
 class TileSetImage:
@@ -28,6 +28,7 @@ class ImageLoader(typing.Protocol):
 
 class TileSet:
     name: str
+    firstgid: int
     tilewidth: int
     tileheight: int
     tilecount: int
@@ -37,10 +38,12 @@ class TileSet:
     animations: dict[int, Animation]
     slopes: dict[int, Slope]
     properties: dict[str, str | bool | int]
-    tile_properties: dict[int, dict[str, str | bool | int]]
+    default_tile_properties: TileProperties
+    tile_properties: dict[int, TileProperties]
 
-    def __init__(self, root: xml.etree.ElementTree.Element, path: str, images: ImageLoader):
+    def __init__(self, root: xml.etree.ElementTree.Element, path: str, firstgid: int, images: ImageLoader):
         self.name = root.attrib['name']
+        self.firstgid = firstgid
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
         self.tilecount = int(root.attrib['tilecount'])
@@ -55,11 +58,13 @@ class TileSet:
         self.properties = load_properties(root)
 
         self.slopes = {}
+        self.default_tile_properties = TileProperties({})
         self.tile_properties = {}
         for tile in [tile for tile in root if tile.tag == 'tile']:
             tile_id = int(tile.attrib['id'])
-            self.tile_properties[tile_id] = load_properties(tile)
-            if assert_bool(self.tile_properties[tile_id].get('slope', False)):
+            self.tile_properties[tile_id] = TileProperties(
+                load_properties(tile))
+            if self.tile_properties[tile_id].slope:
                 self.slopes[tile_id] = Slope(self.tile_properties[tile_id])
 
         print(f'tileset properties: {self.properties}')
@@ -89,11 +94,25 @@ class TileSet:
             else:
                 print(f'skipping file {filename}')
 
+    def get_local_index(self, tile_gid: int) -> int | None:
+        if tile_gid < self.firstgid:
+            return None
+        return tile_gid - self.firstgid
+
+    def get_global_index(self, tile_id: int) -> int:
+        return tile_id + self.firstgid
+
+    def gid_sort_key(self) -> int:
+        return -self.firstgid
+
     def is_slope(self, tile_id: int) -> bool:
         return tile_id in self.slopes
 
     def get_slope(self, tile_id: int) -> Slope:
         return self.slopes[tile_id]
+
+    def get_tile_properties(self, tile_id: int) -> TileProperties:
+        return self.tile_properties.get(tile_id, self.default_tile_properties)
 
     def update_animations(self):
         for tile_id in self.animations.keys():
@@ -112,35 +131,10 @@ class TileSet:
         y = row * self.tileheight
         return pygame.Rect(x, y, self.tilewidth, self.tileheight)
 
-    def get_str_property(self, tile: int, key: str) -> str | None:
-        props = self.tile_properties.get(tile, {})
-        val = props.get(key, None)
-        if val is None:
-            return None
-        if not isinstance(val, str):
-            raise Exception(f'expected str for {key} but got {val}')
-        return val
 
-    def get_int_property(self, tile: int, key: str) -> int | None:
-        props = self.tile_properties.get(tile, {})
-        val = props.get(key, None)
-        if val is None:
-            return None
-        if not isinstance(val, int):
-            raise Exception(f'expected int for {key} but got {val}')
-        return val
-
-    def get_bool_property(self, tile: int, key: str, default: bool = False) -> bool:
-        props = self.tile_properties.get(tile, {})
-        val = props.get(key, default)
-        if not isinstance(val, bool):
-            raise Exception(f'expected bool for {key} but got {val}')
-        return val
-
-
-def load_tileset(path: str, images: ImageLoader) -> TileSet:
+def load_tileset(path: str, firstgid: int, images: ImageLoader) -> TileSet:
     print('loading tileset from ' + path)
     root = xml.etree.ElementTree.parse(path).getroot()
     if not isinstance(root, xml.etree.ElementTree.Element):
         raise Exception('root was not an element')
-    return TileSet(root, path, images)
+    return TileSet(root, path, firstgid, images)

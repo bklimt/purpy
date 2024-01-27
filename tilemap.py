@@ -6,11 +6,14 @@ import xml.etree.ElementTree
 
 from constants import SUBPIXELS
 from imagemanager import ImageManager
+from properties import get_bool, load_properties, TileProperties
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
+from slope import Slope
+from spritesheet import Animation
 from switchstate import SwitchState
 from tileset import TileSet, load_tileset
-from utils import assert_bool, cmp_in_direction, intersect, load_properties, try_move_to_bounds, Direction
+from utils import cmp_in_direction, intersect, try_move_to_bounds, Direction
 
 
 class ImageLayer:
@@ -74,7 +77,7 @@ class MapObject:
     height: int
     properties: dict[str, str | int | bool]
 
-    def __init__(self, node: xml.etree.ElementTree.Element, tileset: TileSet):
+    def __init__(self, node: xml.etree.ElementTree.Element, tilemap: 'TileMap'):
         self.id = int(node.attrib['id'])
         self.x = int(node.attrib['x'])
         self.y = int(node.attrib['y'])
@@ -84,21 +87,9 @@ class MapObject:
         self.gid = int(gid_str) if gid_str is not None else None
         self.properties = {}
         if self.gid is not None:
-            for k, v in tileset.tile_properties.get(self.gid - 1, {}).items():
+            for k, v in tilemap.get_tile_properties(self.gid).raw.items():
                 self.properties[k] = v
-        for props in [child for child in node if child.tag == 'properties']:
-            for prop in [child for child in props if child.tag == 'property']:
-                name = prop.attrib['name']
-                typ = prop.get('type', 'string')
-                val = prop.attrib['value']
-                if typ == 'string':
-                    self.properties[name] = val
-                elif typ == 'int':
-                    self.properties[name] = int(val)
-                elif typ == 'bool':
-                    self.properties[name] = (val == 'true')
-                else:
-                    raise Exception(f'invalid type {typ}')
+        self.properties = load_properties(node, self.properties)
         # For some reason, the position is the bottom left sometimes?
         if self.gid is not None:
             self.y -= self.height
@@ -110,14 +101,31 @@ class MapObject:
         return f'MapObject(id={self.id}, gid={self.gid}, x={self.x}, y={self.y}, w={self.width}, h={self.height}, properties={self.properties}'
 
 
+class TileSetList:
+    tilesets: list[TileSet]
+
+    def __init__(self):
+        self.tilesets = []
+
+    def add(self, tileset: TileSet):
+        self.tilesets.append(tileset)
+        self.tilesets.sort(key=lambda ts: ts.gid_sort_key())
+
+    def lookup(self, tile_gid) -> tuple[TileSet, int]:
+        for tileset in self.tilesets:
+            tile_id = tileset.get_local_index(tile_gid)
+            if tile_id is not None:
+                return (tileset, tile_id)
+        raise Exception(f"invalid tile_id {tile_gid}")
+
+
 class TileMap:
     width: int
     height: int
     tilewidth: int
     tileheight: int
     backgroundcolor: str
-    tilesetsource: str
-    tileset: TileSet
+    tilesets: TileSetList
     layers: list[ImageLayer | TileLayer]
     player_layer: int | None
     objects: list[MapObject]
@@ -129,10 +137,17 @@ class TileMap:
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
         self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
-        self.tilesetsource = [
-            ts for ts in root if ts.tag == 'tileset'][0].attrib['source']
-        tileset_path = os.path.join(os.path.dirname(path), self.tilesetsource)
-        self.tileset = load_tileset(tileset_path, images)
+
+        self.tilesets = TileSetList()
+        for ts in root:
+            if ts.tag != 'tileset':
+                continue
+            source = ts.attrib['source']
+            firstgid = ts.attrib['firstgid']
+            tileset_path = os.path.join(os.path.dirname(path), source)
+            firstgid = int(firstgid)
+            tileset = load_tileset(tileset_path, firstgid, images)
+            self.tilesets.add(tileset)
 
         self.properties = load_properties(root)
         print(f'map properties: {self.properties}')
@@ -157,16 +172,16 @@ class TileMap:
         self.objects = []
         for object_group in [node for node in root if node.tag == 'objectgroup']:
             for obj in [obj for obj in object_group if obj.tag == 'object']:
-                self.objects.append(MapObject(obj, self.tileset))
+                self.objects.append(MapObject(obj, self))
         for obj in self.objects:
             print(f'loaded object {obj}')
 
     @property
     def is_dark(self) -> bool:
-        return assert_bool(self.properties.get('dark', False))
+        return get_bool(self.properties, 'dark', False)
 
-    def is_condition_met(self, tile: int, switches: SwitchState):
-        condition = self.tileset.get_str_property(tile, 'condition')
+    def is_condition_met(self, tileset: TileSet, tile_id: int, switches: SwitchState):
+        condition = tileset.get_tile_properties(tile_id).condition
         if condition is None:
             return True
         return switches.is_condition_true(condition)
@@ -238,18 +253,19 @@ class TileMap:
         for row in range(start_row, end_row):
             for col in range(start_col, end_col):
                 # Compute what to draw where.
-                index = layer.data[row][col]
-                if index == 0:
+                tile_gid = layer.data[row][col]
+                if tile_gid == 0:
                     continue
-                index -= 1
 
-                if not self.is_condition_met(index, switches):
-                    alt = self.tileset.get_int_property(index, 'alternate')
+                tileset, tile_id = self.tilesets.lookup(tile_gid)
+
+                if not self.is_condition_met(tileset, tile_id, switches):
+                    alt = tileset.get_tile_properties(tile_id).alternate
                     if alt is None:
                         continue
-                    index = alt
+                    tile_id = alt
 
-                source = self.tileset.get_source_rect(index)
+                source = tileset.get_source_rect(tile_id)
                 pos_x = col * tilewidth + dest.left + offset_x
                 pos_y = row * tileheight + dest.top + offset_y
 
@@ -286,11 +302,11 @@ class TileMap:
                     pos_y,
                     tilewidth,
                     tileheight)
-                if index in self.tileset.animations:
-                    self.tileset.animations[index].blit(
+                if tile_id in tileset.animations:
+                    tileset.animations[tile_id].blit(
                         batch, destination, reverse=False)
                 else:
-                    batch.draw(self.tileset.surface, destination, source)
+                    batch.draw(tileset.surface, destination, source)
 
     def get_rect(self, row: int, col: int) -> pygame.Rect:
         return pygame.Rect(
@@ -299,8 +315,8 @@ class TileMap:
             self.tilewidth,
             self.tileheight)
 
-    def is_solid_in_direction(self, tile_id: int, direction: Direction, is_backwards: bool) -> bool:
-        oneway = self.tileset.get_str_property(tile_id, 'oneway')
+    def is_solid_in_direction(self, tileset: TileSet, tile_id: int, direction: Direction, is_backwards: bool) -> bool:
+        oneway = tileset.get_tile_properties(tile_id).oneway
         if oneway is None:
             return True
         if is_backwards:
@@ -315,6 +331,38 @@ class TileMap:
             case Direction.LEFT:
                 return oneway == 'E'
         raise Exception('unexpection direction')
+
+    def draw_tile(
+        self,
+        batch: SpriteBatch,
+        tile_gid: int,
+        dest: pygame.Rect,
+    ):
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        src = tileset.get_source_rect(tile_id)
+        batch.draw(tileset.surface, dest, src)
+
+    def get_animation(self, tile_gid: int) -> Animation | None:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        return tileset.animations.get(tile_id)
+
+    def get_tile_properties(self, tile_gid: int) -> TileProperties:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        return tileset.get_tile_properties(tile_id)
+
+    def is_slope(self, tile_gid: int) -> bool:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        return tileset.is_slope(tile_id)
+
+    def get_slope(self, tile_gid: int) -> Slope | None:
+        tileset, tile_id = self.tilesets.lookup(tile_gid)
+        if not tileset.is_slope(tile_id):
+            return None
+        return tileset.get_slope(tile_id)
+
+    def update_animations(self):
+        for tileset in self.tilesets.tilesets:
+            tileset.update_animations()
 
     class MoveResult:
         # We keep track of two different offsets so that you can be "on" a
@@ -394,37 +442,48 @@ class TileMap:
                     if not isinstance(layer, TileLayer):
                         continue
                     if layer.player or self.player_layer is None:
-                        index = layer.data[row][col]
-                        if index == 0:
+                        tile_gid = layer.data[row][col]
+                        if tile_gid == 0:
                             continue
-                        index -= 1
-                        if not self.is_condition_met(index, switches):
-                            alt = self.tileset.get_int_property(
-                                index, 'alternate')
+
+                        tileset, tile_id = self.tilesets.lookup(tile_gid)
+
+                        if not self.is_condition_met(tileset, tile_id, switches):
+                            alt = tileset.get_tile_properties(
+                                tile_id).alternate
                             if alt is None:
                                 continue
                             # Use an alt tile instead of the original.
-                            index = alt
-                        if not self.tileset.get_bool_property(index, 'solid', True):
+                            tile_id = alt
+                            tile_gid = tileset.get_global_index(tile_id)
+                        if not tileset.get_tile_properties(tile_id).solid:
                             continue
-                        if not self.is_solid_in_direction(index, direction, is_backwards):
+                        if not self.is_solid_in_direction(tileset, tile_id, direction, is_backwards):
                             continue
+
+                        props = tileset.get_tile_properties(tile_id)
+                        adjusted_tile_bounds = pygame.Rect(
+                            tile_bounds.x + props.hitbox_left * SUBPIXELS,
+                            tile_bounds.y + props.hitbox_top * SUBPIXELS,
+                            tile_bounds.w +
+                            (props.hitbox_left+props.hitbox_right) * SUBPIXELS,
+                            tile_bounds.h + (props.hitbox_top+props.hitbox_bottom) * SUBPIXELS)
 
                         soft_offset = try_move_to_bounds(
                             player_rect,
-                            tile_bounds,
+                            adjusted_tile_bounds,
                             direction)
                         hard_offset = soft_offset
 
-                        if self.tileset.is_slope(index):
-                            slope = self.tileset.get_slope(index)
+                        if tileset.is_slope(tile_id):
+                            slope = tileset.get_slope(tile_id)
                             hard_offset = slope.try_move_to_bounds(
                                 player_rect,
-                                tile_bounds,
+                                adjusted_tile_bounds,
                                 direction)
 
                         result.consider_tile(
-                            index, hard_offset, soft_offset, direction)
+                            tile_gid, hard_offset, soft_offset, direction)
         return result
 
     def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:
@@ -447,9 +506,6 @@ class TileMap:
             if isinstance(p_y, int):
                 preferred_y = p_y * SUBPIXELS
         return (preferred_x, preferred_y)
-
-    def update_animations(self):
-        self.tileset.update_animations()
 
 
 def load_map(path: str, images: ImageManager):

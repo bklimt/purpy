@@ -113,11 +113,13 @@ class Player:
             batch.draw_rect(up, pygame.Color(255, 127, 0, 63))
             batch.draw_rect(down, pygame.Color(0, 255, 127, 63))
 
-    def get_raw_target_bounds(self, direction: Direction) -> pygame.Rect:
+    def get_raw_target_bounds(self, direction: Direction | None) -> pygame.Rect:
         if self.state == PlayerState.CROUCHING:
+            if direction == Direction.DOWN:
+                return pygame.Rect(8, 19, 8, 4)
             return pygame.Rect(8, 14, 8, 9)
         match direction:
-            case Direction.NONE:
+            case None:
                 return pygame.Rect(8, 4, 8, 19)
             case Direction.UP:
                 return pygame.Rect(8, 4, 8, 4)
@@ -128,7 +130,7 @@ class Player:
             case Direction.LEFT:
                 return pygame.Rect(8, 4, 4, 14)
 
-    def get_target_bounds_rect(self, direction: Direction) -> pygame.Rect:
+    def get_target_bounds_rect(self, direction: Direction | None) -> pygame.Rect:
         """ Returns the bounds rect in pixels to check when moving in direction. """
         unscaled = self.get_raw_target_bounds(direction)
         return pygame.Rect(

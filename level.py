@@ -7,7 +7,7 @@ from constants import *
 from gameobject.button import Button
 from gameobject.door import Door
 from imagemanager import ImageManager
-from inputmanager import InputManager
+from inputmanager import InputSnapshot
 from kill import KillScreen
 from player import Player2, PlayerState
 from gameobject.platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
@@ -63,37 +63,38 @@ class Level:
         self.previous_map_offset = None
         self.map = load_map(map_path, images)
         self.player = Player2(images)
-        self.player.x = 128
-        self.player.y = 128
+        self.player.x = (128 * SUBPIXELS) // 16
+        self.player.y = (128 * SUBPIXELS) // 16
         self.transition: str = ''
         self.platforms = []
         self.stars = []
         self.doors = []
+        self.current_door = None
         self.switches = SwitchState()
         self.current_switch_tiles = set()
         self.star_count = 0
         self.current_slopes = set()
         for obj in self.map.objects:
             if obj.properties.get('platform', False):
-                self.platforms.append(MovingPlatform(obj, self.map.tileset))
+                self.platforms.append(MovingPlatform(obj, self.map))
             if obj.properties.get('bagel', False):
-                self.platforms.append(Bagel(obj, self.map.tileset))
+                self.platforms.append(Bagel(obj, self.map))
             if obj.properties.get('convey', '') != '':
-                self.platforms.append(Conveyor(obj, self.map.tileset))
+                self.platforms.append(Conveyor(obj, self.map))
             if obj.properties.get('spring', '') != '':
-                self.platforms.append(Spring(obj, self.map.tileset, images))
+                self.platforms.append(Spring(obj, self.map, images))
             if obj.properties.get('button', False):
-                self.platforms.append(Button(obj, self.map.tileset, images))
+                self.platforms.append(Button(obj, self.map, images))
             if obj.properties.get('door', False):
                 self.doors.append(Door(obj, images))
             if obj.properties.get('star', False):
-                self.stars.append(Star(obj, self.map.tileset))
+                self.stars.append(Star(obj, self.map))
 
     #
     # Movement.
     #
 
-    def update_player_trajectory_x(self, inputs: InputManager):
+    def update_player_trajectory_x(self, inputs: InputSnapshot):
         if self.player.state == PlayerState.CROUCHING:
             if self.player.dx > 0:
                 self.player.dx = max(0, self.player.dx -
@@ -105,9 +106,9 @@ class Level:
 
         # Apply controller input.
         target_dx = 0
-        if inputs.is_left_down() and not inputs.is_right_down():
+        if inputs.player_left and not inputs.player_right:
             target_dx = -1 * TARGET_WALK_SPEED
-        elif inputs.is_right_down() and not inputs.is_left_down():
+        elif inputs.player_right and not inputs.player_left:
             target_dx = TARGET_WALK_SPEED
 
         # Change the velocity toward the target velocity.
@@ -136,7 +137,7 @@ class Level:
                 self.player.dx -= WALK_SPEED_ACCELERATION
                 self.player.dx = max(target_dx, self.player.dx)
 
-    def update_player_trajectory_y(self, inputs: InputManager):
+    def update_player_trajectory_y(self, inputs: InputSnapshot):
         if (self.player.state == PlayerState.STANDING or
                 self.player.state == PlayerState.CROUCHING):
             # Fall at least one pixel so that we hit the ground again.
@@ -280,7 +281,7 @@ class Level:
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
 
-    def move_player_x(self, inputs: InputManager) -> MovePlayerXResult:
+    def move_player_x(self, inputs: InputSnapshot) -> MovePlayerXResult:
         result = Level.MovePlayerXResult()
 
         dx = self.player.dx
@@ -296,11 +297,11 @@ class Level:
         if dx < 0 or (dx == 0 and not self.player.facing_right):
             # Moving left.
             move_result = self.move_and_check(Direction.LEFT, inc_x)
-            pushing = inputs.is_left_down()
+            pushing = inputs.player_left
         else:
             # Moving right.
             move_result = self.move_and_check(Direction.RIGHT, inc_x)
-            pushing = inputs.is_right_down()
+            pushing = inputs.player_right
 
         result.pushing_against_wall = pushing and move_result.against_wall
         result.crushed_by_platform = move_result.crushed_by_platform
@@ -322,7 +323,9 @@ class Level:
     def get_slope_dy(self):
         slope_fall = 0
         for slope_id in self.current_slopes:
-            slope = self.map.tileset.get_slope(slope_id)
+            slope = self.map.get_slope(slope_id)
+            if slope is None:
+                raise Exception("slope is not a slope")
             left_y = slope.left_y
             right_y = slope.right_y
             fall: int = 0
@@ -385,12 +388,13 @@ class Level:
     def handle_slopes(self, tiles: set[int]) -> None:
         self.current_slopes.clear()
         for tile_id in tiles:
-            if self.map.tileset.get_bool_property(tile_id, 'slope', False):
+            if self.map.is_slope(tile_id):
                 self.current_slopes.add(tile_id)
 
     def handle_spikes(self, tiles: set[int]):
         for tile_id in tiles:
-            if self.map.tileset.get_bool_property(tile_id, 'deadly', False):
+            props = self.map.get_tile_properties(tile_id)
+            if props.deadly:
                 self.player.is_dead = True
 
     def handle_current_platforms(self, platforms: set[Platform]):
@@ -407,7 +411,8 @@ class Level:
         previous = self.current_switch_tiles
         self.current_switch_tiles = set()
         for t in tiles:
-            switch = self.map.tileset.get_str_property(t, 'switch')
+            props = self.map.get_tile_properties(t)
+            switch = props.switch
             if switch is None:
                 continue
             self.current_switch_tiles.add(t)
@@ -425,7 +430,7 @@ class Level:
         stuck_in_wall: bool = False
         crushed_by_platform: bool = False
 
-    def update_player_movement(self, inputs: InputManager, sounds: SoundManager) -> PlayerMovementResult:
+    def update_player_movement(self, inputs: InputSnapshot, sounds: SoundManager) -> PlayerMovementResult:
         self.update_player_trajectory_x(inputs)
         self.update_player_trajectory_y(inputs)
 
@@ -435,9 +440,9 @@ class Level:
 
         result.on_ground = y_result.on_ground
         result.pushing_against_wall = x_result.pushing_against_wall
-        result.jump_down = inputs.is_jump_down()
-        result.jump_triggered = inputs.is_jump_triggered()
-        result.crouch_down = inputs.is_crouch_down()
+        result.jump_down = inputs.player_jump_down
+        result.jump_triggered = inputs.player_jump_trigger
+        result.crouch_down = inputs.player_crouch
         result.stuck_in_wall = x_result.stuck_in_wall or y_result.stuck_in_wall
         result.crushed_by_platform = x_result.crushed_by_platform or y_result.crushed_by_platform
 
@@ -541,11 +546,11 @@ class Level:
             elif not movement.crouch_down:
                 self.player.state = PlayerState.STANDING
 
-    def update(self, inputs: InputManager, sounds: SoundManager) -> Scene | None:
-        if inputs.is_cancel_triggered():
+    def update(self, inputs: InputSnapshot, sounds: SoundManager) -> Scene | None:
+        if inputs.cancel:
             return self.parent
-        if inputs.is_restart_down():
-            return self.restart_func()
+        # if inputs.is_restart_down():
+        #    return self.restart_func()
 
         self.map.update_animations()
 
@@ -560,7 +565,7 @@ class Level:
         self.update_player_state(movement)
 
         # Make sure you aren't stuck in a wall.
-        player_rect = self.player.get_target_bounds_rect(Direction.NONE)
+        player_rect = self.player.get_target_bounds_rect(None)
         in_wall = movement.stuck_in_wall
         crushed = movement.crushed_by_platform
 
@@ -627,7 +632,7 @@ class Level:
         dest = context.logical_area
 
         # Make sure the player is on the screen, and then center them if possible.
-        player_rect = self.player.get_target_bounds_rect(Direction.NONE)
+        player_rect = self.player.get_target_bounds_rect(None)
         preferred_x, preferred_y = self.map.get_preferred_view(player_rect)
         player_x = self.player.x
         player_y = self.player.y

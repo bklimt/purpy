@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<tileset version="1.10" tiledversion="1.10.2" name="pastel" tilewidth="8" tileheight="8" tilecount="256" columns="16">
+<tileset version="1.8" tiledversion="1.8.0" name="pastel" tilewidth="8" tileheight="8" tilecount="256" columns="16">
  <image source="pastel.png" width="128" height="128"/>
  <tile id="4">
   <properties>
@@ -140,6 +140,9 @@
  <tile id="129">
   <properties>
    <property name="deadly" type="bool" value="true"/>
+   <property name="hitbox_left" type="int" value="2"/>
+   <property name="hitbox_right" type="int" value="2"/>
+   <property name="hitbox_top" type="int" value="2"/>
   </properties>
  </tile>
  <tile id="168">
