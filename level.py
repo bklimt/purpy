@@ -81,7 +81,7 @@ class Level:
                 self.platforms.append(Bagel(obj, self.map))
             if obj.properties.convey is not None:
                 self.platforms.append(Conveyor(obj, self.map))
-            if obj.properties.spring is not None:
+            if obj.properties.spring:
                 self.platforms.append(Spring(obj, self.map, images))
             if obj.properties.button:
                 self.platforms.append(Button(obj, self.map, images))
