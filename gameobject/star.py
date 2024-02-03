@@ -7,7 +7,6 @@ from random import randint
 from constants import SUBPIXELS
 from render.rendercontext import RenderContext
 from tilemap import MapObject, TileMap
-from tileset import TileSet
 from utils import intersect
 
 

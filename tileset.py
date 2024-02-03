@@ -7,7 +7,7 @@ import xml.etree.ElementTree
 
 from slope import Slope
 from spritesheet import Animation
-from properties import load_properties, TileProperties
+from properties import load_properties, TileProperties, TileSetProperties
 
 
 class TileSetImage:
@@ -37,7 +37,7 @@ class TileSet:
     surface: pygame.Surface
     animations: dict[int, Animation]
     slopes: dict[int, Slope]
-    properties: dict[str, str | bool | int]
+    properties: TileSetProperties
     default_tile_properties: TileProperties
     tile_properties: dict[int, TileProperties]
 
@@ -55,7 +55,7 @@ class TileSet:
         print('loading tileset texture from ' + img_path)
         self.surface = images.load_image(img_path)
 
-        self.properties = load_properties(root)
+        self.properties = TileSetProperties(load_properties(root))
 
         self.slopes = {}
         self.default_tile_properties = TileProperties({})
@@ -71,10 +71,8 @@ class TileSet:
         print(f'tile properties: {self.tile_properties}')
 
         self.animations = {}
-        tile_animations_path = self.properties.get('animations', None)
+        tile_animations_path = self.properties.animations
         if tile_animations_path is not None:
-            if not isinstance(tile_animations_path, str):
-                raise Exception('animations property must be a string')
             tile_animations_path = os.path.join(
                 os.path.dirname(path), tile_animations_path)
             self.load_tile_animations(tile_animations_path, images)

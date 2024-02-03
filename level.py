@@ -17,7 +17,7 @@ from soundmanager import Sound, SoundManager
 from gameobject.star import Star
 from switchstate import SwitchState
 from tilemap import TileMap, load_map
-from utils import Direction, cmp_in_direction, opposite_direction
+from utils import Direction, cmp_in_direction
 
 
 class Level:
@@ -75,19 +75,19 @@ class Level:
         self.star_count = 0
         self.current_slopes = set()
         for obj in self.map.objects:
-            if obj.properties.get('platform', False):
+            if obj.properties.platform:
                 self.platforms.append(MovingPlatform(obj, self.map))
-            if obj.properties.get('bagel', False):
+            if obj.properties.bagel:
                 self.platforms.append(Bagel(obj, self.map))
-            if obj.properties.get('convey', '') != '':
+            if obj.properties.convey is not None:
                 self.platforms.append(Conveyor(obj, self.map))
-            if obj.properties.get('spring', '') != '':
+            if obj.properties.spring is not None:
                 self.platforms.append(Spring(obj, self.map, images))
-            if obj.properties.get('button', False):
+            if obj.properties.button:
                 self.platforms.append(Button(obj, self.map, images))
-            if obj.properties.get('door', False):
+            if obj.properties.door:
                 self.doors.append(Door(obj, images))
-            if obj.properties.get('star', False):
+            if obj.properties.star:
                 self.stars.append(Star(obj, self.map))
 
     #
@@ -237,7 +237,7 @@ class Level:
 
         # Try the opposite direction.
         move_result2 = self.try_move_player(
-            opposite_direction(forward), is_backwards=True)
+            forward.opposite(), is_backwards=True)
         offset = move_result2.offset
         apply_offset(offset)
 

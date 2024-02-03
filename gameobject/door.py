@@ -5,7 +5,6 @@ from enum import Enum, IntEnum
 
 from constants import *
 from imagemanager import ImageManager
-from properties import get_int, get_str
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from spritesheet import SpriteSheet
@@ -42,8 +41,7 @@ class Door:
     frame: int = 0
 
     def __init__(self, obj: MapObject, images: ImageManager):
-        sprite_path = get_str(obj.properties, 'sprite',
-                              'assets/sprites/door.png')
+        sprite_path = obj.properties.sprite or 'assets/sprites/door.png'
 
         surface = images.load_image(sprite_path)
         self.sprite = SpriteSheet(surface, 32, 32)
@@ -51,8 +49,8 @@ class Door:
         self.y = obj.y * SUBPIXELS
         self.active = False
 
-        self.destination = get_str(obj.properties, 'destination')
-        self.stars_needed = get_int(obj.properties, 'stars_needed', 0)
+        self.destination = obj.properties.destination
+        self.stars_needed = obj.properties.stars_needed
         self.stars_remaining = self.stars_needed
 
         self.state = DoorState.LOCKED if self.stars_needed > 0 else DoorState.OPEN

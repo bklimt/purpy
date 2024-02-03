@@ -1,4 +1,8 @@
 
+# Speed Tests.
+PLAYBACK_PATH: str | None = None  # '/home/bklimt/Desktop/purpy_input5.txt'
+SPEED_TEST: bool = False
+
 # Basic window and render size.
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
@@ -72,7 +76,3 @@ SPRING_JUMP_VELOCITY = 78 * SUBPIXELS//16
 DOOR_SPEED = 3
 DOOR_CLOSING_FRAMES = 9    # The should match the door animation frames.
 DOOR_UNLOCKING_FRAMES = 9
-
-# Speed Tests.
-PLAYBACK_PATH: str | None = None #'/home/bklimt/Desktop/purpy_input.txt'
-SPEED_TEST: bool = False
