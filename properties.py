@@ -186,6 +186,7 @@ class MapObjectProperties:
     button: bool
     door: bool
     star: bool
+    spawn: bool
     # Tiles
     solid: bool
     # Map Areas
@@ -205,17 +206,20 @@ class MapObjectProperties:
     sprite: str | None
     destination: str | None
     stars_needed: int
+    # Spawn points
+    facing_left: bool
+    # Warp zones
+    warp: str | None
 
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
-        self.preferred_x = get_int(map, 'preferred_x')
-        self.preferred_y = get_int(map, 'preferred_y')
         self.platform = get_bool(map, 'platform', False)
         self.bagel = get_bool(map, 'bagel', False)
         self.spring = get_bool(map, 'spring', False)
         self.button = get_bool(map, 'button', False)
         self.door = get_bool(map, 'door', False)
         self.star = get_bool(map, 'star', False)
+        self.spawn = get_bool(map, 'spawn', False)
         self.solid = get_bool(map, 'solid', False)
         self.preferred_x = get_int(map, 'preferred_x')
         self.preferred_y = get_int(map, 'preferred_y')
@@ -234,3 +238,5 @@ class MapObjectProperties:
         self.sprite = get_str(map, 'sprite')
         self.destination = get_str(map, 'direction')
         self.stars_needed = get_int(map, 'stars_needed', 0)
+        self.facing_left = get_bool(map, 'facing_left', False)
+        self.warp = get_str(map, 'warp')

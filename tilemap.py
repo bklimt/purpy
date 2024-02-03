@@ -81,8 +81,8 @@ class MapObject:
         self.id = int(node.attrib['id'])
         self.x = int(node.attrib['x'])
         self.y = int(node.attrib['y'])
-        self.width = int(node.attrib['width'])
-        self.height = int(node.attrib['height'])
+        self.width = int(node.attrib.get('width', '0'))
+        self.height = int(node.attrib.get('height', '0'))
         gid_str = node.attrib.get('gid', None)
         self.gid = int(gid_str) if gid_str is not None else None
 
