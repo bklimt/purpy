@@ -51,12 +51,10 @@ class Button(PlatformBase):
             self.clicked = switches.is_condition_true(self.color)
 
         if self.occupied and not self.was_occupied:
-            if self.button_type == ButtonType.ONE_SHOT:
-                self.clicked = True
-            elif self.button_type == ButtonType.TOGGLE:
-                self.clicked = not self.clicked
-            elif self.button_type == ButtonType.SMART:
-                self.clicked = True
+            match self.button_type:
+                case ButtonType.ONE_SHOT: self.clicked = True
+                case ButtonType.TOGGLE: self.clicked = not self.clicked
+                case ButtonType.SMART: self.clicked = True
 
         self.was_occupied = self.occupied
 
