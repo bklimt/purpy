@@ -287,13 +287,14 @@ class TileMap:
                 # If it's off the right/bottom side, trim it.
                 pos_right = pos_x + self.tilewidth
                 if pos_right >= dest.right:
-                    source.width = source.width - (pos_right - dest.right)
+                    source.width = source.width - \
+                        (pos_right - dest.right) // SUBPIXELS
                 if source.width <= 0:
                     continue
                 pos_bottom = pos_y + self.tileheight
                 if pos_bottom >= dest.bottom:
                     source.height = source.height - \
-                        (pos_bottom - dest.bottom)
+                        (pos_bottom - dest.bottom) // SUBPIXELS
                 if source.height <= 0:
                     continue
 

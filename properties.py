@@ -208,6 +208,8 @@ class MapObjectProperties:
     stars_needed: int
     # Spawn points
     facing_left: bool
+    dx: int
+    dy: int
     # Warp zones
     warp: str | None
 
@@ -240,3 +242,5 @@ class MapObjectProperties:
         self.stars_needed = get_int(map, 'stars_needed', 0)
         self.facing_left = get_bool(map, 'facing_left', False)
         self.warp = get_str(map, 'warp')
+        self.dx = get_int(map, 'dx', 0)
+        self.dy = get_int(map, 'dy', 0)

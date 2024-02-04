@@ -97,6 +97,9 @@ class Level:
             if obj.properties.spawn:
                 self.player.x = obj.x * SUBPIXELS
                 self.player.y = obj.y * SUBPIXELS
+                self.player.dx = obj.properties.dx * SUBPIXELS
+                self.player.dy = obj.properties.dy * SUBPIXELS
+                self.player.state = PlayerState.JUMPING
                 if obj.properties.facing_left:
                     self.player.facing_right = False
 
