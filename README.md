@@ -20,8 +20,9 @@ Maps are edited using [Tiled](https://www.mapeditor.org/). In general, maps can 
 
 Several different layer types are supported. `Background` and `Tile` layers are rendered bottom-to-top. `Object` layers are handled using separate logic.
 
-*Properties*
+*Map Properties*
 * `bool dark` - If this is set to `true`, then the level will be dark, except where the player and stars are.
+* `int gravity` - Custom gravity, in 1/32 pixels. Defaults to 64.
 
 ## Tile Layers
 
@@ -36,6 +37,8 @@ Each tile in a tile layer can have certain properities that affect its rendering
 
 *Properties*
 * `bool solid` - If this is present and set to `false`, then the player can pass through the tile from any direction. Defaults to `true`.
+* `int hitbox_top, hitbox_left, hitbox_right, hitbox_bottom` - How much to offset the hitbox for this tile from each side in pixels. Defaults to `0`.
+
 
 ### Animated Tiles
 
@@ -70,6 +73,23 @@ Switch blocks are buttons that change other blocks when the player lands on them
 ## Object Layers
 
 `Object` layers are used to add objects that don't neatly fit into the tile grid.
+
+### Custom Spawn Points
+
+A point can be added with properties to define where and how the player spawns. Only one spawn point should be added to a map.
+
+*Properties*
+* `bool spawn` - If true, this point is the spawn point.
+* `bool facing_left` - If true, start the player facing left. Otherwise, the player will start facing right.
+* `int dx` - The initial x velocity of the player, in pixels. Defaults to 0.
+* `int dy` - The initial y velocity of the player, in pixels. Defaults to 0. Negative values mean up.
+
+### Warp Zones
+
+A rectangle that causes the player to be sent to another level, like a door.
+
+*Properties*
+* `string warp` - If present, this is the path of the map the player will be sent to. Similar to door's destination.
 
 ### Preferred Viewports
 
