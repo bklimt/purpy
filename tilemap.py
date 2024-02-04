@@ -4,9 +4,9 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
-from constants import SUBPIXELS
+from constants import SUBPIXELS, MAX_GRAVITY
 from imagemanager import ImageManager
-from properties import get_bool, load_properties, set_defaults, MapObjectProperties, TileProperties
+from properties import load_properties, set_defaults, MapObjectProperties, MapProperties, TileProperties
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from slope import Slope
@@ -130,7 +130,7 @@ class TileMap:
     layers: list[ImageLayer | TileLayer]
     player_layer: int | None
     objects: list[MapObject]
-    properties: dict[str, str | int | bool]
+    properties: MapProperties
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str, images: ImageManager):
         self.width = int(root.attrib['width'])
@@ -150,7 +150,7 @@ class TileMap:
             tileset = load_tileset(tileset_path, firstgid, images)
             self.tilesets.add(tileset)
 
-        self.properties = load_properties(root)
+        self.properties = MapProperties(load_properties(root))
         print(f'map properties: {self.properties}')
 
         self.layers = []
@@ -179,7 +179,7 @@ class TileMap:
 
     @property
     def is_dark(self) -> bool:
-        return get_bool(self.properties, 'dark', False)
+        return self.properties.dark
 
     def is_condition_met(self, tileset: TileSet, tile_id: int, switches: SwitchState):
         condition = tileset.get_tile_properties(tile_id).condition
@@ -487,6 +487,12 @@ class TileMap:
                         result.consider_tile(
                             tile_gid, hard_offset, soft_offset, direction)
         return result
+
+    def get_gravity(self):
+        if self.properties.gravity is None:
+            return MAX_GRAVITY
+        else:
+            return self.properties.gravity
 
     def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:
         preferred_x: int | None = None

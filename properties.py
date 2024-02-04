@@ -244,3 +244,14 @@ class MapObjectProperties:
         self.warp = get_str(map, 'warp')
         self.dx = get_int(map, 'dx', 0)
         self.dy = get_int(map, 'dy', 0)
+
+
+class MapProperties:
+    raw: dict[str, str | bool | int]
+    dark: bool
+    gravity: int | None
+
+    def __init__(self, map: dict[str, str | bool | int]):
+        self.raw = map
+        self.dark = get_bool(map, 'dark', False)
+        self.gravity = get_int(map, 'gravity')

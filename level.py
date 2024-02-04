@@ -151,20 +151,21 @@ class Level:
                 self.player.dx = max(target_dx, self.player.dx)
 
     def update_player_trajectory_y(self, inputs: InputSnapshot):
+        gravity = self.map.get_gravity()
         if (self.player.state == PlayerState.STANDING or
                 self.player.state == PlayerState.CROUCHING):
             # Fall at least one pixel so that we hit the ground again.
             self.player.dy = max(self.player.dy, 1)
         elif self.player.state == PlayerState.JUMPING:
             # Apply gravity.
-            if self.player.dy < JUMP_MAX_GRAVITY:
+            if self.player.dy < gravity:
                 self.player.dy += JUMP_ACCELERATION
-            self.player.dy = min(self.player.dy, JUMP_MAX_GRAVITY)
+            self.player.dy = min(self.player.dy, gravity)
         elif self.player.state == PlayerState.FALLING:
             # Apply gravity.
-            if self.player.dy < FALL_MAX_GRAVITY:
+            if self.player.dy < gravity:
                 self.player.dy += FALL_ACCELERATION
-            self.player.dy = min(self.player.dy, FALL_MAX_GRAVITY)
+            self.player.dy = min(self.player.dy, gravity)
         if self.player.state == PlayerState.WALL_SLIDING:
             # When you first grab the wall, don't start sliding for a while.
             if self.wall_slide_counter > 0:
