@@ -6,7 +6,7 @@ import xml.etree.ElementTree
 
 from constants import SUBPIXELS
 from imagemanager import ImageManager
-from properties import get_bool, load_properties, TileProperties
+from properties import get_bool, load_properties, set_defaults, MapObjectProperties, TileProperties
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from slope import Slope
@@ -75,21 +75,22 @@ class MapObject:
     y: int
     width: int
     height: int
-    properties: dict[str, str | int | bool]
+    properties: MapObjectProperties
 
     def __init__(self, node: xml.etree.ElementTree.Element, tilemap: 'TileMap'):
         self.id = int(node.attrib['id'])
         self.x = int(node.attrib['x'])
         self.y = int(node.attrib['y'])
-        self.width = int(node.attrib['width'])
-        self.height = int(node.attrib['height'])
+        self.width = int(node.attrib.get('width', '0'))
+        self.height = int(node.attrib.get('height', '0'))
         gid_str = node.attrib.get('gid', None)
         self.gid = int(gid_str) if gid_str is not None else None
-        self.properties = {}
+
+        properties = load_properties(node, {})
         if self.gid is not None:
-            for k, v in tilemap.get_tile_properties(self.gid).raw.items():
-                self.properties[k] = v
-        self.properties = load_properties(node, self.properties)
+            set_defaults(properties, tilemap.get_tile_properties(self.gid).raw)
+        self.properties = MapObjectProperties(properties)
+
         # For some reason, the position is the bottom left sometimes?
         if self.gid is not None:
             self.y -= self.height
@@ -499,11 +500,11 @@ class TileMap:
             rect.h *= SUBPIXELS
             if not intersect(player_rect, rect):
                 continue
-            p_x = obj.properties.get('preferred_x', None)
-            p_y = obj.properties.get('preferred_y', None)
-            if isinstance(p_x, int):
+            p_x = obj.properties.preferred_x
+            p_y = obj.properties.preferred_y
+            if p_x is not None:
                 preferred_x = p_x * SUBPIXELS
-            if isinstance(p_y, int):
+            if p_y is not None:
                 preferred_y = p_y * SUBPIXELS
         return (preferred_x, preferred_y)
 

@@ -10,17 +10,25 @@ class Direction(Enum):
     LEFT = 3
     RIGHT = 4
 
+    @classmethod
+    def from_str(cls, s: str) -> 'Direction':
+        match s:
+            case 'N': return Direction.UP
+            case 'S': return Direction.DOWN
+            case 'W': return Direction.LEFT
+            case 'E': return Direction.RIGHT
+        raise Exception(f'invalid direction {s}')
 
-def opposite_direction(d: Direction) -> Direction:
-    match d:
-        case Direction.UP:
-            return Direction.DOWN
-        case Direction.DOWN:
-            return Direction.UP
-        case Direction.RIGHT:
-            return Direction.LEFT
-        case Direction.LEFT:
-            return Direction.RIGHT
+    def opposite(self) -> 'Direction':
+        match self:
+            case Direction.UP:
+                return Direction.DOWN
+            case Direction.DOWN:
+                return Direction.UP
+            case Direction.RIGHT:
+                return Direction.LEFT
+            case Direction.LEFT:
+                return Direction.RIGHT
 
 
 def sign(n: int):

@@ -4,7 +4,7 @@ import typing
 
 from constants import *
 from imagemanager import ImageManager
-from properties import get_int, get_str
+from properties import ConveyorDirection, Overflow
 from tilemap import MapObject, TileMap
 from random import randint
 from soundmanager import SoundManager
@@ -69,7 +69,7 @@ class PlatformBase:
         self.dx = 0
         self.dy = 0
         self.occupied = False
-        self.is_solid = bool(obj.properties.get('solid', False))
+        self.is_solid = obj.properties.solid
 
     def draw(self, context: RenderContext, batch: SpriteBatch, offset: tuple[int, int]):
         x = self.x + offset[0]
@@ -111,35 +111,35 @@ class MovingPlatform(PlatformBase):
     end_y: int
     moving_forward: bool
     condition: str | None
-    overflow: str
+    overflow: Overflow
 
     def __init__(self, obj: MapObject, tilemap: TileMap):
         super().__init__(obj, tilemap)
-        self.distance = get_int(obj.properties, 'distance', 0) * SUBPIXELS
+        self.distance = obj.properties.distance * SUBPIXELS
         # This is 16 for historical reasons, just because that's what the speed is tuned for.
-        self.speed = (get_int(obj.properties, 'speed', 1) * SUBPIXELS) // 16
+        self.speed = ((obj.properties.speed or 1) * SUBPIXELS) // 16
         self.start_x = self.x
         self.start_y = self.y
         self.moving_forward = True
-        self.condition = get_str(obj.properties, 'condition')
-        self.overflow = get_str(obj.properties, 'overflow', 'oscillate')
-        d = get_str(obj.properties, 'direction', 'N').upper()
-        if d == 'N':
+        self.condition = obj.properties.condition
+        self.overflow = obj.properties.overflow
+        d = obj.properties.direction
+        if d == Direction.UP:
             self.direction = Direction.UP
             self.distance *= self.tilemap.tileheight
             self.end_x = self.start_x
             self.end_y = self.start_y - self.distance
-        elif d == 'S':
+        elif d == Direction.DOWN:
             self.direction = Direction.DOWN
             self.distance *= self.tilemap.tileheight
             self.end_x = self.start_x
             self.end_y = self.start_y + self.distance
-        elif d == 'E':
+        elif d == Direction.RIGHT:
             self.direction = Direction.RIGHT
             self.distance *= self.tilemap.tilewidth
             self.end_x = self.start_x + self.distance
             self.end_y = self.start_y
-        elif d == 'W':
+        elif d == Direction.LEFT:
             self.direction = Direction.LEFT
             self.distance *= self.tilemap.tilewidth
             self.end_x = self.start_x - self.distance
@@ -164,9 +164,9 @@ class MovingPlatform(PlatformBase):
         if self.moving_forward:
             if self.direction == Direction.UP:
                 if self.y <= self.end_y:
-                    if self.overflow == 'wrap':
+                    if self.overflow == Overflow.WRAP:
                         self.y += self.distance
-                    elif self.overflow == 'clamp':
+                    elif self.overflow == Overflow.CLAMP:
                         self.dy = 0
                         self.y = self.end_y + 1
                     else:
@@ -174,9 +174,9 @@ class MovingPlatform(PlatformBase):
                         self.moving_forward = False
             elif self.direction == Direction.DOWN:
                 if self.y >= self.end_y:
-                    if self.overflow == 'wrap':
+                    if self.overflow == Overflow.WRAP:
                         self.y = self.start_y + (self.end_y - self.y)
-                    elif self.overflow == 'clamp':
+                    elif self.overflow == Overflow.CLAMP:
                         self.dy = 0
                         self.y = self.end_y - 1
                     else:
@@ -184,9 +184,9 @@ class MovingPlatform(PlatformBase):
                         self.moving_forward = False
             if self.direction == Direction.LEFT:
                 if self.x <= self.end_x:
-                    if self.overflow == 'wrap':
+                    if self.overflow == Overflow.WRAP:
                         self.x += self.distance
-                    elif self.overflow == 'clamp':
+                    elif self.overflow == Overflow.CLAMP:
                         self.dx = 0
                         self.x = self.end_x + 1
                     else:
@@ -194,9 +194,9 @@ class MovingPlatform(PlatformBase):
                         self.moving_forward = False
             elif self.direction == Direction.RIGHT:
                 if self.x >= self.end_x:
-                    if self.overflow == 'wrap':
+                    if self.overflow == Overflow.WRAP:
                         self.x = self.start_x + (self.end_x - self.x)
-                    elif self.overflow == 'clamp':
+                    elif self.overflow == Overflow.CLAMP:
                         self.dx = 0
                         self.x = self.end_x - 1
                     else:
@@ -270,8 +270,8 @@ class Conveyor(PlatformBase):
     def __init__(self, obj: MapObject, tilemap: TileMap):
         super().__init__(obj, tilemap)
         # This is hand-tuned.
-        speed = int(obj.properties.get('speed', 24)) * SUBPIXELS//16
-        if obj.properties.get('convey', 'E') == 'E':
+        speed = (obj.properties.speed or 24) * SUBPIXELS//16
+        if obj.properties.convey is None or obj.properties.convey == ConveyorDirection.RIGHT:
             self.dx = speed
         else:
             self.dx = -1 * speed

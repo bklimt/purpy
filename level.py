@@ -6,6 +6,7 @@ import typing
 from constants import *
 from gameobject.button import Button
 from gameobject.door import Door
+from gameobject.warp import Warp
 from imagemanager import ImageManager
 from inputmanager import InputSnapshot
 from kill import KillScreen
@@ -17,7 +18,7 @@ from soundmanager import Sound, SoundManager
 from gameobject.star import Star
 from switchstate import SwitchState
 from tilemap import TileMap, load_map
-from utils import Direction, cmp_in_direction, opposite_direction
+from utils import Direction, cmp_in_direction, intersect
 
 
 class Level:
@@ -46,6 +47,7 @@ class Level:
     platforms: list[Platform]
     stars: list[Star]
     doors: list[Door]
+    warps: list[Warp]
 
     current_platform: Platform | None = None
     current_slopes: set[int]
@@ -70,25 +72,33 @@ class Level:
         self.stars = []
         self.doors = []
         self.current_door = None
+        self.warps = []
         self.switches = SwitchState()
         self.current_switch_tiles = set()
         self.star_count = 0
         self.current_slopes = set()
         for obj in self.map.objects:
-            if obj.properties.get('platform', False):
+            if obj.properties.platform:
                 self.platforms.append(MovingPlatform(obj, self.map))
-            if obj.properties.get('bagel', False):
+            if obj.properties.bagel:
                 self.platforms.append(Bagel(obj, self.map))
-            if obj.properties.get('convey', '') != '':
+            if obj.properties.convey is not None:
                 self.platforms.append(Conveyor(obj, self.map))
-            if obj.properties.get('spring', '') != '':
+            if obj.properties.spring:
                 self.platforms.append(Spring(obj, self.map, images))
-            if obj.properties.get('button', False):
+            if obj.properties.button:
                 self.platforms.append(Button(obj, self.map, images))
-            if obj.properties.get('door', False):
+            if obj.properties.door:
                 self.doors.append(Door(obj, images))
-            if obj.properties.get('star', False):
+            if obj.properties.warp:
+                self.warps.append(Warp(obj))
+            if obj.properties.star:
                 self.stars.append(Star(obj, self.map))
+            if obj.properties.spawn:
+                self.player.x = obj.x * SUBPIXELS
+                self.player.y = obj.y * SUBPIXELS
+                if obj.properties.facing_left:
+                    self.player.facing_right = False
 
     #
     # Movement.
@@ -237,7 +247,7 @@ class Level:
 
         # Try the opposite direction.
         move_result2 = self.try_move_player(
-            opposite_direction(forward), is_backwards=True)
+            forward.opposite(), is_backwards=True)
         offset = move_result2.offset
         apply_offset(offset)
 
@@ -578,6 +588,10 @@ class Level:
                 return self.restart_func()
             if door.active:
                 self.current_door = door
+
+        for warp in self.warps:
+            if warp.is_inside(player_rect):
+                return self.next_func(warp.destination)
 
         for star in self.stars:
             if star.intersects(player_rect):
