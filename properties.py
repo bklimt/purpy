@@ -238,7 +238,7 @@ class MapObjectProperties:
             get_str(map, 'button_type', 'toggle'))
         self.color = get_str(map, 'color')
         self.sprite = get_str(map, 'sprite')
-        self.destination = get_str(map, 'direction')
+        self.destination = get_str(map, 'destination')
         self.stars_needed = get_int(map, 'stars_needed', 0)
         self.facing_left = get_bool(map, 'facing_left', False)
         self.warp = get_str(map, 'warp')
