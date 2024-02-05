@@ -1,8 +1,8 @@
 
 import datetime
 import pygame
-import sys
 
+from args import Args
 from constants import *
 from soundmanager import SoundManager
 from scene import Scene
@@ -32,7 +32,7 @@ class Game:
     scene: Scene | None
     frame: int
 
-    def __init__(self):
+    def __init__(self, args: Args):
         pygame.init()
         pygame.display.set_caption('purpy')
 
@@ -49,14 +49,11 @@ class Game:
 
         print('loading game content')
         self.images = ImageManager()
-        self.inputs = InputManager(PLAYBACK_PATH)
+        self.inputs = InputManager(args.playback)
         self.sounds = SoundManager()
         self.frame = 0
 
-        if len(sys.argv) > 1:
-            self.scene = Level(None, sys.argv[1], self.images)
-        else:
-            self.scene = LevelSelect(None, 'assets/levels', self.images)
+        self.scene = LevelSelect(None, 'assets/levels', self.images)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = RENDER_WIDTH / RENDER_HEIGHT
@@ -89,7 +86,7 @@ class Game:
 
         return True
 
-    def main(self):
+    def main(self, args: Args):
         start_time = datetime.datetime.now()
         game_running = True
         while game_running:
@@ -107,17 +104,20 @@ class Game:
             if not self.update():
                 game_running = False
 
-            if SPEED_TEST:
+            if args.speed_test:
                 self.clock.tick(0)
             else:
                 self.clock.tick(FRAME_RATE)
         end_time = datetime.datetime.now()
         duration = end_time - start_time
         fps = self.frame / duration.total_seconds()
-        if SPEED_TEST:
+        if args.speed_test:
             print(f"{fps} fps, {self.frame} frames in {duration.total_seconds()}s")
         pygame.quit()
 
 
-game = Game()
-game.main()
+args = Args()
+print(f'args: {args}')
+
+game = Game(args)
+game.main(args)

@@ -1,8 +1,4 @@
 
-# Speed Tests.
-PLAYBACK_PATH: str | None = None  # '/home/bklimt/Desktop/purpy_input5.txt'
-SPEED_TEST: bool = False
-
 # Basic window and render size.
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
