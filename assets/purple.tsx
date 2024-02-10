@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.8" tiledversion="1.8.0" name="purple" tilewidth="8" tileheight="8" tilecount="256" columns="16" backgroundcolor="#3d3846">
  <transformations hflip="0" vflip="0" rotate="0" preferuntransformed="1"/>
- <properties>
-  <property name="animations" value="tiles"/>
- </properties>
  <image source="purple.png" width="128" height="128"/>
  <tile id="6">
   <properties>
@@ -209,34 +206,40 @@
  </tile>
  <tile id="168">
   <properties>
+   <property name="animation" value="tiles/168.png"/>
    <property name="oneway" value="E"/>
   </properties>
  </tile>
  <tile id="169">
   <properties>
+   <property name="animation" value="tiles/169.png"/>
    <property name="oneway" value="W"/>
   </properties>
  </tile>
  <tile id="170">
   <properties>
+   <property name="animation" value="tiles/170.png"/>
    <property name="convey" value="E"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="171">
   <properties>
+   <property name="animation" value="tiles/171.png"/>
    <property name="convey" value="E"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="172">
   <properties>
+   <property name="animation" value="tiles/172.png"/>
    <property name="convey" value="W"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="173">
   <properties>
+   <property name="animation" value="tiles/173.png"/>
    <property name="convey" value="W"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
@@ -249,34 +252,40 @@
  </tile>
  <tile id="184">
   <properties>
+   <property name="animation" value="tiles/184.png"/>
    <property name="oneway" value="S"/>
   </properties>
  </tile>
  <tile id="185">
   <properties>
+   <property name="animation" value="tiles/185.png"/>
    <property name="oneway" value="N"/>
   </properties>
  </tile>
  <tile id="186">
   <properties>
+   <property name="animation" value="tiles/186.png"/>
    <property name="convey" value="E"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="187">
   <properties>
+   <property name="animation" value="tiles/170.png"/>
    <property name="convey" value="E"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="188">
   <properties>
+   <property name="animation" value="tiles/170.png"/>
    <property name="convey" value="W"/>
    <property name="solid" type="bool" value="true"/>
   </properties>
  </tile>
  <tile id="189">
   <properties>
+   <property name="animation" value="tiles/189.png"/>
    <property name="convey" value="W"/>
    <property name="solid" type="bool" value="true"/>
   </properties>

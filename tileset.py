@@ -57,6 +57,7 @@ class TileSet:
 
         self.properties = TileSetProperties(load_properties(root))
 
+        self.animations = {}
         self.slopes = {}
         self.default_tile_properties = TileProperties({})
         self.tile_properties = {}
@@ -66,31 +67,18 @@ class TileSet:
                 load_properties(tile))
             if self.tile_properties[tile_id].slope:
                 self.slopes[tile_id] = Slope(self.tile_properties[tile_id])
+            animation_path = self.tile_properties[tile_id].animation
+            if animation_path is not None:
+                animation_path = os.path.join(
+                    os.path.dirname(path), animation_path)
+                print(
+                    f'loading animation for tile {tile_id} from {animation_path}')
+                surface = images.load_image(animation_path)
+                animation = Animation(surface, 8, 8)
+                self.animations[tile_id] = animation
 
         print(f'tileset properties: {self.properties}')
         print(f'tile properties: {self.tile_properties}')
-
-        self.animations = {}
-        tile_animations_path = self.properties.animations
-        if tile_animations_path is not None:
-            tile_animations_path = os.path.join(
-                os.path.dirname(path), tile_animations_path)
-            self.load_tile_animations(tile_animations_path, images)
-
-    def load_tile_animations(self, path: str, images: ImageLoader):
-        """ Loads a directory of animations to replace tiles. """
-        print(f'loading tile animations from {path}')
-        filenames = os.listdir(path)
-        for filename in filenames:
-            if filename.endswith('.png'):
-                tile_id = int(filename[:-4])
-                filepath = os.path.join(path, filename)
-                print(f'loading animation for tile {tile_id} from {filepath}')
-                surface = images.load_image(filepath)
-                animation = Animation(surface, 8, 8)
-                self.animations[tile_id] = animation
-            else:
-                print(f'skipping file {filename}')
 
     def get_local_index(self, tile_gid: int) -> int | None:
         if tile_gid < self.firstgid:

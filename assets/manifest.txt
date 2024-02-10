@@ -1,0 +1,7 @@
+levels/**/*.TMX
+levels/**/*.tmx
+sounds/**/*.wav
+sprites/skelly2_states.txt
+*.tsx
+textures_index.txt
+textures.png

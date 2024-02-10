@@ -38,14 +38,7 @@ Each tile in a tile layer can have certain properities that affect its rendering
 *Properties*
 * `bool solid` - If this is present and set to `false`, then the player can pass through the tile from any direction. Defaults to `true`.
 * `int hitbox_top, hitbox_left, hitbox_right, hitbox_bottom` - How much to offset the hitbox for this tile from each side in pixels. Defaults to `0`.
-
-
-### Animated Tiles
-
-Tiles in a tileset (`.tsx` file) can be overridden with animated versions of some tiles. This is done by setting a path to a directory containing the animations. Each file in the directory should be a `.png` named with the tile id to replace. For example, `123.png` would replace the rendering for tile id `123`. The `.png` should have a single row of `8x8` images, with no padding.
-
-*Properties*
-* `string animations` - The path to the directory with the animations, relative to the `.tsx` file.
+* `string animation` - If this is present, it is a path to a png containing an animation where each frame is 8x8 pixels, in a single row, with no padding. This animation replaces the normal tile graphic when rendering.
 
 ### Spikes
 

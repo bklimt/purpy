@@ -96,6 +96,7 @@ def set_defaults(dst: dict[str, bool | int | str], src: dict[str, bool | int | s
 class TileProperties:
     raw: dict[str, str | bool | int]
     solid: bool
+    animation: str | None
     alternate: int | None
     condition: str | None
     oneway: str | None
@@ -112,6 +113,7 @@ class TileProperties:
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
         self.solid = get_bool(map, 'solid', True)
+        self.animation = get_str(map, 'animation')
         self.alternate = get_int(map, 'alternate')
         self.condition = get_str(map, 'condition')
         self.oneway = get_str(map, 'oneway')
@@ -128,11 +130,9 @@ class TileProperties:
 
 class TileSetProperties:
     raw: dict[str, str | bool | int]
-    animations: str | None
 
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
-        self.animations = get_str(map, 'animations')
 
 
 class Overflow(Enum):
