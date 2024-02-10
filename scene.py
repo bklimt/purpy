@@ -1,5 +1,4 @@
 
-import pygame
 import typing
 
 from imagemanager import ImageManager

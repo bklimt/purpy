@@ -2,6 +2,7 @@
 import pygame
 import typing
 
+from constants import WINDOW_WIDTH, WINDOW_HEIGHT, RENDER_WIDTH, RENDER_HEIGHT
 from enum import Enum
 
 
@@ -191,10 +192,13 @@ class BinaryInput(Enum):
     MENU_UP = 9
     RESTART = 10
     MOUSE_PRESS = 11
+    MOUSE_DOWN = 12
+    OK_DOWN = 13
 
 
 class InputSnapshot:
     ok: bool
+    ok_down: bool
     cancel: bool
     player_left: bool
     player_right: bool
@@ -203,6 +207,9 @@ class InputSnapshot:
     player_jump_down: bool
     menu_down: bool
     menu_up: bool
+    mouse_x: int
+    mouse_y: int
+    mouse_down: bool
 
     def __init__(self, encoded=0):
         self.ok = (encoded & (1 << 0)) != 0
@@ -214,6 +221,10 @@ class InputSnapshot:
         self.player_jump_down = (encoded & (1 << 6)) != 0
         self.menu_down = (encoded & (1 << 7)) != 0
         self.menu_up = (encoded & (1 << 8)) != 0
+        self.mouse_x = 0
+        self.mouse_y = 0
+        self.mouse_down = False
+        self.ok_down = False
 
 
 class RecorderEntry(typing.NamedTuple):
@@ -264,6 +275,10 @@ class InputManager:
                 TriggerInput(KeyInput(pygame.K_RETURN)),
                 TriggerInput(JoystickButtonInput(0)),
             ]),
+            BinaryInput.OK_DOWN: AnyOfInput([
+                KeyInput(pygame.K_RETURN),
+                JoystickButtonInput(0),
+            ]),
             BinaryInput.CANCEL: AnyOfInput([
                 TriggerInput(KeyInput(pygame.K_ESCAPE)),
                 TriggerInput(KeyInput(pygame.K_1)),
@@ -313,6 +328,10 @@ class InputManager:
                 TriggerInput(MouseButtonInput(1)),
                 TriggerInput(KeyInput(pygame.K_p)),
             ]),
+            BinaryInput.MOUSE_DOWN: AnyOfInput([
+                MouseButtonInput(1),
+                KeyInput(pygame.K_p),
+            ]),
         }
 
         self.recorder = InputRecorder()
@@ -331,6 +350,7 @@ class InputManager:
     def take_snapshot(self) -> InputSnapshot:
         snapshot = InputSnapshot()
         snapshot.ok = self.binary_hooks[BinaryInput.OK].is_on()
+        snapshot.ok_down = self.binary_hooks[BinaryInput.OK_DOWN].is_on()
         snapshot.cancel = self.binary_hooks[BinaryInput.CANCEL].is_on()
         snapshot.player_left = self.binary_hooks[BinaryInput.PLAYER_LEFT].is_on(
         )
@@ -344,6 +364,9 @@ class InputManager:
         )
         snapshot.menu_down = self.binary_hooks[BinaryInput.MENU_DOWN].is_on()
         snapshot.menu_up = self.binary_hooks[BinaryInput.MENU_UP].is_on()
+        snapshot.mouse_x = self.mouse_position[0]
+        snapshot.mouse_y = self.mouse_position[1]
+        snapshot.mouse_down = self.binary_hooks[BinaryInput.MOUSE_DOWN].is_on()
         return snapshot
 
     def handle_keyboard_event(self, event: pygame.event.Event):
@@ -369,16 +392,28 @@ class InputManager:
             case pygame.JOYHATMOTION:
                 pass
 
+    def scale_mouse_pos(self, pos: tuple[int, int]) -> tuple[int, int]:
+        x: int = pos[0]
+        y: int = pos[1]
+        x = (x * RENDER_WIDTH) // WINDOW_WIDTH
+        y = (y * RENDER_HEIGHT) // WINDOW_HEIGHT
+        return (x, y)
+
     def handle_mouse_event(self, event: pygame.event.Event):
         match event.type:
             case pygame.MOUSEMOTION:
-                print(f'mouse motion {event.pos}')
-                self.state.mouse_position = event.pos
+                pos = self.scale_mouse_pos(event.pos)
+                # print(f'mouse motion {pos}')
+                self.state.mouse_position = pos
             case pygame.MOUSEBUTTONDOWN:
-                print(f'mouse button {event.button} down {event.pos}')
+                pos = self.scale_mouse_pos(event.pos)
+                print(f'mouse button {event.button} down {pos}')
+                self.state.mouse_position = pos
                 self.state.set_mouse_button_down(event.button)
             case pygame.MOUSEBUTTONUP:
-                print(f'mouse button {event.button} up {event.pos}')
+                pos = self.scale_mouse_pos(event.pos)
+                print(f'mouse button {event.button} up {pos}')
+                self.state.mouse_position = pos
                 self.state.set_mouse_button_up(event.button)
 
     @property

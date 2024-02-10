@@ -212,6 +212,9 @@ class MapObjectProperties:
     dy: int
     # Warp zones
     warp: str | None
+    # UI
+    uibutton: str | None
+    label: str
 
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
@@ -244,6 +247,8 @@ class MapObjectProperties:
         self.warp = get_str(map, 'warp')
         self.dx = get_int(map, 'dx', 0)
         self.dy = get_int(map, 'dy', 0)
+        self.uibutton = get_str(map, 'uibutton')
+        self.label = get_str(map, 'label', '')
 
 
 class MapProperties:

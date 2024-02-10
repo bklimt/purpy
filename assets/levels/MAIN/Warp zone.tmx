@@ -30,17 +30,17 @@
  <objectgroup id="3" name="Object Layer 1">
   <object id="11" gid="193" x="80" y="144" width="8" height="8">
    <properties>
-    <property name="destination" value="assets/levels/main/W1/00.tmx"/>
+    <property name="destination" value="assets/levels/MAIN/W1/00.tmx"/>
    </properties>
   </object>
   <object id="14" gid="193" x="136" y="144" width="8" height="8">
    <properties>
-    <property name="destination" value="assets/levels/main/W2/10.tmx"/>
+    <property name="destination" value="assets/levels/MAIN/W2/10.tmx"/>
    </properties>
   </object>
   <object id="15" gid="193" x="192" y="144" width="8" height="8">
    <properties>
-    <property name="destination" value="assets/levels/main/W3/20.tmx"/>
+    <property name="destination" value="assets/levels/MAIN/W3/20.tmx"/>
    </properties>
   </object>
   <object id="16" gid="193" x="248" y="144" width="8" height="8">
