@@ -29,7 +29,6 @@ class UiButton:
     height: int
     spritesheet: SpriteSheet
     state = ButtonState.NORMAL
-    clicking: bool
     label: str
     action: str | None
 
@@ -44,7 +43,7 @@ class UiButton:
         self.action = object.properties.uibutton
 
     def update(self, selected: bool, inputs: InputSnapshot, sounds: SoundManager) -> str | None:
-        """ Returns True if clicked. """
+        """ Returns the action to execute if clicked. """
         clicked = False
         point = (inputs.mouse_x * SUBPIXELS, inputs.mouse_y * SUBPIXELS)
         mouse_inside = inside(pygame.Rect(

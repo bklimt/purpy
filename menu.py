@@ -19,6 +19,7 @@ class Menu:
     tilemap: TileMap
     buttons: list[UiButton]
     selected: int
+    switches: SwitchState
 
     def __init__(self, path: str, parent: Scene | None, images: ImageManager):
         self.parent = parent
