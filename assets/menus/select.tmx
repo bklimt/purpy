@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.10.2" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="7" nextobjectid="6">
+<map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" nextlayerid="7" nextobjectid="6">
  <tileset firstgid="1" source="../purple.tsx"/>
  <tileset firstgid="257" source="../8bitfont.tsx"/>
  <layer id="1" name="background" width="40" height="22">
@@ -83,19 +83,19 @@
  <objectgroup id="2" name="objects">
   <object id="1" x="32" y="32" width="96" height="24">
    <properties>
-    <property name="label" value="World 1"/>
+    <property name="label" value="World 0"/>
     <property name="uibutton" value="menu:assets/menus/w1.tmx"/>
    </properties>
   </object>
   <object id="2" x="32" y="80" width="96" height="24">
    <properties>
-    <property name="label" value="World 2"/>
+    <property name="label" value="World 1"/>
     <property name="uibutton" value="menu:assets/menus/w2.tmx"/>
    </properties>
   </object>
   <object id="3" x="32" y="128" width="96" height="24">
    <properties>
-    <property name="label" value="World 3"/>
+    <property name="label" value="World 2"/>
     <property name="uibutton" value="menu:assets/menus/w3.tmx"/>
    </properties>
   </object>
@@ -108,7 +108,7 @@
   <object id="5" x="176" y="80" width="96" height="24">
    <properties>
     <property name="label" value="Credits"/>
-    <property name="uibutton" value="level:assets/levels/credits/SEAN.TMX"/>
+    <property name="uibutton" value="level:assets/levels/CREDITS/SEAN.TMX"/>
    </properties>
   </object>
  </objectgroup>

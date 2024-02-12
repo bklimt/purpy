@@ -1,5 +1,9 @@
-pastel.png
 8bitfont.png
+cursor.png
+pastel.png
+purple.png
+space.png
+space2.png
 sprites/spring.png
 sprites/door_pastel.png
 sprites/exit.png
@@ -27,6 +31,10 @@ tiles/172.png
 tiles/185.png
 tiles/168.png
 tiles/171.png
-purple.png
-space.png
-space2.png
+tiles/189_pastel.png
+tiles/171_pastel.png
+tiles/186_pastel.png
+tiles/172_pastel.png
+tiles/173_pastel.png
+tiles/170_pastel.png
+uibutton.png
