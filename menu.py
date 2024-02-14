@@ -21,6 +21,8 @@ class Menu:
     cursor: Cursor
     tilemap: TileMap
     buttons: list[UiButton]
+    horizontal_button_order: list[int]
+    vertical_button_order: list[int]
     selected: int
     switches: SwitchState
 
@@ -31,24 +33,41 @@ class Menu:
         self.cursor = Cursor(images)
         self.tilemap = load_map(path, images)
         self.switches = SwitchState()
+
         self.buttons = []
-        self.selected = 0
         for obj in self.tilemap.objects:
             if obj.properties.uibutton is not None:
                 self.buttons.append(
                     UiButton(obj, self.tilemap.tilewidth, self.tilemap.tileheight, images))
 
+        button_positions = [(i, button.x, button.y)
+                            for (i, button) in enumerate(self.buttons)]
+        button_positions.sort(key=lambda b: (b[2], b[1]))
+        self.horizontal_button_order = [b[0] for b in button_positions]
+        button_positions.sort(key=lambda b: (b[1], b[2]))
+        self.vertical_button_order = [b[0] for b in button_positions]
+        self.selected = self.vertical_button_order[0]
+
     def parent(self) -> Scene | None:
         return self.previous
+
+    def next_button(self, delta: int, order: list[int]):
+        pos = order.index(self.selected)
+        new_pos = (pos + len(order) + delta) % len(order)
+        self.selected = order[new_pos]
 
     def update(self, inputs: InputSnapshot, images: ImageManager, sounds: SoundManager) -> Scene | None:
         if inputs.cancel:
             return self.previous
 
         if inputs.menu_down:
-            self.selected = (self.selected + 1) % len(self.buttons)
+            self.next_button(1, self.vertical_button_order)
         if inputs.menu_up:
-            self.selected = (self.selected - 1) % len(self.buttons)
+            self.next_button(-1, self.vertical_button_order)
+        if inputs.menu_left:
+            self.next_button(-1, self.horizontal_button_order)
+        if inputs.menu_right:
+            self.next_button(1, self.horizontal_button_order)
 
         self.cursor.update(inputs)
         for i, button in enumerate(self.buttons):
