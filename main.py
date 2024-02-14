@@ -56,7 +56,7 @@ class Game:
         self.frame = 0
 
         # self.scene = LevelSelect(None, 'assets/levels', self.images)
-        self.scene = Menu('assets/menus/start.tmx', None, self.images)
+        self.scene = Menu('assets/menus/start.tmx', None, None, self.images)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = RENDER_WIDTH / RENDER_HEIGHT
@@ -76,7 +76,7 @@ class Game:
 
         # Update the actual game logic.
         snapshot = self.inputs.update(self.frame)
-        self.scene = self.scene.update(snapshot, self.sounds)
+        self.scene = self.scene.update(snapshot, self.images, self.sounds)
         self.frame += 1
 
         if self.scene is None:

@@ -3,13 +3,15 @@ import os.path
 import pygame
 import typing
 
+# Import the whole module to avoid a circular reference.
+import menu
+
 from constants import *
 from gameobject.button import Button
 from gameobject.door import Door
 from gameobject.warp import Warp
 from imagemanager import ImageManager
 from inputmanager import InputSnapshot
-from kill import KillScreen
 from player import Player2, PlayerState
 from gameobject.platforms import Bagel, Conveyor, MovingPlatform, Platform, Spring
 from render.rendercontext import RenderContext
@@ -22,13 +24,11 @@ from utils import Direction, cmp_in_direction, intersect
 
 
 class Level:
-    parent: Scene | None
+    previous: Scene | None
     name: str
     map: TileMap
+    map_path: str
     player: Player2
-
-    restart_func: typing.Callable[[], Scene]
-    next_func: typing.Callable[[str], Scene]
 
     wall_stick_counter: int = WALL_STICK_TIME
     wall_stick_facing_right: bool = False
@@ -56,14 +56,13 @@ class Level:
     current_door: Door | None
 
     def __init__(self, parent: Scene | None, map_path: str, images: ImageManager):
-        self.parent = parent
-        self.restart_func = lambda: Level(parent, map_path, images)
+        self.previous = parent
         self.next_func = lambda destination: Level(parent, destination, images)
-        # self.map_path = map_path
         self.name = os.path.splitext(os.path.basename(map_path))[0]
         self.toast_text = self.name
         self.previous_map_offset = None
         self.map = load_map(map_path, images)
+        self.map_path = map_path
         self.player = Player2(images)
         self.player.x = (128 * SUBPIXELS) // 16
         self.player.y = (128 * SUBPIXELS) // 16
@@ -102,6 +101,9 @@ class Level:
                 self.player.state = PlayerState.JUMPING
                 if obj.properties.facing_left:
                     self.player.facing_right = False
+
+    def parent(self) -> Scene | None:
+        return self.previous
 
     #
     # Movement.
@@ -560,11 +562,9 @@ class Level:
             elif not movement.crouch_down:
                 self.player.state = PlayerState.STANDING
 
-    def update(self, inputs: InputSnapshot, sounds: SoundManager) -> Scene | None:
+    def update(self, inputs: InputSnapshot, images: ImageManager, sounds: SoundManager) -> Scene | None:
         if inputs.cancel:
-            return self.parent
-        # if inputs.is_restart_down():
-        #    return self.restart_func()
+            return menu.Menu('assets/menus/pause.tmx', self, self.map_path, images)
 
         self.map.update_animations()
 
@@ -588,8 +588,8 @@ class Level:
             door.update(player_rect, self.star_count)
             if door.is_closed:
                 if door.destination is not None:
-                    return self.next_func(door.destination)
-                return self.restart_func()
+                    return Level(self.previous, door.destination, images)
+                return Level(self.previous, self.map_path, images)
             if door.active:
                 self.current_door = door
 
@@ -634,7 +634,7 @@ class Level:
                 print(transition)
 
         if self.player.is_dead:
-            return KillScreen(self, self.restart_func)
+            return menu.Menu('assets/menus/dead.tmx', self, self.map_path, images)
 
         if self.toast_counter == 0:
             if self.toast_position > -TOAST_HEIGHT:
