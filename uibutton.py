@@ -40,7 +40,7 @@ class UiButton:
         self.width = object.width * SUBPIXELS
         self.height = object.height * SUBPIXELS
         self.label = object.properties.label
-        self.action = object.properties.uibutton
+        self.action = object.properties.action
 
     def update(self, selected: bool, inputs: InputSnapshot, sounds: SoundManager) -> str | None:
         """ Returns the action to execute if clicked. """

@@ -57,57 +57,68 @@
  <objectgroup id="2" name="Object Layer 1">
   <object id="3" x="24" y="16" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/10.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/10.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="4" x="24" y="48" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/11.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/11.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="5" x="24" y="80" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/12.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/12.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="6" x="24" y="112" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/13.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/13.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="7" x="24" y="144" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/14.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/14.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="9" x="120" y="16" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/15.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/15.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="10" x="120" y="48" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/16.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/16.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="11" x="120" y="80" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/17.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/17.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="12" x="120" y="112" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/18.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/18.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="13" x="120" y="144" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/19.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/19.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="15" x="216" y="16" width="16" height="16">
    <properties>
-    <property name="uibutton" value="level:assets/levels/MAIN/W2/World2boss.tmx"/>
+    <property name="action" value="level:assets/levels/MAIN/W2/World2boss.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
  </objectgroup>

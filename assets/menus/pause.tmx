@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.8" tiledversion="1.8.0" orientation="orthogonal" renderorder="right-down" width="40" height="22" tilewidth="8" tileheight="8" infinite="0" backgroundcolor="#b2000000" nextlayerid="6" nextobjectid="4">
+ <properties>
+  <property name="cancel_action" value="pop2"/>
+ </properties>
  <tileset firstgid="1" source="../purple.tsx"/>
  <tileset firstgid="257" source="../8bitfont.tsx"/>
  <layer id="1" name="background" width="40" height="22">
@@ -57,20 +60,23 @@
  <objectgroup id="2" name="objects">
   <object id="1" x="112" y="104" width="96" height="24">
    <properties>
+    <property name="action" value="reload"/>
     <property name="label" value="  RELOAD"/>
-    <property name="uibutton" value="reload"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="2" x="112" y="136" width="96" height="24">
    <properties>
+    <property name="action" value="pop2"/>
     <property name="label" value="GIVE UP :("/>
-    <property name="uibutton" value="pop2"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="3" x="112" y="72" width="96" height="24">
    <properties>
+    <property name="action" value="pop"/>
     <property name="label" value=" CONTINUE"/>
-    <property name="uibutton" value="pop"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
  </objectgroup>

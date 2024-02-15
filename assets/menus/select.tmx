@@ -83,32 +83,37 @@
  <objectgroup id="2" name="objects">
   <object id="1" x="32" y="32" width="96" height="24">
    <properties>
+    <property name="action" value="menu:assets/menus/w1.tmx"/>
     <property name="label" value="World 0"/>
-    <property name="uibutton" value="menu:assets/menus/w1.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="2" x="32" y="80" width="96" height="24">
    <properties>
+    <property name="action" value="menu:assets/menus/w2.tmx"/>
     <property name="label" value="World 1"/>
-    <property name="uibutton" value="menu:assets/menus/w2.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="3" x="32" y="128" width="96" height="24">
    <properties>
+    <property name="action" value="menu:assets/menus/w3.tmx"/>
     <property name="label" value="World 2"/>
-    <property name="uibutton" value="menu:assets/menus/w3.tmx"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="4" x="176" y="32" width="96" height="24">
    <properties>
+    <property name="action" value="levelselect:assets/levels/EXPRMNTL"/>
     <property name="label" value="EXPRMNTL"/>
-    <property name="uibutton" value="levelselect:assets/levels/EXPRMNTL"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
   <object id="5" x="176" y="80" width="96" height="24">
    <properties>
+    <property name="action" value="level:assets/levels/CREDITS/SEAN.TMX"/>
     <property name="label" value="Credits"/>
-    <property name="uibutton" value="level:assets/levels/CREDITS/SEAN.TMX"/>
+    <property name="uibutton" type="bool" value="true"/>
    </properties>
   </object>
  </objectgroup>

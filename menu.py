@@ -36,7 +36,7 @@ class Menu:
 
         self.buttons = []
         for obj in self.tilemap.objects:
-            if obj.properties.uibutton is not None:
+            if obj.properties.uibutton:
                 self.buttons.append(
                     UiButton(obj, self.tilemap.tilewidth, self.tilemap.tileheight, images))
 

@@ -162,3 +162,16 @@ Doors let the player travel to other levels. A door object only specifies the up
 
 `Background` layers are images that are rendered behind all the tile layers.
 
+## Menus
+* `string cancel_action`
+
+### UI Buttons
+* `bool uibutton`
+* `string label`
+* `string action`
+  * `menu:<path>`
+  * `level:<path>`
+  * `levelselect:<path>`
+  * `pop`
+  * `pop2`
+  * `reload`
