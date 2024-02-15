@@ -16,6 +16,7 @@ from uibutton import UiButton
 
 class Menu:
     previous: Scene | None
+    cancel_action: str
     reload_path: str | None
     images: ImageManager
     cursor: Cursor
@@ -33,6 +34,8 @@ class Menu:
         self.cursor = Cursor(images)
         self.tilemap = load_map(path, images)
         self.switches = SwitchState()
+
+        self.cancel_action = self.tilemap.properties.cancel_action
 
         self.buttons = []
         for obj in self.tilemap.objects:
@@ -56,9 +59,32 @@ class Menu:
         new_pos = (pos + len(order) + delta) % len(order)
         self.selected = order[new_pos]
 
+    def perform_action(self, action: str) -> Scene | None:
+        if action.startswith('levelselect:'):
+            return levelselect.LevelSelect(self, action[12:], self.images)
+        elif action.startswith('level:'):
+            return level.Level(self, action[6:], self.images)
+        elif action.startswith('menu:'):
+            return Menu(action[5:], self, None, self.images)
+        elif action == 'pop':
+            return self.previous
+        elif action == 'pop2':
+            if self.previous is None:
+                raise Exception('tried to exit with empty scene stack')
+            return self.previous.parent()
+        elif action == 'reload':
+            if self.reload_path is None:
+                raise Exception(
+                    'tried to reload when level path not set')
+            if self.previous is None:
+                raise Exception('tried to exit with empty scene stack')
+            return level.Level(self.previous.parent(), self.reload_path, self.images)
+        else:
+            raise Exception(f'invalid button action {action}')
+
     def update(self, inputs: InputSnapshot, images: ImageManager, sounds: SoundManager) -> Scene | None:
         if inputs.cancel:
-            return self.previous
+            return self.perform_action(self.cancel_action)
 
         if inputs.menu_down:
             self.next_button(1, self.vertical_button_order)
@@ -74,27 +100,8 @@ class Menu:
             selected = i == self.selected
             action = button.update(selected, inputs, sounds)
             if action is not None:
-                if action.startswith('levelselect:'):
-                    return levelselect.LevelSelect(self, action[12:], self.images)
-                elif action.startswith('level:'):
-                    return level.Level(self, action[6:], self.images)
-                elif action.startswith('menu:'):
-                    return Menu(action[5:], self, None, self.images)
-                elif action == 'pop':
-                    return self.previous
-                elif action == 'pop2':
-                    if self.previous is None:
-                        raise Exception('tried to exit with empty scene stack')
-                    return self.previous.parent()
-                elif action == 'reload':
-                    if self.reload_path is None:
-                        raise Exception(
-                            'tried to reload when level path not set')
-                    if self.previous is None:
-                        raise Exception('tried to exit with empty scene stack')
-                    return level.Level(self.previous.parent(), self.reload_path, self.images)
-                else:
-                    raise Exception(f'invalid button action {action}')
+                return self.perform_action(action)
+
         return self
 
     def draw(self, context: RenderContext, images: ImageManager) -> None:
