@@ -217,20 +217,20 @@ class InputSnapshot:
 
     def __init__(self, encoded=0):
         self.ok = (encoded & (1 << 0)) != 0
-        self.ok_down = False
-        self.cancel = (encoded & (1 << 1)) != 0
-        self.player_left = (encoded & (1 << 2)) != 0
-        self.player_right = (encoded & (1 << 3)) != 0
-        self.player_crouch = (encoded & (1 << 4)) != 0
-        self.player_jump_trigger = (encoded & (1 << 5)) != 0
-        self.player_jump_down = (encoded & (1 << 6)) != 0
-        self.menu_down = (encoded & (1 << 7)) != 0
-        self.menu_up = (encoded & (1 << 8)) != 0
-        self.menu_left = False
-        self.menu_right = False
-        self.mouse_x = 0
-        self.mouse_y = 0
-        self.mouse_down = False
+        self.ok_down = (encoded & (1 << 1)) != 0
+        self.cancel = (encoded & (1 << 2)) != 0
+        self.player_left = (encoded & (1 << 3)) != 0
+        self.player_right = (encoded & (1 << 4)) != 0
+        self.player_crouch = (encoded & (1 << 5)) != 0
+        self.player_jump_trigger = (encoded & (1 << 6)) != 0
+        self.player_jump_down = (encoded & (1 << 7)) != 0
+        self.menu_down = (encoded & (1 << 8)) != 0
+        self.menu_up = (encoded & (1 << 9)) != 0
+        self.menu_left = (encoded & (1 << 10)) != 0
+        self.menu_right = (encoded & (1 << 11)) != 0
+        self.mouse_down = (encoded & (1 << 12)) != 0
+        self.mouse_x = (encoded >> 32) & 0x0000FFFF
+        self.mouse_y = (encoded >> 48) & 0x0000FFFF
 
 
 class RecorderEntry(typing.NamedTuple):
