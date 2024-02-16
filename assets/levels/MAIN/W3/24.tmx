@@ -32,7 +32,7 @@
   <object id="9" gid="145" x="256" y="144" width="8" height="8"/>
   <object id="11" gid="241" x="152" y="24" width="8" height="8">
    <properties>
-    <property name="destination" value="assets/levels/main/W3/25.tmx"/>
+    <property name="destination" value="assets/levels/MAIN/W3/25.tmx"/>
     <property name="stars_needed" type="int" value="0"/>
    </properties>
   </object>

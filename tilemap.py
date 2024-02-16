@@ -125,7 +125,7 @@ class TileMap:
     height: int
     tilewidth: int
     tileheight: int
-    backgroundcolor: str
+    backgroundcolor: pygame.Color
     tilesets: TileSetList
     layers: list[ImageLayer | TileLayer]
     player_layer: int | None
@@ -137,7 +137,12 @@ class TileMap:
         self.height = int(root.attrib['height'])
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
-        self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
+
+        bgcolor = root.attrib.get('backgroundcolor', '#000000')
+        if len(bgcolor) == 9 and bgcolor[0] == '#':
+            # Tiled put alpha at the beginning, so swap it to the end.
+            bgcolor = '#' + bgcolor[3:] + bgcolor[1:3]
+        self.backgroundcolor = pygame.Color(bgcolor)
 
         self.tilesets = TileSetList()
         for ts in root:

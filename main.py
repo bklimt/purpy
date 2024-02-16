@@ -4,14 +4,15 @@ import pygame
 
 from args import Args
 from constants import *
-from soundmanager import SoundManager
-from scene import Scene
-from levelselect import LevelSelect
-from level import Level
-from inputmanager import InputManager
 from imagemanager import ImageManager
-from render.renderer import Renderer
+from inputmanager import InputManager
+from level import Level
+from levelselect import LevelSelect
+from menu import Menu
 from render.rendercontext import RenderContext
+from render.renderer import Renderer
+from scene import Scene
+from soundmanager import SoundManager
 
 if USE_OPENGL:
     from render.opengl_renderer import OpenGLRenderer
@@ -35,6 +36,7 @@ class Game:
     def __init__(self, args: Args):
         pygame.init()
         pygame.display.set_caption('purpy')
+        pygame.mouse.set_visible(False)
 
         destination = self.compute_scaled_buffer_dest()
         window = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
@@ -53,7 +55,8 @@ class Game:
         self.sounds = SoundManager()
         self.frame = 0
 
-        self.scene = LevelSelect(None, 'assets/levels', self.images)
+        # self.scene = LevelSelect(None, 'assets/levels', self.images)
+        self.scene = Menu('assets/menus/start.tmx', None, None, self.images)
 
     def compute_scaled_buffer_dest(self) -> pygame.Rect:
         target_aspect_ratio = RENDER_WIDTH / RENDER_HEIGHT
@@ -73,7 +76,7 @@ class Game:
 
         # Update the actual game logic.
         snapshot = self.inputs.update(self.frame)
-        self.scene = self.scene.update(snapshot, self.sounds)
+        self.scene = self.scene.update(snapshot, self.images, self.sounds)
         self.frame += 1
 
         if self.scene is None:
@@ -100,6 +103,8 @@ class Game:
                           pygame.JOYAXISMOTION | pygame.JOYHATMOTION |
                           pygame.JOYDEVICEADDED | pygame.JOYDEVICEREMOVED):
                         self.inputs.handle_joystick_event(event)
+                    case (pygame.MOUSEMOTION | pygame.MOUSEBUTTONUP | pygame.MOUSEBUTTONDOWN):
+                        self.inputs.handle_mouse_event(event)
 
             if not self.update():
                 game_running = False

@@ -212,6 +212,10 @@ class MapObjectProperties:
     dy: int
     # Warp zones
     warp: str | None
+    # UI
+    uibutton: bool
+    label: str
+    action: str | None
 
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
@@ -244,14 +248,19 @@ class MapObjectProperties:
         self.warp = get_str(map, 'warp')
         self.dx = get_int(map, 'dx', 0)
         self.dy = get_int(map, 'dy', 0)
+        self.uibutton = get_bool(map, 'uibutton', False)
+        self.action = get_str(map, 'action')
+        self.label = get_str(map, 'label', '')
 
 
 class MapProperties:
     raw: dict[str, str | bool | int]
     dark: bool
     gravity: int | None
+    cancel_action: str
 
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
         self.dark = get_bool(map, 'dark', False)
         self.gravity = get_int(map, 'gravity')
+        self.cancel_action = get_str(map, 'cancel_action', 'pop')
