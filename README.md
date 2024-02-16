@@ -11,8 +11,6 @@ purpy
 
 ## TODO
 * Implement saving which stars you have.
-* Implement better menus.
-* Improve controls.
 
 ## Making Levels
 
@@ -163,15 +161,21 @@ Doors let the player travel to other levels. A door object only specifies the up
 `Background` layers are images that are rendered behind all the tile layers.
 
 ## Menus
-* `string cancel_action`
+
+Menu screens are designed similarly to levels, as TMX files. However, the supported properties and objects are different.
+
+* `string cancel_action` - A string describing what to do when the back or cancel button is pressed. See `action` below.
 
 ### UI Buttons
-* `bool uibutton`
-* `string label`
-* `string action`
-  * `menu:<path>`
-  * `level:<path>`
-  * `levelselect:<path>`
-  * `pop`
-  * `pop2`
-  * `reload`
+
+Rectangle objects can be marked as buttons, which can be clicked to navigate between menus or levels.
+
+* `bool uibutton` - Marks this rectangle as a button.
+* `string label` - What text to write on the button. Defaults to the empty string.
+* `string action` - Where to go when the button is clicked. Scenes in the game are organized in a stack. Actions can cause new scenes to be added to that stack or removed from it.
+  * `menu:<path>` - Pushes the specified menu onto the stack.
+  * `level:<path>` - Pushes the specified level onto the stack.
+  * `levelselect:<path>` - Pushes a text-based level-select screen onto the stack, for the given directory.
+  * `pop` - Pops one scene off the stack. For example, a menu going back to a previous menu.
+  * `pop2` - Pops two scenes off the stack. For example, a pause screen giving up on a level and going back to the menu.
+  * `reload` - Reloads a specific level. The level must've been specified in code when the menu was created. This is used for pause and death screens.
