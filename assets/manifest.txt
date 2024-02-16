@@ -1,5 +1,6 @@
 levels/**/*.TMX
 levels/**/*.tmx
+menus/**/*.tmx
 sounds/**/*.wav
 sprites/skelly2_states.txt
 *.tsx
