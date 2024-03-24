@@ -11,8 +11,6 @@ purpy
 
 ## TODO
 * Implement saving which stars you have.
-* Implement better menus.
-* Improve controls.
 
 ## Making Levels
 
@@ -20,8 +18,9 @@ Maps are edited using [Tiled](https://www.mapeditor.org/). In general, maps can 
 
 Several different layer types are supported. `Background` and `Tile` layers are rendered bottom-to-top. `Object` layers are handled using separate logic.
 
-*Properties*
+*Map Properties*
 * `bool dark` - If this is set to `true`, then the level will be dark, except where the player and stars are.
+* `int gravity` - Custom gravity, in 1/32 pixels. Defaults to 64.
 
 ## Tile Layers
 
@@ -36,13 +35,8 @@ Each tile in a tile layer can have certain properities that affect its rendering
 
 *Properties*
 * `bool solid` - If this is present and set to `false`, then the player can pass through the tile from any direction. Defaults to `true`.
-
-### Animated Tiles
-
-Tiles in a tileset (`.tsx` file) can be overridden with animated versions of some tiles. This is done by setting a path to a directory containing the animations. Each file in the directory should be a `.png` named with the tile id to replace. For example, `123.png` would replace the rendering for tile id `123`. The `.png` should have a single row of `8x8` images, with no padding.
-
-*Properties*
-* `string animations` - The path to the directory with the animations, relative to the `.tsx` file.
+* `int hitbox_top, hitbox_left, hitbox_right, hitbox_bottom` - How much to offset the hitbox for this tile from each side in pixels. Defaults to `0`.
+* `string animation` - If this is present, it is a path to a png containing an animation where each frame is 8x8 pixels, in a single row, with no padding. This animation replaces the normal tile graphic when rendering.
 
 ### Spikes
 
@@ -70,6 +64,23 @@ Switch blocks are buttons that change other blocks when the player lands on them
 ## Object Layers
 
 `Object` layers are used to add objects that don't neatly fit into the tile grid.
+
+### Custom Spawn Points
+
+A point can be added with properties to define where and how the player spawns. Only one spawn point should be added to a map.
+
+*Properties*
+* `bool spawn` - If true, this point is the spawn point.
+* `bool facing_left` - If true, start the player facing left. Otherwise, the player will start facing right.
+* `int dx` - The initial x velocity of the player, in pixels. Defaults to 0.
+* `int dy` - The initial y velocity of the player, in pixels. Defaults to 0. Negative values mean up.
+
+### Warp Zones
+
+A rectangle that causes the player to be sent to another level, like a door.
+
+*Properties*
+* `string warp` - If present, this is the path of the map the player will be sent to. Similar to door's destination.
 
 ### Preferred Viewports
 
@@ -149,3 +160,22 @@ Doors let the player travel to other levels. A door object only specifies the up
 
 `Background` layers are images that are rendered behind all the tile layers.
 
+## Menus
+
+Menu screens are designed similarly to levels, as TMX files. However, the supported properties and objects are different.
+
+* `string cancel_action` - A string describing what to do when the back or cancel button is pressed. See `action` below.
+
+### UI Buttons
+
+Rectangle objects can be marked as buttons, which can be clicked to navigate between menus or levels.
+
+* `bool uibutton` - Marks this rectangle as a button.
+* `string label` - What text to write on the button. Defaults to the empty string.
+* `string action` - Where to go when the button is clicked. Scenes in the game are organized in a stack. Actions can cause new scenes to be added to that stack or removed from it.
+  * `menu:<path>` - Pushes the specified menu onto the stack.
+  * `level:<path>` - Pushes the specified level onto the stack.
+  * `levelselect:<path>` - Pushes a text-based level-select screen onto the stack, for the given directory.
+  * `pop` - Pops one scene off the stack. For example, a menu going back to a previous menu.
+  * `pop2` - Pops two scenes off the stack. For example, a pause screen giving up on a level and going back to the menu.
+  * `reload` - Reloads a specific level. The level must've been specified in code when the menu was created. This is used for pause and death screens.

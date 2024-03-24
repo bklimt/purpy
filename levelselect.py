@@ -1,16 +1,18 @@
 
 import os
 
+# Import the whole module to avoid a circular reference.
+import level
+
 from imagemanager import ImageManager
 from inputmanager import InputSnapshot
-from level import Level
 from render.rendercontext import RenderContext
 from scene import Scene
 from soundmanager import SoundManager
 
 
 class LevelSelect:
-    parent: Scene | None
+    previous: Scene | None
     directory: str
     files: list[str]
     current: int
@@ -18,15 +20,18 @@ class LevelSelect:
     images: ImageManager
 
     def __init__(self, parent: Scene | None, directory: str, images: ImageManager):
-        self.parent = parent
+        self.previous = parent
         self.directory = os.path.normpath(directory)
         self.current = 0
         self.files = sorted(os.listdir(directory))
         self.images = images
 
-    def update(self, inputs: InputSnapshot, sounds: SoundManager) -> Scene | None:
+    def parent(self) -> Scene | None:
+        return self.previous
+
+    def update(self, inputs: InputSnapshot, images: ImageManager, sounds: SoundManager) -> Scene | None:
         if inputs.cancel:
-            return self.parent
+            return self.previous
         if inputs.menu_up:
             self.current = (self.current - 1) % len(self.files)
         if inputs.menu_down:
@@ -36,7 +41,7 @@ class LevelSelect:
             if os.path.isdir(new_path):
                 return LevelSelect(self, new_path, self.images)
             else:
-                return Level(self, new_path, self.images)
+                return level.Level(self, new_path, self.images)
         return self
 
     def draw(self, context: RenderContext, images: ImageManager) -> None:

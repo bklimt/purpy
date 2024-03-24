@@ -4,9 +4,9 @@ import os.path
 import pygame
 import xml.etree.ElementTree
 
-from constants import SUBPIXELS
+from constants import SUBPIXELS, MAX_GRAVITY
 from imagemanager import ImageManager
-from properties import get_bool, load_properties, set_defaults, MapObjectProperties, TileProperties
+from properties import load_properties, set_defaults, MapObjectProperties, MapProperties, TileProperties
 from render.rendercontext import RenderContext
 from render.spritebatch import SpriteBatch
 from slope import Slope
@@ -125,19 +125,24 @@ class TileMap:
     height: int
     tilewidth: int
     tileheight: int
-    backgroundcolor: str
+    backgroundcolor: pygame.Color
     tilesets: TileSetList
     layers: list[ImageLayer | TileLayer]
     player_layer: int | None
     objects: list[MapObject]
-    properties: dict[str, str | int | bool]
+    properties: MapProperties
 
     def __init__(self, root: xml.etree.ElementTree.Element, path: str, images: ImageManager):
         self.width = int(root.attrib['width'])
         self.height = int(root.attrib['height'])
         self.tilewidth = int(root.attrib['tilewidth'])
         self.tileheight = int(root.attrib['tileheight'])
-        self.backgroundcolor = root.attrib.get('backgroundcolor', '#000000')
+
+        bgcolor = root.attrib.get('backgroundcolor', '#000000')
+        if len(bgcolor) == 9 and bgcolor[0] == '#':
+            # Tiled put alpha at the beginning, so swap it to the end.
+            bgcolor = '#' + bgcolor[3:] + bgcolor[1:3]
+        self.backgroundcolor = pygame.Color(bgcolor)
 
         self.tilesets = TileSetList()
         for ts in root:
@@ -150,7 +155,7 @@ class TileMap:
             tileset = load_tileset(tileset_path, firstgid, images)
             self.tilesets.add(tileset)
 
-        self.properties = load_properties(root)
+        self.properties = MapProperties(load_properties(root))
         print(f'map properties: {self.properties}')
 
         self.layers = []
@@ -179,7 +184,7 @@ class TileMap:
 
     @property
     def is_dark(self) -> bool:
-        return get_bool(self.properties, 'dark', False)
+        return self.properties.dark
 
     def is_condition_met(self, tileset: TileSet, tile_id: int, switches: SwitchState):
         condition = tileset.get_tile_properties(tile_id).condition
@@ -287,13 +292,14 @@ class TileMap:
                 # If it's off the right/bottom side, trim it.
                 pos_right = pos_x + self.tilewidth
                 if pos_right >= dest.right:
-                    source.width = source.width - (pos_right - dest.right)
+                    source.width = source.width - \
+                        (pos_right - dest.right) // SUBPIXELS
                 if source.width <= 0:
                     continue
                 pos_bottom = pos_y + self.tileheight
                 if pos_bottom >= dest.bottom:
                     source.height = source.height - \
-                        (pos_bottom - dest.bottom)
+                        (pos_bottom - dest.bottom) // SUBPIXELS
                 if source.height <= 0:
                     continue
 
@@ -486,6 +492,12 @@ class TileMap:
                         result.consider_tile(
                             tile_gid, hard_offset, soft_offset, direction)
         return result
+
+    def get_gravity(self):
+        if self.properties.gravity is None:
+            return MAX_GRAVITY
+        else:
+            return self.properties.gravity
 
     def get_preferred_view(self, player_rect: pygame.Rect) -> tuple[int | None, int | None]:
         preferred_x: int | None = None

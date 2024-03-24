@@ -1,8 +1,4 @@
 
-# Speed Tests.
-PLAYBACK_PATH: str | None = None  # '/home/bklimt/Desktop/purpy_input5.txt'
-SPEED_TEST: bool = False
-
 # Basic window and render size.
 WINDOW_WIDTH = 1600
 WINDOW_HEIGHT = 900
@@ -33,9 +29,8 @@ COYOTE_TIME = 6       # How long to hover in the air before officially falling.
 JUMP_GRACE_TIME = 12  # How long to remember jump was pressed while falling.
 JUMP_INITIAL_SPEED = 48 * SUBPIXELS//16
 JUMP_ACCELERATION = 2 * SUBPIXELS//16
-JUMP_MAX_GRAVITY = 32 * SUBPIXELS//16
 FALL_ACCELERATION = 5 * SUBPIXELS//16
-FALL_MAX_GRAVITY = 32 * SUBPIXELS//16
+MAX_GRAVITY = 64
 
 # Wall sliding.
 WALL_SLIDE_SPEED = 4 * SUBPIXELS//16

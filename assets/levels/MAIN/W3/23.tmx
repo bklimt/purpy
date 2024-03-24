@@ -211,7 +211,7 @@
   <object id="75" gid="193" x="616" y="120" width="8" height="8"/>
   <object id="76" gid="241" x="24" y="320" width="8" height="8">
    <properties>
-    <property name="destination" value="assets/levels/main/Warp zone.tmx"/>
+    <property name="destination" value="assets/levels/MAIN/Warp zone.tmx"/>
    </properties>
   </object>
  </objectgroup>

@@ -96,6 +96,7 @@ def set_defaults(dst: dict[str, bool | int | str], src: dict[str, bool | int | s
 class TileProperties:
     raw: dict[str, str | bool | int]
     solid: bool
+    animation: str | None
     alternate: int | None
     condition: str | None
     oneway: str | None
@@ -112,6 +113,7 @@ class TileProperties:
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
         self.solid = get_bool(map, 'solid', True)
+        self.animation = get_str(map, 'animation')
         self.alternate = get_int(map, 'alternate')
         self.condition = get_str(map, 'condition')
         self.oneway = get_str(map, 'oneway')
@@ -128,11 +130,9 @@ class TileProperties:
 
 class TileSetProperties:
     raw: dict[str, str | bool | int]
-    animations: str | None
 
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
-        self.animations = get_str(map, 'animations')
 
 
 class Overflow(Enum):
@@ -208,8 +208,14 @@ class MapObjectProperties:
     stars_needed: int
     # Spawn points
     facing_left: bool
+    dx: int
+    dy: int
     # Warp zones
     warp: str | None
+    # UI
+    uibutton: bool
+    label: str
+    action: str | None
 
     def __init__(self, map: dict[str, str | bool | int]):
         self.raw = map
@@ -236,7 +242,25 @@ class MapObjectProperties:
             get_str(map, 'button_type', 'toggle'))
         self.color = get_str(map, 'color')
         self.sprite = get_str(map, 'sprite')
-        self.destination = get_str(map, 'direction')
+        self.destination = get_str(map, 'destination')
         self.stars_needed = get_int(map, 'stars_needed', 0)
         self.facing_left = get_bool(map, 'facing_left', False)
         self.warp = get_str(map, 'warp')
+        self.dx = get_int(map, 'dx', 0)
+        self.dy = get_int(map, 'dy', 0)
+        self.uibutton = get_bool(map, 'uibutton', False)
+        self.action = get_str(map, 'action')
+        self.label = get_str(map, 'label', '')
+
+
+class MapProperties:
+    raw: dict[str, str | bool | int]
+    dark: bool
+    gravity: int | None
+    cancel_action: str
+
+    def __init__(self, map: dict[str, str | bool | int]):
+        self.raw = map
+        self.dark = get_bool(map, 'dark', False)
+        self.gravity = get_int(map, 'gravity')
+        self.cancel_action = get_str(map, 'cancel_action', 'pop')
